@@ -17,12 +17,12 @@ export const CRISIS_NOTICE = {
 export const EDUCATIONAL_NOTICE =
   'Msquared is educational. It doesn’t diagnose, treat, or replace an evaluation by a healthcare professional.';
 
-export const FREE_TEXT_REMINDER = 'Type or tap Speak. Please leave out names and contact details.';
+export const FREE_TEXT_REMINDER = 'Written answers are optional. Type or tap Speak, and leave out names.';
 
 /** Optional open step after the 6 intake questions. Saved for the research team (see consent). */
 export const OWN_WORDS = {
-  label: 'Is there anything else you’d like your care map to reflect? (optional)',
-  hint: 'In your own words: what’s been happening, what you’ve tried, or what you most want to understand. Type or tap Speak. Please leave out names and contact details.',
+  label: 'Anything else your care map should reflect? (optional)',
+  hint: 'What’s happening, what you’ve tried, or what you want to understand. Type or tap Speak. Leave out names.',
 };
 
 /** Follow-up shown only after a rating is chosen. */
@@ -41,8 +41,15 @@ export const MEASURES = {
   },
   nextStep: {
     label: 'What, if anything, do you think your next step should be? Why? (optional)',
-    hint: '“I’m not sure” is a fine answer. Type or tap Speak. Please leave out names and contact details.',
+    hint: '“I’m not sure” is fine. Type or tap Speak.',
   },
+};
+
+/** Short labels for the route map's "You are here" stop. */
+export const PATH_SHORT = {
+  1: 'Not sure who to see',
+  2: 'Not sure whose advice to trust',
+  3: 'Not sure what comes next',
 };
 
 /** Plain-language obstacle (section B) and 1–2 questions per path. */

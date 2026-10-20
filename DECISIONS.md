@@ -6,6 +6,26 @@
 - **20 testers** instead of 10. Nothing in the app caps sessions; P-codes P01–P99 are accepted.
 - **English only.**
 
+## H2 measured at the moment of explanation (Oct 20, 2026)
+Problem: H2 says people rely on an option more when they understand *why it appears* and can inspect evidence. The old build only measured trust once, at the end, so it couldn't link trust to the explanations, and most testers might never open them.
+Fix (still one explained version, no A/B):
+- On each option card, before the explanation: **“Would you bring this up with a clinician?”** Likely / Not sure / Unlikely (`rely_<option>`).
+- Inside “See why this may be relevant”: **“After reading this, are you more or less likely to bring it up?”** More likely / No change / Less likely (`rely_change_<option>`).
+- Events `option_rated` and `option_rerated` (with times), next to `care_option_expanded`, `evidence_opened` and `source_clicked`.
+
+How to read H2 now:
+| Question | Data |
+|---|---|
+| Do people open the explanations? | `care_option_expanded`, `evidence_opened`, `source_clicked` |
+| Did reading why change willingness to rely? | `rely_change_*` among those who opened it; compare with `rely_*` |
+| Do they act on the map? (spec primary) | `decision_choice` + `decision_reason` |
+| Threshold: trust 6+ with a concrete reason | `trust_post` + `trust_reason` |
+Limits: self-selection (who opens explanations) and possible demand effects from asking twice. Report as within-person change, not a causal effect.
+
+## Map as a route and shorter copy (Oct 20, 2026)
+- The care map opens with a route: You are here, three unranked conversations, your next conversation. Sections down the page are stops on a rail. Tapping a stop scrolls to it.
+- Copy shortened on every screen; one privacy line per form instead of a hint under every box.
+
 ## Optional depth and voice (Oct 20, 2026)
 Problem: answers were mostly numbers, but the team needs richer explanations without tiring testers.
 Approach: quick by default, depth on demand. Evidence: voice answers in smartphone surveys are longer and faster but raise nonresponse when they replace typing, so voice is offered beside typing, never instead of it ([ISR Michigan](https://api.isr.umich.edu/?p=198893), [Survey Practice](https://www.surveypractice.org/article/2713-giving-respondents-voice-the-feasibility-of-voice-input-for-mobile-web-surveys)). Constant progress bars don't reduce breakoff; fast-early/slow-later does, so taps stay first and open questions come last ([Villar, Callegaro and Yang 2013](https://research.google/pubs/where-am-i-a-meta-analysis-of-experiments-on-the-effects-of-progress-indicators-for-web-surveys/)).

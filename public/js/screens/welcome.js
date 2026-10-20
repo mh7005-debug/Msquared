@@ -37,28 +37,23 @@ export function renderWelcome(main, { navigate }) {
     'form',
     { class: 'sheet', novalidate: true, 'aria-labelledby': 'begin-h' },
     el('h2', { id: 'begin-h' }, 'Before you begin'),
-    el('p', { class: 'muted small' }, 'How your information is used'),
+    el('p', { class: 'muted small' }, 'How we use your information'),
     el(
       'ul',
       { class: 'data-list' },
-      dataPoint('We save your ratings, the path you choose, short optional answers, and which parts of the map you open. They’re linked to a random session code, not your name.'),
-      dataPoint('The answers you tap about your cycle and care history stay on this device and aren’t saved. They’re cleared when you close the tab.'),
-      dataPoint('Anything you choose to write or say in your own words is saved for the research team, linked to your session code. Please leave out names and contact details.'),
-      voiceSupported
-        ? dataPoint('If you use Speak, your browser’s speech service (Apple or Google) turns your voice into text. We receive only the text. No audio is saved.')
-        : null,
-      config.aiEnabled
-        ? dataPoint('If you type an answer instead of choosing one, it’s sent to our AI provider (Anthropic) to be understood, then discarded.')
-        : null,
-      dataPoint('Our hosting provider keeps standard visit logs, such as IP address, for a short time. That’s why we call this non-identifying rather than anonymous.'),
-      dataPoint(`Data is used only for our class research project and deleted by ${STUDY.retention}. You can stop at any time.`),
+      dataPoint('We save your ratings, choices, and anything you write or say, linked to a random code. Never your name.'),
+      dataPoint('Answers you tap about your cycle stay on this device.'),
+      voiceSupported ? dataPoint('Speak uses your browser’s speech service (Apple or Google). We get text only, never audio.') : null,
+      config.aiEnabled ? dataPoint('Typed chat answers go to our AI provider (Anthropic) to be understood, then are discarded.') : null,
+      dataPoint('Our host keeps short-term visit logs (like IP address), so this is non-identifying, not anonymous.'),
+      dataPoint(`For our class research only. Deleted by ${STUDY.retention}. You can stop anytime.`),
     ),
     el('hr', { class: 'divider' }),
     el(
       'div',
       { class: 'field' },
       el('label', { class: 'field-label', for: 'tester-code' }, 'Study code (optional)'),
-      el('p', { class: 'hint', id: 'tester-hint' }, 'Only if your study moderator gave you one.'),
+      el('p', { class: 'hint', id: 'tester-hint' }, 'From your moderator, if you have one.'),
       codeInput,
     ),
     el('label', { class: 'check', for: 'adult' }, adultBox, el('span', {}, 'I’m 18 or older.')),
@@ -109,9 +104,9 @@ export function renderWelcome(main, { navigate }) {
         el(
           'ul',
           { class: 'trust-list', 'aria-label': 'About Msquared' },
-          trust('book', 'Grounded in published guidance', 'Explanations cite guidance from professional medical societies.'),
-          trust('lock', 'No account needed', 'We never ask for your name or contact details.'),
-          trust('shield', 'Educational, not a diagnosis', 'It helps you prepare for a conversation with a clinician.'),
+          trust('book', 'Evidence-based', 'Cites medical society guidance.'),
+          trust('lock', 'No account', 'We never ask your name.'),
+          trust('shield', 'Educational', 'Not a diagnosis.'),
         ),
       ),
       el(
@@ -121,9 +116,9 @@ export function renderWelcome(main, { navigate }) {
         el(
           'ol',
           { class: 'timeline' },
-          el('li', {}, el('strong', {}, 'Tell us where you’re stuck'), 'Tap through in about 2 minutes, or add more in your own words.'),
-          el('li', {}, el('strong', {}, 'Explore your care map'), 'Professional roles, sources, and questions to ask.'),
-          el('li', {}, el('strong', {}, 'Prepare for a conversation'), 'Take a summary to your next appointment.'),
+          el('li', {}, el('strong', {}, 'Tell us where you’re stuck'), 'About 2 minutes.'),
+          el('li', {}, el('strong', {}, 'Explore your care map'), 'Roles, sources, questions.'),
+          el('li', {}, el('strong', {}, 'Prepare for a conversation'), 'A summary for your visit.'),
         ),
       ),
       config.storageReady

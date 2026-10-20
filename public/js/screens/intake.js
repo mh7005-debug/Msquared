@@ -37,7 +37,7 @@ export function renderIntake(main, { navigate }) {
     el(
       'p',
       { class: 'lede' },
-      'Up to 6 short questions. There are no right or wrong answers, and you can change any answer before you continue.',
+      'Up to 6 quick taps. You can change any answer.',
     ),
     el('div', { class: 'progress' }, el('div', { class: 'progress-bar', 'aria-hidden': 'true' }, progressFill), progressLabel),
     transcript,
@@ -225,7 +225,6 @@ export function renderIntake(main, { navigate }) {
     });
     card.replaceChildren(
       el('h2', { class: 'q-title', id: 'q-title', tabindex: '-1' }, 'That’s everything we need'),
-      el('p', { class: 'muted' }, 'Check your answers above and edit any of them. If you’d like to add more, you can do it here.'),
       textField({ ...OWN_WORDS, key: 'own_words', value: state.ownWords, onInput: (v) => ((state.ownWords = v), save()) }),
       el('div', { class: 'actions' }, go),
     );

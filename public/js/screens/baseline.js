@@ -37,7 +37,7 @@ export function renderBaseline(main, { navigate }) {
 
   main.append(
     el('h1', {}, 'Where are you right now?'),
-    el('p', { class: 'lede' }, 'Three quick questions before we start, so we can compare before and after. There are no right or wrong answers. Answer briefly or in as much detail as you like.'),
+    el('p', { class: 'lede' }, 'Three quick questions, so we can compare before and after. No right answers.'),
     form,
   );
 }

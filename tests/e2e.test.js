@@ -123,8 +123,14 @@ test('complete flow on each path with distinct emphasis, saved pre/post and even
     if (path === 3) assert.equal(await page.locator('.option-card.emph').count(), 1, 'path 3 highlights coordination');
     assert.equal(await page.locator('.option-card').count(), 3, 'same three cards on every path');
 
+    // route map: three branches, one per option
+    assert.equal(await page.locator('.route-stop').count(), 3, 'route shows three conversations');
+    // H2: rate an option before reading why, then say whether the explanation changed it
+    const card = page.locator('.option-card').first();
+    await card.locator('.chip', { hasText: 'Not sure' }).click();
     // accordion + evidence + source link
     await page.locator('.option-card').first().locator('summary', { hasText: 'relevant' }).click();
+    await card.locator('.why .chip', { hasText: 'More likely' }).click();
     assert.equal(await page.locator('.option-card').first().locator('details').first().getAttribute('open'), '');
     await page.locator('.option-card').nth(1).locator('summary', { hasText: 'evidence' }).click();
     const link = page.locator('.option-card').nth(1).locator('.source a').first();
@@ -143,7 +149,7 @@ test('complete flow on each path with distinct emphasis, saved pre/post and even
     await page.click('button:has-text("Continue to feedback")');
     assert.match(await page.locator('[role=alert]').last().textContent(), /Choose one option/);
     await page.check('input[name=decision][value=use]');
-    await page.fill('label:has-text("What led you") + p + textarea', 'The sources helped');
+    await page.getByLabel(/What led you/).fill('The sources helped');
     await page.click('button:has-text("Continue to feedback")');
     await page.waitForURL('**/feedback');
     const scales = page.locator('.likert-scale');
@@ -160,8 +166,13 @@ test('complete flow on each path with distinct emphasis, saved pre/post and even
   for (const code of ['P11', 'P12', 'P13']) assert.match(sessions, new RegExp(`${code},`));
   assert.match(sessions, /,2,3,/, 'baseline saved');
   assert.match(sessions, /The sources helped/);
+  const head = sessions.split('\r\n')[0].split(',');
+  const p11 = sessions.split('\r\n').find((l) => l.startsWith(sessions.split('\r\n').find((x) => x.includes('P11,')).split(',')[0]));
+  const cols = Object.fromEntries(head.map((h, i) => [h, p11.split(',')[i]]));
+  assert.equal(cols.rely_primary_obgyn, 'unsure', 'H2 before-rating saved');
+  assert.equal(cols.rely_change_primary_obgyn, 'more', 'H2 after-explanation change saved');
   const events = await exportCsv('events');
-  for (const name of ['options_shown', 'path_selected', 'map_viewed', 'care_option_expanded', 'evidence_opened', 'source_clicked', 'summary_copied', 'decision_selected', 'feedback_submitted', 'session_completed']) {
+  for (const name of ['options_shown', 'option_rated', 'option_rerated', 'path_selected', 'map_viewed', 'care_option_expanded', 'evidence_opened', 'source_clicked', 'summary_copied', 'decision_selected', 'feedback_submitted', 'session_completed']) {
     assert.match(events, new RegExp(name), `${name} logged`);
   }
   assert.doesNotMatch(events + sessions, /My period is absent|over6|Over 6 months/, 'tapped intake answers never stored');

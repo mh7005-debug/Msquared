@@ -1299,3 +1299,217 @@ select:focus {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- Route map (overview) ---------- */
+.route-map {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  padding: 22px 12px 20px;
+  margin: 0 0 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.route-end-node {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2px;
+  font: inherit;
+  color: var(--ink);
+}
+.route-end-node strong {
+  font-size: 0.98rem;
+  margin-top: 6px;
+}
+.route-end-node span:last-child {
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+.route-node {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+.route-node .icon {
+  width: 20px;
+  height: 20px;
+}
+.route-end-node.start .route-node {
+  background: var(--rose);
+}
+.route-end-node.end .route-node {
+  background: var(--navy);
+}
+.route-lines {
+  display: block;
+  width: 100%;
+  height: 32px;
+  margin: 6px 0;
+}
+.route-lines path {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 2;
+  stroke-dasharray: 5 5;
+}
+.route-lines path.hl {
+  stroke: var(--rose);
+  stroke-dasharray: none;
+}
+.route-branches {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.route-stop {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0 2px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  font: 600 0.88rem/1.3 var(--sans);
+  color: var(--ink);
+}
+.route-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 3px solid var(--navy);
+  background: var(--paper);
+}
+.route-stop.hl .route-dot {
+  border-color: var(--rose);
+  background: var(--rose-soft);
+}
+.route-stop:hover span:last-child,
+.route-end-node:hover strong {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------- Route rail (stops down the page) ---------- */
+.route-rail {
+  position: relative;
+  padding-left: 36px;
+}
+.route-rail::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 12px;
+  bottom: 24px;
+  border-left: 2px dashed var(--line-strong);
+}
+.stop {
+  position: relative;
+}
+.stop-marker {
+  position: absolute;
+  left: -36px;
+  top: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 3px solid var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+.stop.card > .stop-marker,
+.stop.note-card > .stop-marker {
+  left: -37px;
+  top: 22px;
+}
+.stop-marker.pin {
+  background: var(--rose);
+  border-color: var(--rose);
+}
+.stop-marker.flag {
+  background: var(--navy);
+}
+.stop-marker .icon {
+  width: 14px;
+  height: 14px;
+}
+@media (max-width: 420px) {
+  .route-rail {
+    padding-left: 30px;
+  }
+  .route-rail::before {
+    left: 9px;
+  }
+  .stop-marker {
+    left: -30px;
+    width: 20px;
+    height: 20px;
+  }
+  .stop.card > .stop-marker,
+  .stop.note-card > .stop-marker {
+    left: -31px;
+  }
+}
+
+/* ---------- Quick-tap questions on option cards (H2) ---------- */
+.chip-q {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 14px;
+  margin-top: 16px;
+}
+.chip-label {
+  font-size: 0.93rem;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+.chips {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.chip {
+  appearance: none;
+  min-height: 44px;
+  padding: 8px 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font: 600 0.9rem/1.2 var(--sans);
+  cursor: pointer;
+}
+.chip:hover {
+  border-color: var(--navy);
+}
+.chip[aria-checked='true'] {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #ffffff;
+}
+.disclosure.why summary {
+  color: var(--teal);
+}
+.why .chip-q {
+  background: var(--teal-soft);
+  border-color: #cfe5e5;
+}

@@ -33,12 +33,12 @@ export function renderFeedback(main, { navigate }) {
   const safetyDetail = el(
     'div',
     { hidden: f.safety !== 'yes' },
-    textField({ label: 'What seemed misleading, too certain, or unsafe? (optional)', hint: FREE_TEXT_REMINDER, value: f.safetyText, onInput: set('safetyText') }),
+    textField({ label: 'What seemed misleading, too certain, or unsafe? (optional)', value: f.safetyText, onInput: set('safetyText') }),
   );
   const quoteBox = el(
     'div',
     { hidden: !f.quoteOk },
-    textField({ label: 'Anything you’d like us to quote? (optional)', hint: 'Shared without your name. ' + FREE_TEXT_REMINDER, value: f.quote, onInput: set('quote') }),
+    textField({ label: 'What may we quote? (optional)', hint: 'Shared without your name.', value: f.quote, onInput: set('quote') }),
   );
   const quoteCheck = el('input', { type: 'checkbox', id: 'quote-ok', checked: f.quoteOk });
   quoteCheck.addEventListener('change', () => {
@@ -49,11 +49,11 @@ export function renderFeedback(main, { navigate }) {
 
   // Optional "why" boxes open only after the rating is chosen: quick for some, room to expand for others.
   const clarityWhy = revealAfter(
-    textField({ label: WHY_RATING, hint: FREE_TEXT_REMINDER, key: 'clarity_reason', value: f.clarityReason, onInput: set('clarityReason') }),
+    textField({ label: WHY_RATING, key: 'clarity_reason', value: f.clarityReason, onInput: set('clarityReason') }),
     Boolean(f.clarity),
   );
   const trustWhy = revealAfter(
-    textField({ label: WHY_RATING, hint: FREE_TEXT_REMINDER, key: 'trust_reason', value: f.trustReason, onInput: set('trustReason') }),
+    textField({ label: WHY_RATING, key: 'trust_reason', value: f.trustReason, onInput: set('trustReason') }),
     Boolean(f.trust),
   );
   const rate = (k, why) => (v) => {
@@ -86,10 +86,9 @@ export function renderFeedback(main, { navigate }) {
       trustWhy.el,
       likert({ name: 'relevance_post', legend: 'How relevant was the care map to your situation?', low: 'Not at all relevant', high: 'Completely relevant', value: f.relevance, onChange: set('relevance') }),
       radioTiles({ name: 'helpful', legend: 'Which part, if any, was most useful?', options: helpfulOptions, value: f.helpful, onChange: set('helpful') }),
-      textField({ label: 'What, if anything, was confusing or missing? (optional)', hint: FREE_TEXT_REMINDER, key: 'missing_or_confusing', value: f.confusing, onInput: set('confusing') }),
+      textField({ label: 'Anything confusing or missing? (optional)', key: 'missing_or_confusing', value: f.confusing, onInput: set('confusing') }),
       textField({
-        label: 'For a similar question in the future, would you use Msquared, your usual way of looking for information, or both? Why? (optional)',
-        hint: FREE_TEXT_REMINDER,
+        label: 'Next time, would you use Msquared, your usual way, or both? Why? (optional)',
         key: 'prefers_msquared_stated',
         value: f.prefers,
         onInput: set('prefers'),
@@ -118,7 +117,7 @@ export function renderFeedback(main, { navigate }) {
     el(
       'div',
       { class: 'form-section' },
-      el('label', { class: 'check', for: 'quote-ok' }, quoteCheck, el('span', {}, 'You may quote my feedback, without my name, in our class presentation. Optional.')),
+      el('label', { class: 'check', for: 'quote-ok' }, quoteCheck, el('span', {}, 'You may quote me, without my name, in our class presentation (optional).')),
       quoteBox,
       el('div', { class: 'actions' }, submit),
       err,
@@ -163,7 +162,8 @@ export function renderFeedback(main, { navigate }) {
 
   main.append(
     el('h1', {}, 'How did that go?'),
-    el('p', { class: 'lede' }, 'There are no right answers. Critical feedback is just as useful to us as positive feedback.'),
+    el('p', { class: 'lede' }, 'No right answers. Critical feedback helps as much as praise.'),
+    el('p', { class: 'hint' }, FREE_TEXT_REMINDER),
     form,
   );
 }

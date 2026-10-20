@@ -1,7 +1,7 @@
 import { el, state, save, saveFields, track, textField, radioTiles, errorBox, showError, copyText, icon, stableOrder } from '../core.js';
 import { CARE_OPTIONS, ROLE_COMPARISON, KNOWN_VS_UNCERTAIN } from '../content/careOptions.js';
 import { getSource } from '../content/sources.js';
-import { UNRESOLVED, URGENT_NOTICE, FREE_TEXT_REMINDER } from '../content/copy.js';
+import { UNRESOLVED, URGENT_NOTICE, FREE_TEXT_REMINDER, PATH_SHORT } from '../content/copy.js';
 import { PATHS, optionLabel } from '../shared/intake.js';
 import { journeySummary, copySummary, sectionOrder } from '../shared/mapText.js';
 
@@ -11,17 +11,59 @@ const DECISIONS = {
   unsure: 'I’m still unsure what to do.',
 };
 
+const RELY = [
+  { value: 'likely', label: 'Likely' },
+  { value: 'unsure', label: 'Not sure' },
+  { value: 'unlikely', label: 'Unlikely' },
+];
+const RELY_CHANGE = [
+  { value: 'more', label: 'More likely' },
+  { value: 'same', label: 'No change' },
+  { value: 'less', label: 'Less likely' },
+];
+
 /** Path-based emphasis only. Never based on symptoms or duration. */
 const HIGHLIGHT = { 1: null, 2: null, 3: 'coordination' };
 
 const TODAY = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+const fieldKey = (id) => id.replace(/-/g, '_');
 
 function summaryRow(text) {
   return el('summary', {}, el('span', {}, text), icon('chevronDown', 'icon chev'));
 }
 
+/** A station on the route rail running down the page. */
+function stop(section, kind = 'dot') {
+  section.classList.add('stop');
+  section.prepend(el('span', { class: `stop-marker ${kind}`, 'aria-hidden': 'true' }, kind === 'pin' ? icon('pin') : kind === 'flag' ? icon('flag') : null));
+  return section;
+}
+
+/** Small segmented choice that saves as soon as it's tapped. */
+function chips({ label, options, value, onPick }) {
+  const group = el('div', { class: 'chips', role: 'radiogroup', 'aria-label': label });
+  const buttons = options.map((o) =>
+    el(
+      'button',
+      { class: 'chip', type: 'button', role: 'radio', 'aria-checked': value === o.value ? 'true' : 'false' },
+      o.label,
+    ),
+  );
+  buttons.forEach((b, i) =>
+    b.addEventListener('click', () => {
+      buttons.forEach((x) => x.setAttribute('aria-checked', 'false'));
+      b.setAttribute('aria-checked', 'true');
+      onPick(options[i].value);
+    }),
+  );
+  group.append(...buttons);
+  return el('div', { class: 'chip-q' }, el('p', { class: 'chip-label' }, label), group);
+}
+
 export function renderMap(main, { navigate }) {
   const m = (state.map = state.map || { decision: null, reason: '', missing: '', nextConversation: '' });
+  m.rely = m.rely || {};
+  m.relyChange = m.relyChange || {};
   if (!state.mapViewed) {
     state.mapViewed = true;
     save();
@@ -36,24 +78,81 @@ export function renderMap(main, { navigate }) {
     const pathId = state.pathId;
     root.className = `path-${pathId}`;
     const sections = {
-      journey: journeySection,
-      unresolved: unresolvedSection,
-      evidence: evidenceSection,
-      options: optionsSection,
-      compare: compareSection,
-      summary: summarySection,
-      decision: decisionSection,
+      journey: (p) => stop(journeySection(p), 'pin'),
+      unresolved: (p) => stop(unresolvedSection(p)),
+      evidence: (p) => stop(evidenceSection(p)),
+      options: (p) => stop(optionsSection(p)),
+      compare: (p) => stop(compareSection(p)),
+      summary: (p) => stop(summarySection(p)),
+      decision: (p) => stop(decisionSection(p), 'flag'),
     };
     root.append(
       el(
         'div',
         { class: 'map-head' },
         el('h1', {}, 'Your next-step care map'),
-        el('p', { class: 'prep-meta' }, `Prepared ${TODAY}. Educational information to discuss with a healthcare professional.`),
+        el('p', { class: 'prep-meta' }, `Prepared ${TODAY}. Educational, not medical advice.`),
         pathRow(),
       ),
-      ...sectionOrder(pathId).map((k) => sections[k](pathId)),
+      routeOverview(pathId),
+      el('div', { class: 'route-rail' }, ...sectionOrder(pathId).map((k) => sections[k](pathId))),
       el('div', { class: 'notice warn', role: 'note' }, icon('alert'), el('div', {}, el('strong', {}, URGENT_NOTICE.title), URGENT_NOTICE.body)),
+    );
+  }
+
+  function scrollToId(id) {
+    const t = document.getElementById(id);
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ---- Route overview: You are here -> three conversations -> your next conversation ----
+  function routeOverview(pathId) {
+    const lines = (from, to, flip) => {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 300 32');
+      svg.setAttribute('preserveAspectRatio', 'none');
+      svg.setAttribute('class', 'route-lines');
+      svg.setAttribute('aria-hidden', 'true');
+      [50, 150, 250].forEach((x, i) => {
+        const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        p.setAttribute('d', flip ? `M${x} 0 C${x} 16 150 16 150 32` : `M150 0 C150 16 ${x} 16 ${x} 32`);
+        p.setAttribute('vector-effect', 'non-scaling-stroke');
+        p.setAttribute('class', HIGHLIGHT[pathId] === CARE_OPTIONS[i].id ? 'hl' : '');
+        svg.append(p);
+      });
+      return svg;
+    };
+    return el(
+      'nav',
+      { class: 'route-map', 'aria-label': 'Your care map at a glance' },
+      el(
+        'button',
+        { class: 'route-end-node start', type: 'button', onclick: () => scrollToId('h-journey') },
+        el('span', { class: 'route-node' }, icon('pin')),
+        el('strong', {}, 'You are here'),
+        el('span', {}, PATH_SHORT[pathId]),
+      ),
+      lines(),
+      el(
+        'div',
+        { class: 'route-branches' },
+        CARE_OPTIONS.map((c) =>
+          el(
+            'button',
+            { class: `route-stop${HIGHLIGHT[pathId] === c.id ? ' hl' : ''}`, type: 'button', onclick: () => scrollToId(`opt-${c.id}`) },
+            el('span', { class: 'route-dot' }),
+            el('span', {}, c.shortRole),
+          ),
+        ),
+      ),
+      lines(null, null, true),
+      el(
+        'button',
+        { class: 'route-end-node end', type: 'button', onclick: () => scrollToId('h-dec') },
+        el('span', { class: 'route-node' }, icon('flag')),
+        el('strong', {}, 'Your next conversation'),
+        el('span', {}, 'You choose. Options aren’t ranked.'),
+      ),
     );
   }
 
@@ -115,7 +214,7 @@ export function renderMap(main, { navigate }) {
       pathId === 3 && seen.length
         ? el('div', {}, el('p', { class: 'small muted' }, 'Professionals you’ve seen'), el('ul', { class: 'pills' }, seen.map((s) => el('li', {}, s))))
         : null,
-      el('p', { class: 'small muted' }, 'Built only from the answers you chose. Nothing here is a diagnosis.'),
+      el('p', { class: 'small muted' }, 'Based only on your answers. Not a diagnosis.'),
     );
   }
 
@@ -172,12 +271,7 @@ export function renderMap(main, { navigate }) {
   function sourceLink(s, text, withIcon = true) {
     return el(
       'a',
-      {
-        href: s.url,
-        target: '_blank',
-        rel: 'noopener noreferrer',
-        onclick: () => track('source_clicked', s.id),
-      },
+      { href: s.url, target: '_blank', rel: 'noopener noreferrer', onclick: () => track('source_clicked', s.id) },
       text,
       withIcon ? icon('external') : null,
       el('span', { class: 'sr-only' }, ' (opens in a new tab)'),
@@ -189,19 +283,47 @@ export function renderMap(main, { navigate }) {
     return el(
       'section',
       { class: 'section', 'aria-labelledby': 'h-opts' },
-      el('h2', { id: 'h-opts' }, 'Professional conversations to consider'),
-      el('p', { class: 'section-intro' }, 'Everyone sees the same options. They aren’t ranked, and none of them is required.'),
+      el('h2', { id: 'h-opts' }, 'Conversations to consider'),
+      el('p', { class: 'section-intro' }, 'Not ranked. None is required.'),
       CARE_OPTIONS.map((c) => optionCard(c, pathId)),
     );
   }
 
   function optionCard(c, pathId) {
+    const key = fieldKey(c.id);
     const sources = c.sources.map((x) => ({ ...x, s: getSource(x.sourceId) })).filter((x) => x.s && x.s.verified);
+
+    // H2, step 1: willingness to rely on this option BEFORE reading why it appears.
+    const before = chips({
+      label: 'Would you bring this up with a clinician?',
+      options: RELY,
+      value: m.rely[c.id],
+      onPick: (v) => {
+        m.rely[c.id] = v;
+        save();
+        track('option_rated', `${c.id}:${v}`);
+        saveFields({ [`rely_${key}`]: v }).catch(() => {});
+      },
+    });
+
+    // H2, step 2: did the explanation and evidence change that?
+    const after = chips({
+      label: 'After reading this, are you more or less likely to bring it up?',
+      options: RELY_CHANGE,
+      value: m.relyChange[c.id],
+      onPick: (v) => {
+        m.relyChange[c.id] = v;
+        save();
+        track('option_rerated', `${c.id}:${v}`);
+        saveFields({ [`rely_change_${key}`]: v }).catch(() => {});
+      },
+    });
+
     const why = el(
       'details',
-      { class: 'disclosure' },
-      summaryRow(pathId === 2 ? 'Check why this may be relevant' : 'Why this may be relevant'),
-      el('div', { class: 'body' }, el('p', {}, c.whyRelevant)),
+      { class: 'disclosure why' },
+      summaryRow('See why this may be relevant'),
+      el('div', { class: 'body' }, el('p', {}, c.whyRelevant), after),
     );
     why.addEventListener('toggle', () => why.open && track('care_option_expanded', c.id));
 
@@ -217,13 +339,7 @@ export function renderMap(main, { navigate }) {
             'div',
             { class: 'source' },
             icon('book'),
-            el(
-              'div',
-              {},
-              el('span', { class: 'source-kind' }, 'Professional society guidance'),
-              sourceLink(s, s.title),
-              el('span', { class: 'meta' }, `${s.publisher}, ${s.year}`),
-            ),
+            el('div', {}, el('span', { class: 'source-kind' }, 'Professional society guidance'), sourceLink(s, s.title), el('span', { class: 'meta' }, `${s.publisher}, ${s.year}`)),
           ),
         ),
       ),
@@ -234,12 +350,13 @@ export function renderMap(main, { navigate }) {
 
     return el(
       'article',
-      { class: `card option-card${HIGHLIGHT[pathId] === c.id ? ' emph' : ''}`, 'aria-labelledby': `h-${c.id}` },
+      { class: `card option-card${HIGHLIGHT[pathId] === c.id ? ' emph' : ''}`, id: `opt-${c.id}`, 'aria-labelledby': `h-${c.id}` },
       HIGHLIGHT[pathId] === c.id ? el('span', { class: 'tag' }, 'Related to where you’re stuck') : null,
       el('h3', { id: `h-${c.id}` }, c.role),
       el('p', { class: 'summary' }, c.summary),
       el('p', { class: 'subhead' }, 'Questions to bring'),
       el('ul', { class: 'qlist' }, c.appointmentQuestions.map((q) => el('li', {}, q))),
+      before,
       why,
       sources.length ? evidence : null,
     );
@@ -256,13 +373,7 @@ export function renderMap(main, { navigate }) {
         'tbody',
         {},
         ROLE_COMPARISON.map((r) =>
-          el(
-            'tr',
-            {},
-            el('th', { scope: 'row' }, r.role),
-            el('td', { 'data-label': 'Can help discuss' }, r.helpsDiscuss),
-            el('td', { 'data-label': 'Often' }, r.often),
-          ),
+          el('tr', {}, el('th', { scope: 'row' }, r.role), el('td', { 'data-label': 'Can help discuss' }, r.helpsDiscuss), el('td', { 'data-label': 'Often' }, r.often)),
         ),
       ),
     );
@@ -271,7 +382,7 @@ export function renderMap(main, { navigate }) {
         'section',
         { class: 'section card emph', 'aria-labelledby': 'h-cmp' },
         el('h2', { id: 'h-cmp' }, 'Compare professional roles'),
-        el('p', { class: 'section-intro' }, 'General roles only. What fits you depends on your clinician’s evaluation.'),
+        el('p', { class: 'section-intro' }, 'General roles only.'),
         table,
       );
     }
@@ -299,7 +410,7 @@ export function renderMap(main, { navigate }) {
       'section',
       { class: `section${pathId === 3 ? ' card emph' : ''}`, 'aria-labelledby': 'h-sum' },
       el('h2', { id: 'h-sum' }, 'Your next-step summary'),
-      el('p', { class: 'section-intro' }, 'Copy this into your notes or bring it to an appointment. It includes anything you wrote in your own words, but not your other answers.'),
+      el('p', { class: 'section-intro' }, 'Bring this to your appointment.'),
       el('pre', { class: 'summary-box', tabindex: '0', 'aria-label': 'Summary text' }, text),
       el('div', { class: 'copy-row' }, btn, status),
     );
@@ -347,7 +458,7 @@ export function renderMap(main, { navigate }) {
       'section',
       { class: 'section card', 'aria-labelledby': 'h-dec' },
       el('h2', { id: 'h-dec' }, 'What would you do next?'),
-      el('p', { class: 'section-intro' }, 'This isn’t a medical recommendation or a commitment. Every answer is useful to us.'),
+      el('p', { class: 'section-intro' }, 'Not a medical recommendation. Every answer helps.'),
       radioTiles({
         name: 'decision',
         legend: 'Choose one',
@@ -360,9 +471,10 @@ export function renderMap(main, { navigate }) {
           track('decision_selected', v);
         },
       }),
-      textField({ label: 'What led you to that choice? (optional)', hint: FREE_TEXT_REMINDER, key: 'decision_reason', value: m.reason, onInput: (v) => ((m.reason = v), save()) }),
-      textField({ label: 'What information, if any, is missing? (optional)', hint: FREE_TEXT_REMINDER, key: 'map_missing_info', value: m.missing, onInput: (v) => ((m.missing = v), save()) }),
-      el('div', { class: 'field' }, el('label', { class: 'field-label', for: 'next-conv' }, 'Which professional conversation, if any, would you consider next? (optional)'), select),
+      el('p', { class: 'hint' }, FREE_TEXT_REMINDER),
+      textField({ label: 'What led you to that choice? (optional)', key: 'decision_reason', value: m.reason, onInput: (v) => ((m.reason = v), save()) }),
+      textField({ label: 'What information, if any, is missing? (optional)', key: 'map_missing_info', value: m.missing, onInput: (v) => ((m.missing = v), save()) }),
+      el('div', { class: 'field' }, el('label', { class: 'field-label', for: 'next-conv' }, 'Which conversation, if any, would you have next? (optional)'), select),
       el('div', { class: 'actions' }, next),
       err,
     );
