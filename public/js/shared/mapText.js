@@ -22,6 +22,7 @@ const TYPE_NAMES = {
   mental_health: 'a mental health professional',
 };
 const OUTCOMES = {
+  clear_plan: 'got a clear plan or answer',
   still_questions: 'still have unanswered questions',
   conflicting: 'heard advice that conflicts',
   referred: 'were referred onward',
@@ -46,7 +47,7 @@ export function journeySummary(answers) {
     sentences.push(`${CONCERN[answers.concern]}${DURATION[answers.duration] || ''}.`);
   }
   if (answers.prior === 'none') {
-    sentences.push('You haven’t talked with a professional about it yet.');
+    sentences.push('You haven’t talked with a healthcare professional about it.');
   } else if (answers.prior === 'one' || answers.prior === 'multiple') {
     const who = answers.prior === 'one' ? 'one professional' : 'more than one professional';
     const seen = professionalsSeen(answers);

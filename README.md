@@ -46,8 +46,10 @@ Or from a terminal: `MSQ_URL=https://YOUR-APP.vercel.app EXPORT_PASSWORD=... npm
 | Column | Meaning |
 |---|---|
 | `initial_path_id`, `path_id`, `path_changed` | Path chosen in the chat (1 where to start, 2 conflicting advice, 3 still stuck), final path, and whether they switched on the map |
-| `clarity_pre/post`, `trust_pre/post`, `relevance_post` | 1–7 ratings |
-| `next_step_pre`, `next_step_response` | Can they name a next step before and after (H1 primary) |
+| `clarity_pre` → `clarity_post` | Same 1–7 question before and after the map |
+| `trust_pre` → `trust_info_post` | Same 1–7 question before and after: trust in the information they have |
+| `trust_post`, `relevance_post` | 1–7 trust in the options Msquared showed (H2 threshold) and relevance |
+| `next_step_pre`, `next_step_response` | Same open question before and after: “What, if anything, do you think your next step should be? Why?” (H1 primary; the team scores whether it names a specific professional-care step and a reason) |
 | `decision_choice`, `decision_reason` | use / verify / unsure and why (H2 primary) |
 | `trust_reason` | What made them trust or question the options (H2 threshold) |
 | `seconds_to_map` | From starting the chat to opening the map |
@@ -56,7 +58,7 @@ Or from a terminal: `MSQ_URL=https://YOUR-APP.vercel.app EXPORT_PASSWORD=... npm
 | `safety_flag`, `safety_description` | Anything misleading or unsafe; review every "yes" |
 | `quote_text` | Only filled when `quote_permission` is true |
 
-Events include `screen_viewed`, `intake_started`, `chat_step_answered` (`q2:tap` / `q2:typed`), `chat_clarification_needed`, `intake_step_revisited`, `safety_notice_shown`, `path_selected`, `path_changed`, `map_viewed`, `role_comparison_opened`, `care_option_expanded`, `evidence_opened`, `source_clicked`, `decision_selected`, `summary_copied`, `feedback_submitted`, `session_completed`. Clicks are engagement, not proof of trust; pair them with `decision_choice` and the written reasons.
+Events include `options_shown` (the randomized order in which path, decision and “most useful” options appeared, e.g. `decision:verify-use-unsure`), `screen_viewed`, `intake_started`, `chat_step_answered` (`q2:tap` / `q2:typed`), `chat_clarification_needed`, `intake_step_revisited`, `safety_notice_shown`, `path_selected`, `path_changed`, `map_viewed`, `role_comparison_opened`, `care_option_expanded`, `evidence_opened`, `source_clicked`, `decision_selected`, `summary_copied`, `feedback_submitted`, `session_completed`. Clicks are engagement, not proof of trust; pair them with `decision_choice` and the written reasons.
 
 ## Delete data
 - One session (the code is on the participant's thank-you page, e.g. `abcd-efgh-ijkm`):

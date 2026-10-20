@@ -6,6 +6,26 @@
 - **20 testers** instead of 10. Nothing in the app caps sessions; P-codes P01–P99 are accepted.
 - **English only.**
 
+## Question wording review (Oct 20, 2026)
+Goal: remove wording that nudges testers toward an answer. Principles: no presupposed answer ("what, if anything"), balanced options (a positive option wherever there are negative ones), identical wording for anything measured before and after, randomized option order where position could bias the choice (order logged as `options_shown`).
+
+| Screen | Before | After | Why |
+|---|---|---|---|
+| Baseline and Feedback | “Can you name a professional-care next step right now?” / “Can you name one next professional-care discussion step, and why?” | “What, if anything, do you think your next step should be? Why?” (same on both screens; “I’m not sure” is a fine answer) | “Professional-care” told testers which answer we wanted, so H1 couldn’t show they named one *independently*. Two different wordings also made before/after not comparable. The team rubric now judges whether the answer is a specific professional-care step. |
+| Feedback | “How clear are you now about what to do next?” | Identical to the baseline item | Identical items are needed to compare before and after |
+| Feedback | Only “trust the care options Msquared presented” (different from the baseline trust item) | Adds `trust_info_post`, identical to the baseline item; keeps the Msquared-specific item for the H2 threshold | Before/after trust was comparing two different questions |
+| Intake Q3 | “Have you **already** talked with a professional?” / “Not **yet**” | “Have you talked with a healthcare professional about this?” / “No” | “Already” and “not yet” imply they should have |
+| Intake Q5 | Only negative outcomes | Adds “I got a clear plan or answer” | One-sided options push testers to report a bad experience |
+| Intake Q6 (path) | Fixed order | Spec wording kept; three options shown in random order per session | Primacy bias: the first option gets chosen more often. The question’s presupposition (that something is hard) is kept because every recruit is, by definition, stuck. |
+| Map decision | “Use this…” always listed first | Random order per session | The positive, first-listed option would collect extra picks |
+| Map | “Why?” / “What information is missing?” / “Which professional conversation would you consider next?” | “What led you to that choice?” / “What information, if any, is missing?” / “…if any…” with a “None of these” choice | Removes presupposition; “Why?” can read as challenging |
+| Feedback | “What made you trust or question the options? For example, a source, an explanation…” | “What, if anything, affected how much you trusted the options shown?” | The examples handed testers the H2 answer (“sources”) |
+| Feedback | “Which part helped most?” | “Which part, if any, was most useful?”; features in random order, “None of these” last | Presupposed something helped; order bias |
+| Feedback | “Would you use Msquared **instead of** your usual method?” | “…would you use Msquared, your usual way of looking for information, or both? Why?” | Yes/no framing invites agreeing with the builders; three balanced alternatives |
+| Feedback intro | “Honest answers help most” | “There are no right answers. Critical feedback is just as useful to us as positive feedback.” | Reduces social-desirability bias |
+
+Not changeable in the app: the moderator’s own words. Moderators should read the same neutral instructions to every tester and avoid explaining the map.
+
 ## Changes to the spec's data model (all non-sensitive)
 | Added | Why |
 |---|---|
@@ -13,6 +33,8 @@
 | `decision_reason` | Spec asks for participants' stated reason for use/verify/unsure |
 | `map_missing_info`, `map_next_conversation` | Spec asks these on the map but had no columns |
 | `trust_reason` | H2 threshold requires "a concrete reason" for trusting or questioning |
+| `trust_info_post` | Same trust question as baseline, so before/after trust is comparable |
+| Event `options_shown` | Records the randomized option order, to check for order effects |
 | `initial_path_id`, `path_changed` | Participants can change path on the map; keeps the original funnel assignment |
 | `intake_mode` | ai (typing available) vs scripted (tap only) |
 | `safety_description`, `status`, `last_activity_at`, `completed_at` | Review safety flags; observable abandonment |

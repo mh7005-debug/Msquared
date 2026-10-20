@@ -1,5 +1,5 @@
 import { el, state, save, saveFields, likert, textField, errorBox, showError } from '../core.js';
-import { FREE_TEXT_REMINDER } from '../content/copy.js';
+import { MEASURES } from '../content/copy.js';
 
 export function renderBaseline(main, { navigate }) {
   const b = (state.baseline = state.baseline || { clarity: null, trust: null, nextStep: '' });
@@ -8,29 +8,10 @@ export function renderBaseline(main, { navigate }) {
 
   const form = el(
     'form',
-    { novalidate: true },
-    likert({
-      name: 'clarity_pre',
-      legend: 'How clear are you about what to do next?',
-      low: 'Not at all clear',
-      high: 'Completely clear',
-      value: b.clarity,
-      onChange: (v) => ((b.clarity = v), save()),
-    }),
-    likert({
-      name: 'trust_pre',
-      legend: 'How much do you trust the information you currently have about your care options?',
-      low: 'Not at all',
-      high: 'Completely',
-      value: b.trust,
-      onChange: (v) => ((b.trust = v), save()),
-    }),
-    textField({
-      label: 'Can you name a professional-care next step right now? (optional)',
-      hint: FREE_TEXT_REMINDER,
-      value: b.nextStep,
-      onInput: (v) => ((b.nextStep = v), save()),
-    }),
+    { class: 'sheet', novalidate: true },
+    likert({ name: 'clarity_pre', ...MEASURES.clarity, value: b.clarity, onChange: (v) => ((b.clarity = v), save()) }),
+    likert({ name: 'trust_pre', ...MEASURES.trustInfo, value: b.trust, onChange: (v) => ((b.trust = v), save()) }),
+    textField({ ...MEASURES.nextStep, value: b.nextStep, onInput: (v) => ((b.nextStep = v), save()) }),
     el('div', { class: 'actions' }, next),
     err,
   );
@@ -38,7 +19,7 @@ export function renderBaseline(main, { navigate }) {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!b.clarity || !b.trust) {
-      showError(err, 'Choose a number from 1 to 7 for both questions.');
+      showError(err, 'Choose a number from 1 to 7 for both ratings.');
       return;
     }
     showError(err, '');
@@ -56,7 +37,7 @@ export function renderBaseline(main, { navigate }) {
 
   main.append(
     el('h1', {}, 'Where are you right now?'),
-    el('p', { class: 'lede' }, 'Two quick ratings so we can compare before and after. There are no right answers.'),
+    el('p', { class: 'lede' }, 'Three quick questions before we start, so we can compare before and after. There are no right or wrong answers.'),
     form,
   );
 }

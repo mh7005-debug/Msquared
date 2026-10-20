@@ -10,7 +10,7 @@ export const PATHS = {
 export const INTAKE_STEPS = [
   {
     id: 'concern',
-    question: "First, which of these best describes what's going on with your cycle?",
+    question: 'Which of these best describes your cycle right now?',
     type: 'single',
     options: [
       { id: 'absent', label: 'My period is absent' },
@@ -32,17 +32,17 @@ export const INTAKE_STEPS = [
   },
   {
     id: 'prior',
-    question: 'Have you already talked with a professional about it?',
+    question: 'Have you talked with a healthcare professional about this?',
     type: 'single',
     options: [
-      { id: 'none', label: 'Not yet' },
+      { id: 'none', label: 'No' },
       { id: 'one', label: 'Yes, one professional' },
       { id: 'multiple', label: 'Yes, more than one' },
     ],
   },
   {
     id: 'types',
-    question: 'Who have you seen? Choose all that apply.',
+    question: 'Who have you seen?',
     type: 'multi',
     showIf: (a) => a.prior && a.prior !== 'none',
     options: [
@@ -56,10 +56,11 @@ export const INTAKE_STEPS = [
   },
   {
     id: 'outcome',
-    question: 'What happened after those visits? Choose all that apply.',
+    question: 'What happened after those visits?',
     type: 'multi',
     showIf: (a) => a.prior && a.prior !== 'none',
     options: [
+      { id: 'clear_plan', label: 'I got a clear plan or answer' },
       { id: 'still_questions', label: 'I still have questions' },
       { id: 'conflicting', label: 'I got conflicting advice' },
       { id: 'referred', label: 'I was referred onward' },
@@ -70,7 +71,7 @@ export const INTAKE_STEPS = [
   },
   {
     id: 'path',
-    question: "Last one: what's making it hardest to move forward with your care right now?",
+    question: "What's making it hardest to move forward with your care right now?",
     type: 'single',
     options: [
       { id: 'p1', label: PATHS[1].label },

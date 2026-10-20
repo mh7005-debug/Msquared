@@ -1,18 +1,24 @@
-import { el, state, save, saveFields, track, textField, radioTiles, errorBox, showError, copyText } from '../core.js';
+import { el, state, save, saveFields, track, textField, radioTiles, errorBox, showError, copyText, icon, stableOrder } from '../core.js';
 import { CARE_OPTIONS, ROLE_COMPARISON, KNOWN_VS_UNCERTAIN } from '../content/careOptions.js';
 import { getSource } from '../content/sources.js';
 import { UNRESOLVED, URGENT_NOTICE, FREE_TEXT_REMINDER } from '../content/copy.js';
 import { PATHS, optionLabel } from '../shared/intake.js';
 import { journeySummary, copySummary, sectionOrder } from '../shared/mapText.js';
 
-const DECISIONS = [
-  { value: 'use', label: 'Use this to prepare for a conversation with a healthcare professional.' },
-  { value: 'verify', label: 'Verify this with another source first.' },
-  { value: 'unsure', label: 'I’m still unsure what to do.' },
-];
+const DECISIONS = {
+  use: 'Use this to prepare for a conversation with a healthcare professional.',
+  verify: 'Verify this with another source first.',
+  unsure: 'I’m still unsure what to do.',
+};
 
 /** Path-based emphasis only. Never based on symptoms or duration. */
 const HIGHLIGHT = { 1: null, 2: null, 3: 'coordination' };
+
+const TODAY = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+function summaryRow(text) {
+  return el('summary', {}, el('span', {}, text), icon('chevronDown', 'icon chev'));
+}
 
 export function renderMap(main, { navigate }) {
   const m = (state.map = state.map || { decision: null, reason: '', missing: '', nextConversation: '' });
@@ -43,25 +49,31 @@ export function renderMap(main, { navigate }) {
         'div',
         { class: 'map-head' },
         el('h1', {}, 'Your next-step care map'),
+        el('p', { class: 'prep-meta' }, `Prepared ${TODAY}. Educational information to discuss with a healthcare professional.`),
         pathRow(),
       ),
       ...sectionOrder(pathId).map((k) => sections[k](pathId)),
-      el('div', { class: 'notice warn', role: 'note' }, el('strong', {}, URGENT_NOTICE.title), URGENT_NOTICE.body),
+      el('div', { class: 'notice warn', role: 'note' }, icon('alert'), el('div', {}, el('strong', {}, URGENT_NOTICE.title), URGENT_NOTICE.body)),
     );
   }
 
   // ---- Path switcher ----
   function pathRow() {
-    const row = el('div', { class: 'path-row' });
     const btn = el('button', { class: 'btn-link', type: 'button', 'aria-expanded': 'false' }, 'Change');
-    row.append(el('span', {}, 'Where you’re stuck: ', el('strong', {}, PATHS[state.pathId].label)), btn);
-    const picker = el('div', { hidden: true });
+    const row = el(
+      'div',
+      { class: 'path-row' },
+      el('div', {}, el('span', { class: 'label' }, 'Where you’re stuck'), el('strong', {}, PATHS[state.pathId].label)),
+      btn,
+    );
+    const picker = el('div', { class: 'card path-picker', hidden: true });
     let choice = state.pathId;
+    const order = stableOrder('path', ['p1', 'p2', 'p3']).map((code) => PATHS[Number(code.slice(1))]);
     picker.append(
       radioTiles({
         name: 'path-change',
         legend: 'What’s making it hardest to move forward with your care right now?',
-        options: Object.values(PATHS).map((p) => ({ value: p.id, label: p.label })),
+        options: order.map((p) => ({ value: p.id, label: p.label })),
         value: state.pathId,
         onChange: (v) => (choice = v),
       }),
@@ -97,11 +109,11 @@ export function renderMap(main, { navigate }) {
     const seen = (state.answers.types || []).filter((t) => t !== 'other').map((t) => optionLabel('types', t));
     return el(
       'section',
-      { class: `section card${pathId === 3 ? ' emph' : ''}`, 'aria-labelledby': 'h-journey' },
+      { class: `section note-card${pathId === 3 ? ' emph' : ''}`, 'aria-labelledby': 'h-journey' },
       el('h2', { id: 'h-journey' }, 'Your journey so far'),
       el('p', {}, journeySummary(state.answers)),
       pathId === 3 && seen.length
-        ? el('div', {}, el('p', { class: 'small muted' }, 'Professionals you’ve seen:'), el('ul', { class: 'pills' }, seen.map((s) => el('li', {}, s))))
+        ? el('div', {}, el('p', { class: 'small muted' }, 'Professionals you’ve seen'), el('ul', { class: 'pills' }, seen.map((s) => el('li', {}, s))))
         : null,
       el('p', { class: 'small muted' }, 'Built only from the answers you chose. Nothing here is a diagnosis.'),
     );
@@ -124,14 +136,14 @@ export function renderMap(main, { navigate }) {
     return el(
       'section',
       { class: 'section', 'aria-labelledby': 'h-evid' },
-      el('h2', { id: 'h-evid' }, 'What guidance says — and what it can’t tell you'),
+      el('h2', { id: 'h-evid' }, 'What guidance says, and what it can’t tell you'),
       el(
         'div',
         { class: 'kvu' },
         el(
           'div',
-          { class: 'col' },
-          el('h3', {}, 'What clinical guidance says'),
+          { class: 'col known' },
+          el('div', { class: 'col-head' }, icon('book'), el('h3', {}, 'What clinical guidance says')),
           el(
             'ul',
             {},
@@ -139,14 +151,14 @@ export function renderMap(main, { navigate }) {
               .filter((k) => getSource(k.sourceId)?.verified)
               .map((k) => {
                 const s = getSource(k.sourceId);
-                return el('li', {}, k.text, ' ', sourceLink(s, `(${shortPublisher(s)}, ${s.year})`));
+                return el('li', {}, k.text, ' ', sourceLink(s, `(${shortPublisher(s)}, ${s.year})`, false));
               }),
           ),
         ),
         el(
           'div',
-          { class: 'col' },
-          el('h3', {}, 'Only your clinicians can answer'),
+          { class: 'col unknown' },
+          el('div', { class: 'col-head' }, icon('user'), el('h3', {}, 'Only your clinicians can answer')),
           el('ul', {}, KNOWN_VS_UNCERTAIN.uncertain.map((t) => el('li', {}, t))),
         ),
       ),
@@ -157,7 +169,7 @@ export function renderMap(main, { navigate }) {
     return s.id === 'asrm-2024' ? 'ASRM' : s.id === 'endo-2017' ? 'Endocrine Society' : s.publisher;
   }
 
-  function sourceLink(s, text) {
+  function sourceLink(s, text, withIcon = true) {
     return el(
       'a',
       {
@@ -167,6 +179,7 @@ export function renderMap(main, { navigate }) {
         onclick: () => track('source_clicked', s.id),
       },
       text,
+      withIcon ? icon('external') : null,
       el('span', { class: 'sr-only' }, ' (opens in a new tab)'),
     );
   }
@@ -177,7 +190,7 @@ export function renderMap(main, { navigate }) {
       'section',
       { class: 'section', 'aria-labelledby': 'h-opts' },
       el('h2', { id: 'h-opts' }, 'Professional conversations to consider'),
-      el('p', { class: 'small muted' }, 'The same options appear for everyone. They aren’t ranked, and none of them is required.'),
+      el('p', { class: 'section-intro' }, 'Everyone sees the same options. They aren’t ranked, and none of them is required.'),
       CARE_OPTIONS.map((c) => optionCard(c, pathId)),
     );
   }
@@ -187,7 +200,7 @@ export function renderMap(main, { navigate }) {
     const why = el(
       'details',
       { class: 'disclosure' },
-      el('summary', {}, pathId === 2 ? 'Check why this may be relevant' : 'Why this may be relevant'),
+      summaryRow(pathId === 2 ? 'Check why this may be relevant' : 'Why this may be relevant'),
       el('div', { class: 'body' }, el('p', {}, c.whyRelevant)),
     );
     why.addEventListener('toggle', () => why.open && track('care_option_expanded', c.id));
@@ -195,7 +208,7 @@ export function renderMap(main, { navigate }) {
     const evidence = el(
       'details',
       { class: 'disclosure' },
-      el('summary', {}, `See the evidence (${sources.length} ${sources.length === 1 ? 'source' : 'sources'})`),
+      summaryRow(`See the evidence (${sources.length} ${sources.length === 1 ? 'source' : 'sources'})`),
       el(
         'div',
         { class: 'body' },
@@ -203,8 +216,14 @@ export function renderMap(main, { navigate }) {
           el(
             'div',
             { class: 'source' },
-            sourceLink(s, s.title),
-            el('span', { class: 'meta' }, `${s.publisher}, ${s.year}`),
+            icon('book'),
+            el(
+              'div',
+              {},
+              el('span', { class: 'source-kind' }, 'Professional society guidance'),
+              sourceLink(s, s.title),
+              el('span', { class: 'meta' }, `${s.publisher}, ${s.year}`),
+            ),
           ),
         ),
       ),
@@ -219,7 +238,7 @@ export function renderMap(main, { navigate }) {
       HIGHLIGHT[pathId] === c.id ? el('span', { class: 'tag' }, 'Related to where you’re stuck') : null,
       el('h3', { id: `h-${c.id}` }, c.role),
       el('p', { class: 'summary' }, c.summary),
-      el('p', { class: 'small', }, el('strong', {}, 'Questions to bring')),
+      el('p', { class: 'subhead' }, 'Questions to bring'),
       el('ul', { class: 'qlist' }, c.appointmentQuestions.map((q) => el('li', {}, q))),
       why,
       sources.length ? evidence : null,
@@ -252,14 +271,14 @@ export function renderMap(main, { navigate }) {
         'section',
         { class: 'section card emph', 'aria-labelledby': 'h-cmp' },
         el('h2', { id: 'h-cmp' }, 'Compare professional roles'),
-        el('p', { class: 'small muted' }, 'General roles only — what fits you depends on your clinician’s evaluation.'),
+        el('p', { class: 'section-intro' }, 'General roles only. What fits you depends on your clinician’s evaluation.'),
         table,
       );
     }
     const d = el(
       'details',
-      { class: 'disclosure card' },
-      el('summary', {}, el('span', { class: 'h2like' }, 'Compare professional roles')),
+      { class: 'disclosure compare-details' },
+      el('summary', {}, el('span', { class: 'h2like' }, 'Compare professional roles'), icon('chevronDown', 'icon chev')),
       el('div', { class: 'body' }, table),
     );
     d.addEventListener('toggle', () => d.open && track('role_comparison_opened', `p${pathId}`));
@@ -270,19 +289,19 @@ export function renderMap(main, { navigate }) {
   function summarySection(pathId) {
     const text = copySummary(state.answers, pathId);
     const status = el('span', { class: 'status', role: 'status' });
-    const btn = el('button', { class: 'btn', type: 'button' }, 'Copy summary');
+    const btn = el('button', { class: 'btn', type: 'button' }, icon('copy'), 'Copy summary');
     btn.addEventListener('click', async () => {
       const ok = await copyText(text);
-      status.textContent = ok ? 'Copied' : 'Couldn’t copy — select the text and copy it instead.';
+      status.textContent = ok ? 'Copied' : 'Couldn’t copy. Select the text and copy it instead.';
       if (ok) track('summary_copied', `p${pathId}`);
     });
     return el(
       'section',
       { class: `section${pathId === 3 ? ' card emph' : ''}`, 'aria-labelledby': 'h-sum' },
       el('h2', { id: 'h-sum' }, 'Your next-step summary'),
-      el('p', { class: 'small muted' }, 'Copy this into your notes or bring it to an appointment. It leaves out your symptom details.'),
+      el('p', { class: 'section-intro' }, 'Copy this into your notes or bring it to an appointment. It leaves out your symptom details.'),
       el('pre', { class: 'summary-box', tabindex: '0', 'aria-label': 'Summary text' }, text),
-      el('div', {}, btn, status),
+      el('div', { class: 'copy-row' }, btn, status),
     );
   }
 
@@ -291,7 +310,7 @@ export function renderMap(main, { navigate }) {
     const err = errorBox();
     const next = el('button', { class: 'btn btn-primary', type: 'button' }, 'Continue to feedback');
     next.addEventListener('click', async () => {
-      if (!m.decision) return showError(err, 'Choose one option above to continue.');
+      if (!m.decision) return showError(err, 'Choose one option to continue.');
       showError(err, '');
       next.disabled = true;
       try {
@@ -316,19 +335,23 @@ export function renderMap(main, { navigate }) {
       { id: 'next-conv' },
       el('option', { value: '' }, 'Choose one (optional)'),
       CARE_OPTIONS.map((c) => el('option', { value: c.id, selected: m.nextConversation === c.id }, c.shortRole)),
+      el('option', { value: 'none', selected: m.nextConversation === 'none' }, 'None of these'),
       el('option', { value: 'not-sure', selected: m.nextConversation === 'not-sure' }, 'I’m not sure yet'),
     );
     select.addEventListener('change', () => ((m.nextConversation = select.value), save()));
+
+    // Random order per session so the first-listed option doesn't get picked more just for being first.
+    const order = stableOrder('decision', Object.keys(DECISIONS));
 
     return el(
       'section',
       { class: 'section card', 'aria-labelledby': 'h-dec' },
       el('h2', { id: 'h-dec' }, 'What would you do next?'),
-      el('p', { class: 'small muted' }, 'This isn’t a medical recommendation or a commitment — we just want to know where you landed.'),
+      el('p', { class: 'section-intro' }, 'This isn’t a medical recommendation or a commitment. Every answer is useful to us.'),
       radioTiles({
         name: 'decision',
         legend: 'Choose one',
-        options: DECISIONS,
+        options: order.map((v) => ({ value: v, label: DECISIONS[v] })),
         value: m.decision,
         onChange: (v) => {
           m.decision = v;
@@ -337,9 +360,9 @@ export function renderMap(main, { navigate }) {
           track('decision_selected', v);
         },
       }),
-      textField({ label: 'Why? (optional)', hint: FREE_TEXT_REMINDER, value: m.reason, onInput: (v) => ((m.reason = v), save()) }),
-      textField({ label: 'What information is missing? (optional)', hint: FREE_TEXT_REMINDER, value: m.missing, onInput: (v) => ((m.missing = v), save()) }),
-      el('div', { class: 'field' }, el('label', { class: 'field-label', for: 'next-conv' }, 'Which professional conversation would you consider next? (optional)'), select),
+      textField({ label: 'What led you to that choice? (optional)', hint: FREE_TEXT_REMINDER, value: m.reason, onInput: (v) => ((m.reason = v), save()) }),
+      textField({ label: 'What information, if any, is missing? (optional)', hint: FREE_TEXT_REMINDER, value: m.missing, onInput: (v) => ((m.missing = v), save()) }),
+      el('div', { class: 'field' }, el('label', { class: 'field-label', for: 'next-conv' }, 'Which professional conversation, if any, would you consider next? (optional)'), select),
       el('div', { class: 'actions' }, next),
       err,
     );

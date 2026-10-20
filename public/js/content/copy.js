@@ -19,6 +19,23 @@ export const EDUCATIONAL_NOTICE =
 
 export const FREE_TEXT_REMINDER = 'Please leave out names and medical details. Max 240 characters.';
 
+/**
+ * Measurement items asked BEFORE and AFTER the care map. Wording must stay identical on both
+ * screens so the change can be compared. Neutral wording: no presupposed answer, balanced anchors.
+ */
+export const MEASURES = {
+  clarity: { legend: 'How clear are you about what to do next?', low: 'Not at all clear', high: 'Completely clear' },
+  trustInfo: {
+    legend: 'How much do you trust the information you have about your care options?',
+    low: 'Not at all',
+    high: 'Completely',
+  },
+  nextStep: {
+    label: 'What, if anything, do you think your next step should be? Why? (optional)',
+    hint: '“I’m not sure” is a fine answer. Please leave out names and medical details.',
+  },
+};
+
 /** Plain-language obstacle (section B) and 1–2 questions per path. */
 export const UNRESOLVED = {
   1: {

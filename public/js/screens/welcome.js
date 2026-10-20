@@ -1,5 +1,5 @@
-import { el, state, save, api, config, errorBox, showError, track } from '../core.js';
-import { EDUCATIONAL_NOTICE, STUDY } from '../content/copy.js';
+import { el, state, save, api, config, errorBox, showError, track, icon } from '../core.js';
+import { STUDY } from '../content/copy.js';
 
 export function renderWelcome(main, { navigate }) {
   let adult = false;
@@ -17,10 +17,11 @@ export function renderWelcome(main, { navigate }) {
   const codeInput = el('input', {
     type: 'text',
     id: 'tester-code',
+    class: 'code-input',
     maxlength: 3,
     autocomplete: 'off',
+    autocapitalize: 'characters',
     placeholder: 'P01',
-    inputmode: 'text',
     'aria-describedby': 'tester-hint',
   });
   codeInput.addEventListener('input', () => (testerCode = codeInput.value.trim().toUpperCase()));
@@ -30,30 +31,30 @@ export function renderWelcome(main, { navigate }) {
   const consentBox = el('input', { type: 'checkbox', id: 'consent' });
   consentBox.addEventListener('change', () => ((consent = consentBox.checked), sync()));
 
+  const dataPoint = (text) => el('li', {}, icon('check'), el('span', {}, text));
+
   const form = el(
     'form',
-    { novalidate: true },
+    { class: 'sheet', novalidate: true, 'aria-labelledby': 'begin-h' },
+    el('h2', { id: 'begin-h' }, 'Before you begin'),
+    el('p', { class: 'muted small' }, 'How your information is used'),
     el(
-      'section',
-      { class: 'card', 'aria-labelledby': 'data-h' },
-      el('h2', { id: 'data-h' }, 'How your information is used'),
-      el(
-        'ul',
-        { class: 'qlist small' },
-        el('li', {}, 'We save your ratings, the path you choose, short optional answers, and which parts of the map you open — linked to a random session code, not your name.'),
-        el('li', {}, 'Your answers about your cycle and care history stay in this browser tab and aren’t saved. They’re gone when you close the tab.'),
-        config.aiEnabled
-          ? el('li', {}, 'If you type an answer in the chat, it’s sent to our AI provider (Anthropic) so it can be understood. We don’t store it.')
-          : null,
-        el('li', {}, 'Our hosting provider keeps standard visit logs (like IP address) for a short time, so we describe this as non-identifying rather than anonymous.'),
-        el('li', {}, `Data is used only for our class research project and deleted by ${STUDY.retention}. You can stop at any time.`),
-      ),
+      'ul',
+      { class: 'data-list' },
+      dataPoint('We save your ratings, the path you choose, short optional answers, and which parts of the map you open. They’re linked to a random session code, not your name.'),
+      dataPoint('Your answers about your cycle and care history stay on this device and aren’t saved. They’re cleared when you close the tab.'),
+      config.aiEnabled
+        ? dataPoint('If you type an answer instead of choosing one, it’s sent to our AI provider (Anthropic) to be understood, then discarded.')
+        : null,
+      dataPoint('Our hosting provider keeps standard visit logs, such as IP address, for a short time. That’s why we call this non-identifying rather than anonymous.'),
+      dataPoint(`Data is used only for our class research project and deleted by ${STUDY.retention}. You can stop at any time.`),
     ),
+    el('hr', { class: 'divider' }),
     el(
       'div',
       { class: 'field' },
       el('label', { class: 'field-label', for: 'tester-code' }, 'Study code (optional)'),
-      el('p', { class: 'hint', id: 'tester-hint' }, 'Only if your study moderator gave you one, like P04.'),
+      el('p', { class: 'hint', id: 'tester-hint' }, 'Only if your study moderator gave you one.'),
       codeInput,
     ),
     el('label', { class: 'check', for: 'adult' }, adultBox, el('span', {}, 'I’m 18 or older.')),
@@ -86,24 +87,45 @@ export function renderWelcome(main, { navigate }) {
     }
   });
 
+  const trust = (iconName, title, text) =>
+    el('li', {}, el('span', { class: 'trust-icon' }, icon(iconName)), el('div', {}, el('strong', {}, title), el('span', {}, text)));
+
   main.append(
     ...[
-    el('h1', {}, 'Let’s make sense of what comes next in your care journey.'),
-    el(
-      'p',
-      { class: 'lede' },
-      'Msquared helps women experiencing missing or irregular periods organize what they’ve tried, understand their professional care options, and prepare for their next step.',
-    ),
-    el(
-      'ol',
-      { class: 'steps', 'aria-label': 'How it works' },
-      el('li', {}, 'Tell us where you’re stuck'),
-      el('li', {}, 'Explore your care map'),
-      el('li', {}, 'Prepare for a conversation'),
-    ),
-    el('div', { class: 'notice' }, el('strong', {}, 'Educational only'), EDUCATIONAL_NOTICE),
-    config.storageReady ? null : el('div', { class: 'notice warn', role: 'alert' }, 'Research storage isn’t set up yet, so this session can’t start. Let the study team know.'),
-    form,
+      el(
+        'section',
+        { class: 'hero' },
+        el('p', { class: 'hero-kicker' }, 'For missing or irregular periods'),
+        el('h1', {}, 'Let’s make sense of what comes next in your care journey.'),
+        el(
+          'p',
+          { class: 'lede' },
+          'Msquared helps women experiencing missing or irregular periods organize what they’ve tried, understand their professional care options, and prepare for their next step.',
+        ),
+        el(
+          'ul',
+          { class: 'trust-list', 'aria-label': 'About Msquared' },
+          trust('book', 'Grounded in published guidance', 'Explanations cite guidance from professional medical societies.'),
+          trust('lock', 'Private by design', 'No account. Your health answers stay on your device.'),
+          trust('shield', 'Educational, not a diagnosis', 'It helps you prepare for a conversation with a clinician.'),
+        ),
+      ),
+      el(
+        'section',
+        { class: 'how', 'aria-labelledby': 'how-h' },
+        el('h2', { id: 'how-h' }, 'How it works'),
+        el(
+          'ol',
+          { class: 'timeline' },
+          el('li', {}, el('strong', {}, 'Tell us where you’re stuck'), 'Up to 6 short questions, about 2 minutes.'),
+          el('li', {}, el('strong', {}, 'Explore your care map'), 'Professional roles, sources, and questions to ask.'),
+          el('li', {}, el('strong', {}, 'Prepare for a conversation'), 'Take a summary to your next appointment.'),
+        ),
+      ),
+      config.storageReady
+        ? null
+        : el('div', { class: 'notice warn', role: 'alert' }, icon('alert'), el('div', {}, 'Research storage isn’t set up yet, so this session can’t start. Let the study team know.')),
+      form,
     ].filter(Boolean),
   );
 }

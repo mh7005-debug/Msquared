@@ -81,18 +81,22 @@ async function consentAndBaseline(page, code) {
 }
 
 const PATH_CHIP = { 1: 'which professional', 2: 'whose advice', 3: 'still don' };
+const esc = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** An intake option button. Exact label match unless `partial`. */
+const option = (page, label, partial = false) =>
+  page.locator('button.option', { hasText: partial ? label : new RegExp(`^${esc(label)}$`) });
 
 async function tapIntake(page, path, { prior = 'Yes, more than one' } = {}) {
-  await page.click('button.chip:has-text("My period is absent")');
-  await page.click('button.chip:has-text("Over 6 months")');
-  await page.click(`button.chip:has-text("${prior}")`);
-  if (prior !== 'Not yet') {
-    await page.click('button.chip:has-text("OB-GYN")');
-    await page.click('.composer button:has-text("Continue")');
-    await page.click('button.chip:has-text("I still have questions")');
-    await page.click('.composer button:has-text("Continue")');
+  await option(page, 'My period is absent').click();
+  await option(page, 'Over 6 months').click();
+  await option(page, prior).click();
+  if (prior !== 'No') {
+    await option(page, 'OB-GYN').click();
+    await page.click('.question-card button:has-text("Continue")');
+    await option(page, 'I still have questions').click();
+    await page.click('.question-card button:has-text("Continue")');
   }
-  await page.click(`button.chip:has-text("${PATH_CHIP[path]}")`);
+  await option(page, PATH_CHIP[path], true).click();
 }
 
 // Events are batched in the browser (flushed every ~1.5s), so give them time to arrive.
@@ -139,11 +143,11 @@ test('complete flow on each path with distinct emphasis, saved pre/post and even
     await page.click('button:has-text("Continue to feedback")');
     assert.match(await page.locator('[role=alert]').last().textContent(), /Choose one option/);
     await page.check('input[name=decision][value=use]');
-    await page.fill('label:has-text("Why?") + p + textarea', 'The sources helped');
+    await page.fill('label:has-text("What led you") + p + textarea', 'The sources helped');
     await page.click('button:has-text("Continue to feedback")');
     await page.waitForURL('**/feedback');
     const scales = page.locator('.likert-scale');
-    for (let i = 0; i < 3; i++) await scales.nth(i).locator('label').nth(5).click();
+    for (let i = 0; i < 4; i++) await scales.nth(i).locator('label').nth(5).click();
     await page.check('input[name=safety][value=no]');
     await page.click('button:has-text("Submit feedback")');
     await page.waitForURL('**/complete');
@@ -157,7 +161,7 @@ test('complete flow on each path with distinct emphasis, saved pre/post and even
   assert.match(sessions, /,2,3,/, 'baseline saved');
   assert.match(sessions, /The sources helped/);
   const events = await exportCsv('events');
-  for (const name of ['path_selected', 'map_viewed', 'care_option_expanded', 'evidence_opened', 'source_clicked', 'summary_copied', 'decision_selected', 'feedback_submitted', 'session_completed']) {
+  for (const name of ['options_shown', 'path_selected', 'map_viewed', 'care_option_expanded', 'evidence_opened', 'source_clicked', 'summary_copied', 'decision_selected', 'feedback_submitted', 'session_completed']) {
     assert.match(events, new RegExp(name), `${name} logged`);
   }
   assert.doesNotMatch(events + sessions, /My period is absent|over6|Over 6 months/, 'no intake answers stored');
@@ -167,11 +171,11 @@ test('editing an intake answer updates the journey summary', async () => {
   const page = await newPage();
   await consentAndBaseline(page);
   await tapIntake(page, 1);
-  await page.locator('.bubble-edit').nth(2).click(); // edit "prior"
-  await page.click('button.chip:has-text("Not yet")');
+  await page.locator('.qa-edit').nth(2).click(); // edit "prior"
+  await option(page, 'No').click();
   await page.click('button:has-text("See my care map")');
   await page.waitForURL('**/map');
-  assert.match(await page.locator('#h-journey + p').textContent(), /haven’t talked with a professional/);
+  assert.match(await page.locator('#h-journey + p').textContent(), /haven’t talked with a healthcare professional/);
   await settle(page);
   const events = await exportCsv('events');
   assert.match(events, /intake_step_revisited,q3/);
@@ -181,13 +185,13 @@ test('editing an intake answer updates the journey summary', async () => {
 test('typed chat answers are understood, and urgent messages show the safety notice', async () => {
   const page = await newPage();
   await consentAndBaseline(page);
-  await page.click('button.chip:has-text("My period is absent")');
+  await option(page, 'My period is absent').click();
   await page.fill('.typebox input', 'I fainted yesterday');
   await page.click('.typebox button');
   await page.waitForSelector('.notice.warn:has-text("urgent medical care")');
   await page.fill('.typebox input', 'about half a year');
   await page.click('.typebox button');
-  await page.waitForSelector('.bubble.user:has-text("Over 6 months")');
+  await page.waitForSelector('.qa-a:has-text("Over 6 months")');
   await settle(page);
   const events = await exportCsv('events');
   assert.match(events, /safety_notice_shown,urgent/);
@@ -199,7 +203,7 @@ test('typed chat answers are understood, and urgent messages show the safety not
 test('changing path on the map is recorded', async () => {
   const page = await newPage();
   await consentAndBaseline(page, 'P20');
-  await tapIntake(page, 1, { prior: 'Not yet' });
+  await tapIntake(page, 1, { prior: 'No' });
   await page.click('button:has-text("See my care map")');
   await page.waitForURL('**/map');
   await page.click('.path-row button:has-text("Change")');

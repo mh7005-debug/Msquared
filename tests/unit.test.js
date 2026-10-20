@@ -23,6 +23,17 @@ test('likert values must be 1–7 integers', () => {
   assert.equal(cleanFields({ relevance_post: 7 }).relevance_post, 7);
 });
 
+test('pre/post trust item and "none of these" are accepted; order events are allowed', () => {
+  assert.equal(cleanFields({ trust_info_post: 5 }).trust_info_post, 5);
+  assert.equal(cleanFields({ map_next_conversation: 'none' }).map_next_conversation, 'none');
+  assert.deepEqual(cleanEvent({ event_name: 'options_shown', component_id: 'decision:verify-use-unsure', elapsed_ms: 1 }), {
+    event_name: 'options_shown',
+    component_id: 'decision:verify-use-unsure',
+    elapsed_ms: 1,
+    path_id: null,
+  });
+});
+
 test('free text is trimmed to 240 characters', () => {
   assert.equal(cleanFields({ decision_reason: 'x'.repeat(500) }).decision_reason.length, 240);
 });
@@ -84,7 +95,7 @@ test('journey summary uses only selected information', () => {
     journeySummary({ concern: 'absent', duration: 'over6', prior: 'multiple', types: ['obgyn', 'other'], outcome: ['still_questions'] }),
     'Your period has been absent for over 6 months. You’ve spoken with more than one professional (an OB-GYN) and still have unanswered questions.',
   );
-  assert.equal(journeySummary({ concern: 'unsure', duration: 'unsure', prior: 'none' }), 'You’re not sure what’s going on with your cycle. You haven’t talked with a professional about it yet.');
+  assert.equal(journeySummary({ concern: 'unsure', duration: 'unsure', prior: 'none' }), 'You’re not sure what’s going on with your cycle. You haven’t talked with a healthcare professional about it.');
 });
 
 test('editing an earlier answer updates the summary and drops answers that no longer apply', () => {

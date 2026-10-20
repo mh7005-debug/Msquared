@@ -116,6 +116,79 @@ export function el(tag, attrs = {}, ...children) {
 let uid = 0;
 export const nextId = (p = 'f') => `${p}-${++uid}`;
 
+// ---- Icons: small inline SVGs (no icon font, no third-party requests) ----
+const SVGNS = 'http://www.w3.org/2000/svg';
+const ICONS = {
+  lock: ['rect 5 11 14 9 2', 'M8 11V8a4 4 0 0 1 8 0v3'],
+  book: ['M4 5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 2z', 'M4 20a2 2 0 0 0 2 2h13v-4', 'M8 7h7'],
+  shield: ['M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z', 'M9 12l2 2 4-4'],
+  check: ['M5 12.5l4.5 4.5L19 7.5'],
+  info: ['circle 12 12 9', 'M12 11v5', 'M12 7.6v.01'],
+  alert: ['M12 4l9 16H3z', 'M12 10v4', 'M12 17v.01'],
+  external: ['M14 4h6v6', 'M20 4l-9 9', 'M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5'],
+  copy: ['rect 9 9 11 11 2', 'M5 15V5a1 1 0 0 1 1-1h10'],
+  chevronDown: ['M6 9l6 6 6-6'],
+  chevronLeft: ['M15 6l-6 6 6 6'],
+  user: ['circle 12 8 4', 'M4 21a8 8 0 0 1 16 0'],
+  heart: ['M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z'],
+};
+
+export function icon(name, cls = 'icon') {
+  const svg = document.createElementNS(SVGNS, 'svg');
+  for (const [k, v] of Object.entries({
+    class: cls,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    'stroke-width': '1.75',
+    'stroke-linecap': 'round',
+    'stroke-linejoin': 'round',
+    'aria-hidden': 'true',
+    focusable: 'false',
+  }))
+    svg.setAttribute(k, v);
+  for (const d of ICONS[name] || []) {
+    const [kind, ...n] = d.split(' ');
+    let node;
+    if (kind === 'circle') {
+      node = document.createElementNS(SVGNS, 'circle');
+      node.setAttribute('cx', n[0]);
+      node.setAttribute('cy', n[1]);
+      node.setAttribute('r', n[2]);
+    } else if (kind === 'rect') {
+      node = document.createElementNS(SVGNS, 'rect');
+      ['x', 'y', 'width', 'height', 'rx'].forEach((a, i) => node.setAttribute(a, n[i]));
+    } else {
+      node = document.createElementNS(SVGNS, 'path');
+      node.setAttribute('d', d);
+    }
+    svg.append(node);
+  }
+  return svg;
+}
+
+/**
+ * Randomized option order, fixed for the rest of the session, to avoid order (primacy) bias.
+ * The order shown is logged as an `options_shown` event so the team can check for order effects.
+ * `codes` must be short ids ([a-z0-9_]).
+ */
+export function stableOrder(key, codes) {
+  state.orders = state.orders || {};
+  let order = state.orders[key];
+  const valid = order && order.length === codes.length && codes.every((c) => order.includes(c));
+  if (!valid) {
+    order = [...codes];
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    state.orders[key] = order;
+    save();
+    track('options_shown', `${key}:${order.join('-')}`);
+  }
+  return order;
+}
+
 /** 1–7 rating as a radio group. */
 export function likert({ name, legend, low, high, value, onChange }) {
   const scale = el('div', { class: 'likert-scale' });

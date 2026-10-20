@@ -1,4 +1,4 @@
-import { state, config, loadConfig, track, el } from './core.js';
+import { state, config, loadConfig, track, el, icon } from './core.js';
 import { renderWelcome } from './screens/welcome.js';
 import { renderBaseline } from './screens/baseline.js';
 import { renderIntake } from './screens/intake.js';
@@ -74,7 +74,7 @@ function stepper(route) {
     ),
   );
   const back = route.back
-    ? el('button', { class: 'btn-link back-link', type: 'button', onclick: () => navigate(route.back) }, '← Back')
+    ? el('button', { class: 'btn-link back-link', type: 'button', onclick: () => navigate(route.back) }, icon('chevronLeft'), 'Back')
     : null;
   return el('div', { class: 'stepper-row' }, list, back);
 }
@@ -84,7 +84,7 @@ export function updateChrome() {
   const chip = document.getElementById('session-chip');
   if (state.sessionId) {
     chip.hidden = false;
-    chip.textContent = `Session ${state.sessionId.slice(0, 4)}-${state.sessionId.slice(4, 8)}-${state.sessionId.slice(8)}`;
+    chip.textContent = `Session code: ${state.sessionId.slice(0, 4)}-${state.sessionId.slice(4, 8)}-${state.sessionId.slice(8)}`;
   } else chip.hidden = true;
 }
 

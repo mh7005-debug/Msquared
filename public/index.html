@@ -2,9 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="robots" content="noindex, nofollow" />
-    <meta name="theme-color" content="#FAF7F2" />
+    <meta name="theme-color" content="#ffffff" />
     <title>Msquared</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/css/app.css" />
@@ -13,20 +13,26 @@
   <body>
     <a class="skip" href="#main">Skip to content</a>
     <div id="demo-banner" class="demo-banner" hidden>
-      <strong>DEMO — NOT CLINICALLY REVIEWED.</strong> For internal mock sessions only.
+      <strong>DEMO — NOT CLINICALLY REVIEWED.</strong> For internal testing only.
     </div>
     <header class="site-header">
       <div class="wrap header-row">
-        <span class="wordmark" aria-label="Msquared">M<sup>2</sup><span class="wordmark-text">squared</span></span>
-        <span id="session-chip" class="session-chip" hidden></span>
+        <span class="wordmark" aria-label="Msquared">M<sup>2</sup>squared</span>
+        <span class="header-note">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+          Private session, no account
+        </span>
       </div>
     </header>
     <main id="main" class="wrap" tabindex="-1">
       <noscript>Msquared needs JavaScript turned on.</noscript>
       <p class="loading">Loading…</p>
     </main>
-    <footer class="site-footer wrap">
-      <p>Msquared is educational. It doesn’t diagnose, treat, or replace an evaluation by a healthcare professional. In an emergency, call 911.</p>
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>Msquared is an educational research prototype from the NYU Stern BTE Capstone. It doesn’t diagnose, treat, or replace an evaluation by a healthcare professional. In an emergency, call 911.</p>
+        <p id="session-chip" class="session-code" hidden></p>
+      </div>
     </footer>
   </body>
 </html>

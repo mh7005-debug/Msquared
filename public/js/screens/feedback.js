@@ -1,17 +1,18 @@
-import { el, state, save, saveFields, track, flush, likert, textField, radioTiles, errorBox, showError } from '../core.js';
-import { FREE_TEXT_REMINDER } from '../content/copy.js';
+import { el, state, save, saveFields, track, flush, likert, textField, radioTiles, errorBox, showError, stableOrder } from '../core.js';
+import { FREE_TEXT_REMINDER, MEASURES } from '../content/copy.js';
 
-const HELPFUL = [
-  { value: 'role_comparison', label: 'Role comparison' },
-  { value: 'explanations_sources', label: 'Explanations and sources' },
-  { value: 'journey_summary', label: 'Journey summary' },
-  { value: 'appointment_questions', label: 'Appointment questions' },
-  { value: 'none', label: 'None of these' },
-];
+// Short codes are used to log the (randomized) display order.
+const HELPFUL = {
+  rc: { value: 'role_comparison', label: 'Role comparison' },
+  es: { value: 'explanations_sources', label: 'Explanations and sources' },
+  js: { value: 'journey_summary', label: 'Journey summary' },
+  aq: { value: 'appointment_questions', label: 'Appointment questions' },
+};
 
 export function renderFeedback(main, { navigate }) {
   const f = (state.feedback = state.feedback || {
     clarity: null,
+    trustInfo: null,
     trust: null,
     relevance: null,
     nextStep: '',
@@ -45,47 +46,77 @@ export function renderFeedback(main, { navigate }) {
     save();
   });
 
+  // "None of these" always stays last; the four features are shown in a random order.
+  const helpfulOptions = [...stableOrder('helpful', Object.keys(HELPFUL)).map((c) => HELPFUL[c]), { value: 'none', label: 'None of these' }];
+
   const form = el(
     'form',
-    { novalidate: true },
-    likert({ name: 'clarity_post', legend: 'How clear are you now about what to do next?', low: 'Not at all clear', high: 'Completely clear', value: f.clarity, onChange: set('clarity') }),
-    likert({ name: 'trust_post', legend: 'How much do you trust the care options Msquared presented?', low: 'Not at all', high: 'Completely', value: f.trust, onChange: set('trust') }),
-    likert({ name: 'relevance_post', legend: 'How relevant was the care map to your situation?', low: 'Not at all', high: 'Very relevant', value: f.relevance, onChange: set('relevance') }),
-    textField({ label: 'Can you name one next professional-care discussion step, and why? (optional)', hint: FREE_TEXT_REMINDER, value: f.nextStep, onInput: set('nextStep') }),
-    textField({ label: 'What made you trust or question the options shown? (optional)', hint: 'For example, a source, an explanation, or something missing. ' + FREE_TEXT_REMINDER, value: f.trustReason, onInput: set('trustReason') }),
-    radioTiles({ name: 'helpful', legend: 'Which part helped most?', options: HELPFUL, value: f.helpful, onChange: set('helpful') }),
-    textField({ label: 'What was confusing or missing? (optional)', hint: FREE_TEXT_REMINDER, value: f.confusing, onInput: set('confusing') }),
-    textField({ label: 'Would you use Msquared instead of your usual research method for a similar question? Why? (optional)', hint: FREE_TEXT_REMINDER, value: f.prefers, onInput: set('prefers') }),
-    radioTiles({
-      name: 'safety',
-      legend: 'Did anything seem misleading, too certain, or unsafe?',
-      options: [
-        { value: 'no', label: 'No' },
-        { value: 'yes', label: 'Yes' },
-      ],
-      value: f.safety,
-      onChange: (v) => {
-        f.safety = v;
-        safetyDetail.hidden = v !== 'yes';
-        save();
-      },
-    }),
-    safetyDetail,
-    el('label', { class: 'check', for: 'quote-ok' }, quoteCheck, el('span', {}, 'You may quote my feedback (without my name) in our class presentation. Optional.')),
-    quoteBox,
-    el('div', { class: 'actions' }, submit),
-    err,
+    { class: 'sheet', novalidate: true },
+    el(
+      'div',
+      { class: 'form-section' },
+      el('h2', {}, 'Where you are now'),
+      // Same wording as before the care map, so answers can be compared.
+      likert({ name: 'clarity_post', ...MEASURES.clarity, value: f.clarity, onChange: set('clarity') }),
+      likert({ name: 'trust_info_post', ...MEASURES.trustInfo, value: f.trustInfo, onChange: set('trustInfo') }),
+      textField({ ...MEASURES.nextStep, value: f.nextStep, onInput: set('nextStep') }),
+    ),
+    el(
+      'div',
+      { class: 'form-section' },
+      el('h2', {}, 'About the care map'),
+      likert({ name: 'trust_post', legend: 'How much do you trust the care options Msquared showed you?', low: 'Not at all', high: 'Completely', value: f.trust, onChange: set('trust') }),
+      likert({ name: 'relevance_post', legend: 'How relevant was the care map to your situation?', low: 'Not at all relevant', high: 'Completely relevant', value: f.relevance, onChange: set('relevance') }),
+      textField({ label: 'What, if anything, affected how much you trusted the options shown? (optional)', hint: FREE_TEXT_REMINDER, value: f.trustReason, onInput: set('trustReason') }),
+      radioTiles({ name: 'helpful', legend: 'Which part, if any, was most useful?', options: helpfulOptions, value: f.helpful, onChange: set('helpful') }),
+      textField({ label: 'What, if anything, was confusing or missing? (optional)', hint: FREE_TEXT_REMINDER, value: f.confusing, onInput: set('confusing') }),
+      textField({
+        label: 'For a similar question in the future, would you use Msquared, your usual way of looking for information, or both? Why? (optional)',
+        hint: FREE_TEXT_REMINDER,
+        value: f.prefers,
+        onInput: set('prefers'),
+      }),
+    ),
+    el(
+      'div',
+      { class: 'form-section' },
+      el('h2', {}, 'Safety check'),
+      radioTiles({
+        name: 'safety',
+        legend: 'Did anything seem misleading, too certain, or unsafe?',
+        options: [
+          { value: 'no', label: 'No' },
+          { value: 'yes', label: 'Yes' },
+        ],
+        value: f.safety,
+        onChange: (v) => {
+          f.safety = v;
+          safetyDetail.hidden = v !== 'yes';
+          save();
+        },
+      }),
+      safetyDetail,
+    ),
+    el(
+      'div',
+      { class: 'form-section' },
+      el('label', { class: 'check', for: 'quote-ok' }, quoteCheck, el('span', {}, 'You may quote my feedback, without my name, in our class presentation. Optional.')),
+      quoteBox,
+      el('div', { class: 'actions' }, submit),
+      err,
+    ),
   );
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!f.clarity || !f.trust || !f.relevance) return showError(err, 'Choose a number from 1 to 7 for each of the first three questions.');
-    if (!f.safety) return showError(err, 'Answer the question about anything misleading or unsafe.');
+    if (!f.clarity || !f.trustInfo || !f.trust || !f.relevance) return showError(err, 'Choose a number from 1 to 7 for each of the four ratings.');
+    if (!f.safety) return showError(err, 'Answer the safety check question.');
     showError(err, '');
     submit.disabled = true;
     try {
       await saveFields({
         clarity_post: f.clarity,
+        trust_info_post: f.trustInfo,
         trust_post: f.trust,
         relevance_post: f.relevance,
         next_step_response: f.nextStep || null,
@@ -111,5 +142,9 @@ export function renderFeedback(main, { navigate }) {
     }
   });
 
-  main.append(el('h1', {}, 'How did that go?'), el('p', { class: 'lede' }, 'A few questions about the care map. Honest answers help most — including critical ones.'), form);
+  main.append(
+    el('h1', {}, 'How did that go?'),
+    el('p', { class: 'lede' }, 'There are no right answers. Critical feedback is just as useful to us as positive feedback.'),
+    form,
+  );
 }
