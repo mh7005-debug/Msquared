@@ -1,6 +1,7 @@
 import { el, state, save, api, config, errorBox, showError, track, icon, voiceSupported } from '../core.js';
 import { STUDY } from '../content/copy.js';
 import { aboutSection } from './trust.js';
+import { VALUE_PROPS } from '../content/valueProps.js';
 
 export function renderWelcome(main, { navigate }) {
   let adult = false;
@@ -87,8 +88,8 @@ export function renderWelcome(main, { navigate }) {
     }
   });
 
-  const trust = (iconName, title, text) =>
-    el('li', {}, el('span', { class: 'trust-icon' }, icon(iconName)), el('div', {}, el('strong', {}, title), el('span', {}, text)));
+  const trust = (iconName, title, text, key = '') =>
+    el('li', { class: key }, el('span', { class: 'trust-icon' }, icon(iconName)), el('div', {}, el('strong', {}, title), el('span', {}, text)));
 
   main.append(
     ...[
@@ -104,10 +105,8 @@ export function renderWelcome(main, { navigate }) {
         ),
         el(
           'ul',
-          { class: 'trust-list', 'aria-label': 'About Msquared' },
-          trust('book', 'Evidence-based', 'Cites medical society guidance.'),
-          trust('lock', 'No account', 'We never ask your name.'),
-          trust('shield', 'Educational', 'Not a diagnosis.'),
+          { class: 'trust-list promises', 'aria-label': 'What you get' },
+          Object.entries(VALUE_PROPS).map(([k, v]) => trust(v.icon, v.label, v.promise, k)),
         ),
       ),
       el(

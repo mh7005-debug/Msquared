@@ -1602,3 +1602,62 @@ select:focus {
   padding: 18px 20px;
   margin: 0 0 16px;
 }
+
+/* ---------- Value-promise tags (Clarity = H1, Evidence = H2, Less effort = enabler) ---------- */
+.promise-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+  margin: 0 0 8px;
+  border: 1px solid transparent;
+}
+.promise-tag::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.promise-tag.clarity {
+  color: var(--navy);
+  background: var(--navy-soft);
+}
+.promise-tag.evidence {
+  color: var(--teal);
+  background: var(--teal-soft);
+}
+.promise-tag.effort {
+  color: var(--rose);
+  background: var(--rose-soft);
+}
+.card-evidence {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.card-evidence > .promise-tag {
+  margin-bottom: 0;
+}
+.card-evidence .disclosure:first-of-type {
+  border-top: 0;
+  margin-top: 0;
+}
+.form-section > .promise-tag + h2 {
+  margin-top: 2px;
+}
+.promises li.clarity .trust-icon {
+  background: var(--navy-soft);
+  color: var(--navy);
+}
+.promises li.evidence .trust-icon {
+  background: var(--teal-soft);
+  color: var(--teal);
+}
+.promises li.effort .trust-icon {
+  background: var(--rose-soft);
+  color: var(--rose);
+}

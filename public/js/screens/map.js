@@ -1,10 +1,11 @@
-import { el, state, save, saveFields, track, textField, radioTiles, errorBox, showError, copyText, icon, stableOrder } from '../core.js';
+import { el, state, save, saveFields, track, textField, radioTiles, errorBox, showError, copyText, icon, stableOrder, promiseTag } from '../core.js';
 import { CARE_OPTIONS, ROLE_COMPARISON, KNOWN_VS_UNCERTAIN } from '../content/careOptions.js';
 import { getSource } from '../content/sources.js';
 import { UNRESOLVED, URGENT_NOTICE, FREE_TEXT_REMINDER, PATH_SHORT } from '../content/copy.js';
 import { PATHS, optionLabel } from '../shared/intake.js';
 import { journeySummary, copySummary, sectionOrder } from '../shared/mapText.js';
 import { contactCard, reviewerLine } from './trust.js';
+import { VALUE_PROPS, SECTION_PROMISE } from '../content/valueProps.js';
 
 const DECISIONS = {
   use: 'Use this to prepare for a conversation with a healthcare professional.',
@@ -33,9 +34,16 @@ function summaryRow(text) {
   return el('summary', {}, el('span', {}, text), icon('chevronDown', 'icon chev'));
 }
 
-/** A station on the route rail running down the page. */
-function stop(section, kind = 'dot') {
+/** A station on the route rail running down the page, labeled with the promise it delivers. */
+function stop(section, kind = 'dot', promise = null) {
   section.classList.add('stop');
+  if (promise) {
+    const tag = promiseTag(promise, VALUE_PROPS[promise].label);
+    const found = section.querySelector('h2, summary');
+    const heading = found && found.tagName === 'SUMMARY' ? found.parentElement : found;
+    if (heading) heading.before(tag);
+    else section.prepend(tag);
+  }
   section.prepend(el('span', { class: `stop-marker ${kind}`, 'aria-hidden': 'true' }, kind === 'pin' ? icon('pin') : kind === 'flag' ? icon('flag') : null));
   return section;
 }
@@ -79,13 +87,13 @@ export function renderMap(main, { navigate }) {
     const pathId = state.pathId;
     root.className = `path-${pathId}`;
     const sections = {
-      journey: (p) => stop(journeySection(p), 'pin'),
-      unresolved: (p) => stop(unresolvedSection(p)),
-      evidence: (p) => stop(evidenceSection(p)),
-      options: (p) => stop(optionsSection(p)),
-      compare: (p) => stop(compareSection(p)),
-      summary: (p) => stop(summarySection(p)),
-      decision: (p) => stop(decisionSection(p), 'flag'),
+      journey: (p) => stop(journeySection(p), 'pin', SECTION_PROMISE.journey),
+      unresolved: (p) => stop(unresolvedSection(p), 'dot', SECTION_PROMISE.unresolved),
+      evidence: (p) => stop(evidenceSection(p), 'dot', SECTION_PROMISE.evidence),
+      options: (p) => stop(optionsSection(p), 'dot', SECTION_PROMISE.options),
+      compare: (p) => stop(compareSection(p), 'dot', SECTION_PROMISE.compare),
+      summary: (p) => stop(summarySection(p), 'dot', SECTION_PROMISE.summary),
+      decision: (p) => stop(decisionSection(p), 'flag', SECTION_PROMISE.decision),
     };
     root.append(
       el(
@@ -360,8 +368,7 @@ export function renderMap(main, { navigate }) {
       el('p', { class: 'subhead' }, 'Questions to bring'),
       el('ul', { class: 'qlist' }, c.appointmentQuestions.map((q) => el('li', {}, q))),
       before,
-      why,
-      sources.length ? evidence : null,
+      el('div', { class: 'card-evidence' }, promiseTag('evidence', VALUE_PROPS.evidence.label), why, sources.length ? evidence : null),
     );
   }
 

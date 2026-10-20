@@ -1,4 +1,4 @@
-import { el, state, save, saveFields, track, flush, likert, textField, radioTiles, errorBox, showError, stableOrder, revealAfter } from '../core.js';
+import { el, state, save, saveFields, track, flush, likert, textField, radioTiles, errorBox, showError, stableOrder, revealAfter, promiseTag } from '../core.js';
 import { FREE_TEXT_REMINDER, MEASURES, WHY_RATING } from '../content/copy.js';
 
 // What most affected trust: separates the H2 driver (explanations, sources) from other trust signals.
@@ -81,17 +81,19 @@ export function renderFeedback(main, { navigate }) {
     el(
       'div',
       { class: 'form-section' },
-      el('h2', {}, 'Where you are now'),
+      promiseTag('clarity', 'Clarity'),
+      el('h2', {}, 'How clear is your next step?'),
       // Same wording as before the care map, so answers can be compared.
       likert({ name: 'clarity_post', ...MEASURES.clarity, value: f.clarity, onChange: rate('clarity', clarityWhy) }),
       clarityWhy.el,
-      likert({ name: 'trust_info_post', ...MEASURES.trustInfo, value: f.trustInfo, onChange: set('trustInfo') }),
       textField({ ...MEASURES.nextStep, key: 'next_step_response', value: f.nextStep, onInput: set('nextStep') }),
     ),
     el(
       'div',
       { class: 'form-section' },
-      el('h2', {}, 'About the care map'),
+      promiseTag('evidence', 'Evidence'),
+      el('h2', {}, 'How much do you trust it?'),
+      likert({ name: 'trust_info_post', ...MEASURES.trustInfo, value: f.trustInfo, onChange: set('trustInfo') }),
       likert({ name: 'trust_post', legend: 'How much do you trust the care options Msquared showed you?', low: 'Not at all', high: 'Completely', value: f.trust, onChange: rate('trust', trustWhy) }),
       trustWhy.el,
       radioTiles({
@@ -104,6 +106,12 @@ export function renderFeedback(main, { navigate }) {
         value: f.trustSource,
         onChange: set('trustSource'),
       }),
+    ),
+    el(
+      'div',
+      { class: 'form-section' },
+      promiseTag('effort', 'Less effort'),
+      el('h2', {}, 'Was it worth your time?'),
       likert({ name: 'relevance_post', legend: 'How relevant was the care map to your situation?', low: 'Not at all relevant', high: 'Completely relevant', value: f.relevance, onChange: set('relevance') }),
       radioTiles({ name: 'helpful', legend: 'Which part, if any, was most useful?', options: helpfulOptions, value: f.helpful, onChange: set('helpful') }),
       textField({ label: 'Anything confusing or missing? (optional)', key: 'missing_or_confusing', value: f.confusing, onInput: set('confusing') }),

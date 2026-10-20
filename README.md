@@ -98,6 +98,15 @@ Team names, contact email, a named clinical reviewer and interview quotes go in 
 
 All medical wording is in `public/js/content/careOptions.js`; sources in `public/js/content/sources.js`; safety and path copy in `public/js/content/copy.js`. Display code doesn't contain medical wording. Any edit needs clinician review before real sessions.
 
+## Architecture follows the value proposition
+| Promise (label in app) | Hypothesis | Screens and parts | Data |
+|---|---|---|---|
+| **Clarity** | H1 | Intake paths, journey, open questions, conversations to consider, role comparison | `next_step_pre` → `next_step_response`, `clarity_pre` → `clarity_post`, `clarity_reason`, `seconds_to_map` |
+| **Confidence** (shown as “Evidence”) | H2 | “Why this may be relevant”, sources, known vs. uncertain | `rely_*` → `rely_change_*`, `decision_choice` + `decision_reason`, `trust_post` + `trust_reason`, `trust_source` |
+| **Less effort** | Enabler | 2-minute taps, optional depth, voice, take-away summary | `completed`, `last_screen`, `relevance_post`, `summary_copied` |
+
+The mapping lives in `public/js/content/valueProps.js`. The welcome page lists the three promises, each care-map section and the evidence half of each option card carry their promise tag, and the feedback screen is grouped the same way. “Evidence” is used instead of “Confidence” so the app doesn’t tell testers how to feel before they rate trust.
+
 ## Project layout
 ```
 api/            serverless functions (session, events, chat, export, admin, config)
