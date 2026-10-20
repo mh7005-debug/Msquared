@@ -1,5 +1,16 @@
 # Decisions, trade-offs, and tests
 
+## Why these two hypotheses (entrepreneurial logic)
+Problem (Sprint 1): women who have sought help still can’t decide which advice to trust or which care to pursue.
+
+| Value promise | Riskiest assumption | What we built | Evidence |
+|---|---|---|---|
+| **Clarity:** know which care option fits | **H1:** a personalized pathway helps her name a clear next step better than her usual research | 6-tap intake, 3 entry paths, care map, questions to bring, summary | 14/20 name a next step and why; clarity before → after; time to map |
+| **Confidence:** know why advice is credible | **H2:** seeing why an option appears, with sources, makes her willing to rely on it | “Why this may be relevant,” linked guidance, known vs. uncertain | Reliance before → after reading why; use/verify/unsure + reason; 14/20 trust 6+ with a reason; `trust_source` |
+| **Less effort:** stop repeated searching | **Enabler:** fast enough that she finishes | 2-minute taps, optional depth, voice | 16/20 finish unassisted; drop-off by screen |
+
+If H1 fails there is no product; if H2 fails she won’t act on it or return. Both are cheap to test now, before investing in a provider network, booking or payment.
+
 ## Team decisions (Oct 19, 2026)
 - **Chat intake now.** The 6 intake questions are asked in a chat. Participants can tap or type. Typed answers go to Claude (`claude-haiku-5-5`), which may only (a) map the text to the allowed option ids and (b) write a ≤20-word acknowledgement. The care map is never AI-written; it comes from the fixed content library. This narrows the spec's "no chatbot" rule rather than dropping it: there is no free-form medical conversation.
 - **Hosting:** GitHub + Vercel (Hobby) + Neon Postgres, all under the team's accounts.
