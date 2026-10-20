@@ -1,0 +1,20 @@
+{
+  "name": "msquared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Msquared Sprint 2 MVP: next-step care map for missing or irregular periods (educational).",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node scripts/dev-server.js",
+    "test": "node --test tests/unit.test.js",
+    "test:e2e": "node --test --test-concurrency=1 tests/e2e.test.js",
+    "export": "node scripts/admin.js export",
+    "delete-session": "node scripts/admin.js delete"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.0"
+  }
+}
