@@ -130,6 +130,7 @@ const ICONS = {
   chevronDown: ['M6 9l6 6 6-6'],
   chevronLeft: ['M15 6l-6 6 6 6'],
   mic: ['rect 9 3 6 11 3', 'M5 11a7 7 0 0 0 14 0', 'M12 18v3'],
+  mail: ['rect 3 5 18 14 2', 'M3 7l9 6 9-6'],
   pin: ['M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11z', 'circle 12 10 2.2'],
   flag: ['M6 21V4', 'M6 4h11l-2 4 2 4H6'],
   user: ['circle 12 8 4', 'M4 21a8 8 0 0 1 16 0'],

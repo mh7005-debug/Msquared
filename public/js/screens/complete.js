@@ -1,5 +1,6 @@
 import { el, state, clearState, copyText, icon } from '../core.js';
 import { copySummary } from '../shared/mapText.js';
+import { contactCard } from './trust.js';
 
 export function renderComplete(main, { navigate }) {
   const code = state.sessionId ? `${state.sessionId.slice(0, 4)}-${state.sessionId.slice(4, 8)}-${state.sessionId.slice(8)}` : '';
@@ -31,6 +32,7 @@ export function renderComplete(main, { navigate }) {
           )
         : null,
       el('div', { class: 'actions' }, hasSummary ? copyBtn : null, clearBtn, status),
+      contactCard(),
       el('p', { class: 'fineprint' }, 'Msquared is educational. It doesn’t diagnose, treat, or replace an evaluation by a healthcare professional, and it can’t promise any medical outcome.'),
     ].filter(Boolean),
   );

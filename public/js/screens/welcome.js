@@ -1,5 +1,6 @@
 import { el, state, save, api, config, errorBox, showError, track, icon, voiceSupported } from '../core.js';
 import { STUDY } from '../content/copy.js';
+import { aboutSection } from './trust.js';
 
 export function renderWelcome(main, { navigate }) {
   let adult = false;
@@ -121,6 +122,7 @@ export function renderWelcome(main, { navigate }) {
           el('li', {}, el('strong', {}, 'Prepare for a conversation'), 'A summary for your visit.'),
         ),
       ),
+      aboutSection(),
       config.storageReady
         ? null
         : el('div', { class: 'notice warn', role: 'alert' }, icon('alert'), el('div', {}, 'Research storage isn’t set up yet, so this session can’t start. Let the study team know.')),

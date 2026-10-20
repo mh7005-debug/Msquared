@@ -4,6 +4,7 @@ import { getSource } from '../content/sources.js';
 import { UNRESOLVED, URGENT_NOTICE, FREE_TEXT_REMINDER, PATH_SHORT } from '../content/copy.js';
 import { PATHS, optionLabel } from '../shared/intake.js';
 import { journeySummary, copySummary, sectionOrder } from '../shared/mapText.js';
+import { contactCard, reviewerLine } from './trust.js';
 
 const DECISIONS = {
   use: 'Use this to prepare for a conversation with a healthcare professional.',
@@ -92,10 +93,12 @@ export function renderMap(main, { navigate }) {
         { class: 'map-head' },
         el('h1', {}, 'Your next-step care map'),
         el('p', { class: 'prep-meta' }, `Prepared ${TODAY}. Educational, not medical advice.`),
+        reviewerLine(),
         pathRow(),
       ),
       routeOverview(pathId),
       el('div', { class: 'route-rail' }, ...sectionOrder(pathId).map((k) => sections[k](pathId))),
+      contactCard(),
       el('div', { class: 'notice warn', role: 'note' }, icon('alert'), el('div', {}, el('strong', {}, URGENT_NOTICE.title), URGENT_NOTICE.body)),
     );
   }

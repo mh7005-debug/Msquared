@@ -51,6 +51,7 @@ Or from a terminal: `MSQ_URL=https://YOUR-APP.vercel.app EXPORT_PASSWORD=... npm
 | `trust_post`, `relevance_post` | 1–7 trust in the options Msquared showed (H2 threshold) and relevance |
 | `own_words` | Optional free text (typed or spoken) after the intake questions. May contain health details; treat the export as sensitive |
 | `rely_<option>`, `rely_change_<option>` | H2 per option (`primary_obgyn`, `specialist`, `coordination`): would bring it up before reading why (likely/unsure/unlikely), and change after reading (more/same/less) |
+| `trust_source` | What most affected trust: why (explanations), sources, team, design, own, none. Separates the H2 driver from other trust signals |
 | `clarity_reason`, `trust_reason` | Optional “What made you choose that number?” after the clarity and trust ratings |
 | `next_step_pre`, `next_step_response` | Same open question before and after: “What, if anything, do you think your next step should be? Why?” (H1 primary; the team scores whether it names a specific professional-care step and a reason) |
 | `decision_choice`, `decision_reason` | use / verify / unsure and why (H2 primary) |
@@ -93,6 +94,8 @@ npm run test:e2e     # browser tests (needs Playwright: npm i -D playwright && n
 ```
 
 ## Edit content
+Team names, contact email, a named clinical reviewer and interview quotes go in `public/js/content/team.js`. Only add what is true; empty values stay hidden.
+
 All medical wording is in `public/js/content/careOptions.js`; sources in `public/js/content/sources.js`; safety and path copy in `public/js/content/copy.js`. Display code doesn't contain medical wording. Any edit needs clinician review before real sessions.
 
 ## Project layout

@@ -1,6 +1,15 @@
 import { el, state, save, saveFields, track, flush, likert, textField, radioTiles, errorBox, showError, stableOrder, revealAfter } from '../core.js';
 import { FREE_TEXT_REMINDER, MEASURES, WHY_RATING } from '../content/copy.js';
 
+// What most affected trust: separates the H2 driver (explanations, sources) from other trust signals.
+const TRUST_SOURCE = {
+  why: 'The explanations of why each option may be relevant',
+  sources: 'The links to medical guidance',
+  team: 'Knowing who’s behind Msquared',
+  design: 'How it looks and feels',
+  own: 'My own knowledge or experience',
+};
+
 // Short codes are used to log the (randomized) display order.
 const HELPFUL = {
   rc: { value: 'role_comparison', label: 'Role comparison' },
@@ -15,6 +24,7 @@ export function renderFeedback(main, { navigate }) {
     clarityReason: '',
     trustInfo: null,
     trust: null,
+    trustSource: null,
     relevance: null,
     nextStep: '',
     trustReason: '',
@@ -84,6 +94,16 @@ export function renderFeedback(main, { navigate }) {
       el('h2', {}, 'About the care map'),
       likert({ name: 'trust_post', legend: 'How much do you trust the care options Msquared showed you?', low: 'Not at all', high: 'Completely', value: f.trust, onChange: rate('trust', trustWhy) }),
       trustWhy.el,
+      radioTiles({
+        name: 'trust_source',
+        legend: 'What most affected how much you trusted the options?',
+        options: [
+          ...stableOrder('trust_source', Object.keys(TRUST_SOURCE)).map((c) => ({ value: c, label: TRUST_SOURCE[c] })),
+          { value: 'none', label: 'Nothing in particular' },
+        ],
+        value: f.trustSource,
+        onChange: set('trustSource'),
+      }),
       likert({ name: 'relevance_post', legend: 'How relevant was the care map to your situation?', low: 'Not at all relevant', high: 'Completely relevant', value: f.relevance, onChange: set('relevance') }),
       radioTiles({ name: 'helpful', legend: 'Which part, if any, was most useful?', options: helpfulOptions, value: f.helpful, onChange: set('helpful') }),
       textField({ label: 'Anything confusing or missing? (optional)', key: 'missing_or_confusing', value: f.confusing, onInput: set('confusing') }),
@@ -139,6 +159,7 @@ export function renderFeedback(main, { navigate }) {
         relevance_post: f.relevance,
         next_step_response: f.nextStep || null,
         trust_reason: f.trustReason || null,
+        trust_source: f.trustSource || null,
         most_helpful_feature: f.helpful || null,
         missing_or_confusing: f.confusing || null,
         prefers_msquared_stated: f.prefers || null,

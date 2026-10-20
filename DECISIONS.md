@@ -22,6 +22,12 @@ How to read H2 now:
 | Threshold: trust 6+ with a concrete reason | `trust_post` + `trust_reason` |
 Limits: self-selection (who opens explanations) and possible demand effects from asking twice. Report as within-person change, not a causal effect.
 
+## Human trust signals (Oct 20, 2026)
+Based on the Stanford Web Credibility guidelines (real organization, real people, expertise, easy contact, verifiable information) and Sillence et al. 2004 (design decides who leaves; expertise and “women like me” decide who trusts).
+- “Who’s behind Msquared” on the welcome page, a reviewer line on the map, and a “Talk to a person” card on the map and thank-you page. All content lives in `public/js/content/team.js` and is hidden while empty.
+- Only true, verifiable facts. No invented network size, number of people helped, professionals, reviewers, partners or testimonials (deceptive, and banned by the FTC rule on fake reviews and testimonials).
+- New `trust_source` question (“What most affected how much you trusted the options?”, randomized order) separates the H2 driver (explanations and sources) from these other signals, so H2 stays interpretable.
+
 ## Map as a route and shorter copy (Oct 20, 2026)
 - The care map opens with a route: You are here, three unranked conversations, your next conversation. Sections down the page are stops on a rail. Tapping a stop scrolls to it.
 - Copy shortened on every screen; one privacy line per form instead of a hint under every box.
