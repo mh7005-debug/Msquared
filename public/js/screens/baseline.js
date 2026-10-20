@@ -55,7 +55,6 @@ export function renderBaseline(main, { navigate }) {
   });
 
   main.append(
-    el('p', { class: 'eyebrow' }, 'Before you start'),
     el('h1', {}, 'Where are you right now?'),
     el('p', { class: 'lede' }, 'Two quick ratings so we can compare before and after. There are no right answers.'),
     form,

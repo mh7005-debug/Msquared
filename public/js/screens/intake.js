@@ -26,7 +26,6 @@ export function renderIntake(main, { navigate }) {
   const err = errorBox();
 
   main.append(
-    el('p', { class: 'eyebrow' }, 'Step 2 of 3'),
     el('h1', {}, 'Tell us where you’re stuck'),
     el('div', { class: 'progress' }, el('div', { class: 'progress-bar', 'aria-hidden': 'true' }, progressFill), progressLabel),
     chat,

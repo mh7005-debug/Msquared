@@ -1,4 +1,4 @@
-import { state, config, loadConfig, track } from './core.js';
+import { state, config, loadConfig, track, el } from './core.js';
 import { renderWelcome } from './screens/welcome.js';
 import { renderBaseline } from './screens/baseline.js';
 import { renderIntake } from './screens/intake.js';
@@ -8,10 +8,10 @@ import { renderComplete } from './screens/complete.js';
 
 const ROUTES = {
   '/': { render: renderWelcome, title: 'Welcome', screen: 'consent' },
-  '/start': { render: renderBaseline, title: 'Before you start', screen: 'baseline', needs: 'session' },
-  '/intake': { render: renderIntake, title: 'Tell us where you’re stuck', screen: 'intake', needs: 'baseline' },
-  '/map': { render: renderMap, title: 'Your next-step care map', screen: 'map', needs: 'intake' },
-  '/feedback': { render: renderFeedback, title: 'Your feedback', screen: 'feedback', needs: 'decision' },
+  '/start': { render: renderBaseline, title: 'Before you start', screen: 'baseline', needs: 'session', step: 0 },
+  '/intake': { render: renderIntake, title: 'Tell us where you’re stuck', screen: 'intake', needs: 'baseline', step: 1, back: '/start' },
+  '/map': { render: renderMap, title: 'Your next-step care map', screen: 'map', needs: 'intake', step: 2, back: '/intake' },
+  '/feedback': { render: renderFeedback, title: 'Your feedback', screen: 'feedback', needs: 'decision', step: 3, back: '/map' },
   '/complete': { render: renderComplete, title: 'Thank you', screen: 'complete', needs: 'completed' },
 };
 
@@ -52,9 +52,31 @@ function render() {
   main.className = 'wrap';
   updateChrome();
   track('screen_viewed', route.screen);
+  if (route.step !== undefined) main.append(stepper(route));
   route.render(main, { navigate });
   window.scrollTo(0, 0);
   main.focus({ preventScroll: true });
+}
+
+const STEPS = ['Before you start', 'Your situation', 'Care map', 'Feedback'];
+
+/** Progress across the four screens after consent, with a Back link where going back makes sense. */
+function stepper(route) {
+  const list = el(
+    'ol',
+    { class: 'stepper', 'aria-label': `Step ${route.step + 1} of ${STEPS.length}` },
+    STEPS.map((label, i) =>
+      el(
+        'li',
+        { class: i < route.step ? 'done' : null, 'aria-current': i === route.step ? 'step' : null },
+        el('span', {}, label),
+      ),
+    ),
+  );
+  const back = route.back
+    ? el('button', { class: 'btn-link back-link', type: 'button', onclick: () => navigate(route.back) }, '← Back')
+    : null;
+  return el('div', { class: 'stepper-row' }, list, back);
 }
 
 export function updateChrome() {

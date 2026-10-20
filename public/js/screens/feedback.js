@@ -111,5 +111,5 @@ export function renderFeedback(main, { navigate }) {
     }
   });
 
-  main.append(el('p', { class: 'eyebrow' }, 'Almost done'), el('h1', {}, 'How did that go?'), el('p', { class: 'lede' }, 'A few questions about the care map. Honest answers help most — including critical ones.'), form);
+  main.append(el('h1', {}, 'How did that go?'), el('p', { class: 'lede' }, 'A few questions about the care map. Honest answers help most — including critical ones.'), form);
 }

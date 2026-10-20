@@ -22,10 +22,13 @@ export function renderMap(main, { navigate }) {
     track('map_viewed', `p${state.pathId}`);
   }
 
+  const root = el('div');
+  main.append(root);
+
   function render() {
-    main.replaceChildren();
+    root.replaceChildren();
     const pathId = state.pathId;
-    main.className = `wrap path-${pathId}`;
+    root.className = `path-${pathId}`;
     const sections = {
       journey: journeySection,
       unresolved: unresolvedSection,
@@ -35,11 +38,10 @@ export function renderMap(main, { navigate }) {
       summary: summarySection,
       decision: decisionSection,
     };
-    main.append(
+    root.append(
       el(
         'div',
         { class: 'map-head' },
-        el('p', { class: 'eyebrow' }, 'Step 3 of 3'),
         el('h1', {}, 'Your next-step care map'),
         pathRow(),
       ),
