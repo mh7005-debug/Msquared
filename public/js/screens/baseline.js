@@ -11,7 +11,7 @@ export function renderBaseline(main, { navigate }) {
     { class: 'sheet', novalidate: true },
     likert({ name: 'clarity_pre', ...MEASURES.clarity, value: b.clarity, onChange: (v) => ((b.clarity = v), save()) }),
     likert({ name: 'trust_pre', ...MEASURES.trustInfo, value: b.trust, onChange: (v) => ((b.trust = v), save()) }),
-    textField({ ...MEASURES.nextStep, value: b.nextStep, onInput: (v) => ((b.nextStep = v), save()) }),
+    textField({ ...MEASURES.nextStep, key: 'next_step_pre', value: b.nextStep, onInput: (v) => ((b.nextStep = v), save()) }),
     el('div', { class: 'actions' }, next),
     err,
   );
@@ -37,7 +37,7 @@ export function renderBaseline(main, { navigate }) {
 
   main.append(
     el('h1', {}, 'Where are you right now?'),
-    el('p', { class: 'lede' }, 'Three quick questions before we start, so we can compare before and after. There are no right or wrong answers.'),
+    el('p', { class: 'lede' }, 'Three quick questions before we start, so we can compare before and after. There are no right or wrong answers. Answer briefly or in as much detail as you like.'),
     form,
   );
 }

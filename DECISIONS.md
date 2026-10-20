@@ -6,6 +6,17 @@
 - **20 testers** instead of 10. Nothing in the app caps sessions; P-codes P01–P99 are accepted.
 - **English only.**
 
+## Optional depth and voice (Oct 20, 2026)
+Problem: answers were mostly numbers, but the team needs richer explanations without tiring testers.
+Approach: quick by default, depth on demand. Evidence: voice answers in smartphone surveys are longer and faster but raise nonresponse when they replace typing, so voice is offered beside typing, never instead of it ([ISR Michigan](https://api.isr.umich.edu/?p=198893), [Survey Practice](https://www.surveypractice.org/article/2713-giving-respondents-voice-the-feasibility-of-voice-input-for-mobile-web-surveys)). Constant progress bars don't reduce breakoff; fast-early/slow-later does, so taps stay first and open questions come last ([Villar, Callegaro and Yang 2013](https://research.google/pubs/where-am-i-a-meta-analysis-of-experiments-on-the-effects-of-progress-indicators-for-web-surveys/)).
+
+- **Own-words step** (`own_words`) after the 6 taps: “Is there anything else you’d like your care map to reflect?” Optional. It is added to the participant’s copyable summary, so writing more gives them something back.
+- **Follow-ups that open only after a rating:** “What made you choose that number?” under clarity after the map (`clarity_reason`) and trust in Msquared’s options (`trust_reason`).
+- **Speak button** on every open text box, using the browser’s built-in speech-to-text (Chrome, Edge, Safari 14.5+; not Firefox, where a keyboard-microphone tip shows instead). Text appears in the box and can be edited. No audio reaches Msquared. Event `voice_input_used` records which field was dictated.
+- **Free-text limit raised from 240 to 1,000 characters** (spoken answers run long). Spec deviation.
+- **Team decision: own words are always stored.** This deviates from spec §6 (“do not store intake symptom/duration/provider answers”): tapped intake answers are still never stored, but anything a participant writes or says in their own words is, and it may contain health details. The consent screen states this, and that the browser’s speech service (Apple or Google) processes voice. The clinician reviewer and instructor should know about this before real sessions.
+- **Not done:** using these answers to route people to specific practitioners. That would be individualized triage, which the spec rules out; the stored answers are evidence for designing a clinician-reviewed version later.
+
 ## Question wording review (Oct 20, 2026)
 Goal: remove wording that nudges testers toward an answer. Principles: no presupposed answer ("what, if anything"), balanced options (a positive option wherever there are negative ones), identical wording for anything measured before and after, randomized option order where position could bias the choice (order logged as `options_shown`).
 

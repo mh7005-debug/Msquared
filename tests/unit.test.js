@@ -34,8 +34,10 @@ test('pre/post trust item and "none of these" are accepted; order events are all
   });
 });
 
-test('free text is trimmed to 240 characters', () => {
-  assert.equal(cleanFields({ decision_reason: 'x'.repeat(500) }).decision_reason.length, 240);
+test('free text (typed or spoken) is kept up to 1000 characters', () => {
+  assert.equal(cleanFields({ decision_reason: 'x'.repeat(1500) }).decision_reason.length, 1000);
+  assert.equal(cleanFields({ own_words: '  It started after I stopped the pill.  ' }).own_words, 'It started after I stopped the pill.');
+  assert.equal(cleanFields({ clarity_reason: 'The comparison table' }).clarity_reason, 'The comparison table');
 });
 
 test('events keep only allowed names and non-sensitive component ids', () => {
@@ -110,6 +112,11 @@ test('copyable summary leaves out symptom and duration details', () => {
   const text = copySummary({ concern: 'absent', duration: 'over6', prior: 'one', types: ['obgyn'] }, 2);
   assert.doesNotMatch(text, /absent|6 months|irregular/i);
   assert.match(text, /whose advice to trust|heard different things/);
+});
+
+test('copyable summary includes own words only when given', () => {
+  assert.match(copySummary({}, 1, 'I want to know which tests to ask for.'), /In my own words: I want to know which tests to ask for\./);
+  assert.doesNotMatch(copySummary({}, 1, ''), /In my own words/);
 });
 
 test('three paths render distinct section emphasis but the same cards', () => {

@@ -49,6 +49,8 @@ Or from a terminal: `MSQ_URL=https://YOUR-APP.vercel.app EXPORT_PASSWORD=... npm
 | `clarity_pre` → `clarity_post` | Same 1–7 question before and after the map |
 | `trust_pre` → `trust_info_post` | Same 1–7 question before and after: trust in the information they have |
 | `trust_post`, `relevance_post` | 1–7 trust in the options Msquared showed (H2 threshold) and relevance |
+| `own_words` | Optional free text (typed or spoken) after the intake questions. May contain health details; treat the export as sensitive |
+| `clarity_reason`, `trust_reason` | Optional “What made you choose that number?” after the clarity and trust ratings |
 | `next_step_pre`, `next_step_response` | Same open question before and after: “What, if anything, do you think your next step should be? Why?” (H1 primary; the team scores whether it names a specific professional-care step and a reason) |
 | `decision_choice`, `decision_reason` | use / verify / unsure and why (H2 primary) |
 | `trust_reason` | What made them trust or question the options (H2 threshold) |
@@ -58,7 +60,7 @@ Or from a terminal: `MSQ_URL=https://YOUR-APP.vercel.app EXPORT_PASSWORD=... npm
 | `safety_flag`, `safety_description` | Anything misleading or unsafe; review every "yes" |
 | `quote_text` | Only filled when `quote_permission` is true |
 
-Events include `options_shown` (the randomized order in which path, decision and “most useful” options appeared, e.g. `decision:verify-use-unsure`), `screen_viewed`, `intake_started`, `chat_step_answered` (`q2:tap` / `q2:typed`), `chat_clarification_needed`, `intake_step_revisited`, `safety_notice_shown`, `path_selected`, `path_changed`, `map_viewed`, `role_comparison_opened`, `care_option_expanded`, `evidence_opened`, `source_clicked`, `decision_selected`, `summary_copied`, `feedback_submitted`, `session_completed`. Clicks are engagement, not proof of trust; pair them with `decision_choice` and the written reasons.
+Events include `voice_input_used` (which field was dictated), `options_shown` (the randomized order in which path, decision and “most useful” options appeared, e.g. `decision:verify-use-unsure`), `screen_viewed`, `intake_started`, `chat_step_answered` (`q2:tap` / `q2:typed`), `chat_clarification_needed`, `intake_step_revisited`, `safety_notice_shown`, `path_selected`, `path_changed`, `map_viewed`, `role_comparison_opened`, `care_option_expanded`, `evidence_opened`, `source_clicked`, `decision_selected`, `summary_copied`, `feedback_submitted`, `session_completed`. Clicks are engagement, not proof of trust; pair them with `decision_choice` and the written reasons.
 
 ## Delete data
 - One session (the code is on the participant's thank-you page, e.g. `abcd-efgh-ijkm`):
@@ -71,12 +73,13 @@ Events include `options_shown` (the randomized order in which path, decision and
 ## Privacy: what is stored where
 | Where | What | Kept |
 |---|---|---|
-| Participant's browser tab | Intake answers, chat, personalised map | Until the tab closes |
-| Neon database (your Vercel account) | Ratings, path, short optional text, click events, random session code, optional P-code | Until deleted (target: end of fall 2026 semester) |
+| Participant's browser tab | Tapped intake answers, chat, personalised map | Until the tab closes |
+| Browser speech service (Apple or Google) | Voice, only if the participant taps Speak; converted to text in the browser | Per Apple/Google policy; Msquared never receives audio |
+| Neon database (your Vercel account) | Ratings, path, optional free text including own words (up to 1,000 characters), click events, random session code, optional P-code | Until deleted (target: end of fall 2026 semester) |
 | Anthropic API | Only typed chat answers, to classify them; not stored by the app | Per Anthropic's API data policy |
 | Vercel logs | IP address, URL, time (standard hosting logs) | Short-term, per Vercel |
 
-Never stored by the app: symptoms, duration, which clinicians they saw, typed chat text, names. No analytics SDKs or third-party trackers; links to sources send no referrer. **Access:** only people with `EXPORT_PASSWORD` and the Vercel/Neon account owner.
+Never stored by the app: tapped answers about symptoms, duration and clinicians seen, typed chat answers, names, audio. Free text the participant chooses to write or speak is stored. No analytics SDKs or third-party trackers; links to sources send no referrer. **Access:** only people with `EXPORT_PASSWORD` and the Vercel/Neon account owner.
 
 ---
 

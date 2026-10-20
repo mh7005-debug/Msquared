@@ -1,5 +1,5 @@
-import { el, state, save, saveFields, track, flush, likert, textField, radioTiles, errorBox, showError, stableOrder } from '../core.js';
-import { FREE_TEXT_REMINDER, MEASURES } from '../content/copy.js';
+import { el, state, save, saveFields, track, flush, likert, textField, radioTiles, errorBox, showError, stableOrder, revealAfter } from '../core.js';
+import { FREE_TEXT_REMINDER, MEASURES, WHY_RATING } from '../content/copy.js';
 
 // Short codes are used to log the (randomized) display order.
 const HELPFUL = {
@@ -12,6 +12,7 @@ const HELPFUL = {
 export function renderFeedback(main, { navigate }) {
   const f = (state.feedback = state.feedback || {
     clarity: null,
+    clarityReason: '',
     trustInfo: null,
     trust: null,
     relevance: null,
@@ -46,6 +47,21 @@ export function renderFeedback(main, { navigate }) {
     save();
   });
 
+  // Optional "why" boxes open only after the rating is chosen: quick for some, room to expand for others.
+  const clarityWhy = revealAfter(
+    textField({ label: WHY_RATING, hint: FREE_TEXT_REMINDER, key: 'clarity_reason', value: f.clarityReason, onInput: set('clarityReason') }),
+    Boolean(f.clarity),
+  );
+  const trustWhy = revealAfter(
+    textField({ label: WHY_RATING, hint: FREE_TEXT_REMINDER, key: 'trust_reason', value: f.trustReason, onInput: set('trustReason') }),
+    Boolean(f.trust),
+  );
+  const rate = (k, why) => (v) => {
+    f[k] = v;
+    save();
+    why.show();
+  };
+
   // "None of these" always stays last; the four features are shown in a random order.
   const helpfulOptions = [...stableOrder('helpful', Object.keys(HELPFUL)).map((c) => HELPFUL[c]), { value: 'none', label: 'None of these' }];
 
@@ -57,22 +73,24 @@ export function renderFeedback(main, { navigate }) {
       { class: 'form-section' },
       el('h2', {}, 'Where you are now'),
       // Same wording as before the care map, so answers can be compared.
-      likert({ name: 'clarity_post', ...MEASURES.clarity, value: f.clarity, onChange: set('clarity') }),
+      likert({ name: 'clarity_post', ...MEASURES.clarity, value: f.clarity, onChange: rate('clarity', clarityWhy) }),
+      clarityWhy.el,
       likert({ name: 'trust_info_post', ...MEASURES.trustInfo, value: f.trustInfo, onChange: set('trustInfo') }),
-      textField({ ...MEASURES.nextStep, value: f.nextStep, onInput: set('nextStep') }),
+      textField({ ...MEASURES.nextStep, key: 'next_step_response', value: f.nextStep, onInput: set('nextStep') }),
     ),
     el(
       'div',
       { class: 'form-section' },
       el('h2', {}, 'About the care map'),
-      likert({ name: 'trust_post', legend: 'How much do you trust the care options Msquared showed you?', low: 'Not at all', high: 'Completely', value: f.trust, onChange: set('trust') }),
+      likert({ name: 'trust_post', legend: 'How much do you trust the care options Msquared showed you?', low: 'Not at all', high: 'Completely', value: f.trust, onChange: rate('trust', trustWhy) }),
+      trustWhy.el,
       likert({ name: 'relevance_post', legend: 'How relevant was the care map to your situation?', low: 'Not at all relevant', high: 'Completely relevant', value: f.relevance, onChange: set('relevance') }),
-      textField({ label: 'What, if anything, affected how much you trusted the options shown? (optional)', hint: FREE_TEXT_REMINDER, value: f.trustReason, onInput: set('trustReason') }),
       radioTiles({ name: 'helpful', legend: 'Which part, if any, was most useful?', options: helpfulOptions, value: f.helpful, onChange: set('helpful') }),
-      textField({ label: 'What, if anything, was confusing or missing? (optional)', hint: FREE_TEXT_REMINDER, value: f.confusing, onInput: set('confusing') }),
+      textField({ label: 'What, if anything, was confusing or missing? (optional)', hint: FREE_TEXT_REMINDER, key: 'missing_or_confusing', value: f.confusing, onInput: set('confusing') }),
       textField({
         label: 'For a similar question in the future, would you use Msquared, your usual way of looking for information, or both? Why? (optional)',
         hint: FREE_TEXT_REMINDER,
+        key: 'prefers_msquared_stated',
         value: f.prefers,
         onInput: set('prefers'),
       }),
@@ -116,6 +134,7 @@ export function renderFeedback(main, { navigate }) {
     try {
       await saveFields({
         clarity_post: f.clarity,
+        clarity_reason: f.clarityReason || null,
         trust_info_post: f.trustInfo,
         trust_post: f.trust,
         relevance_post: f.relevance,

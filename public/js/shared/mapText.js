@@ -60,7 +60,7 @@ export function journeySummary(answers) {
 }
 
 /** Section E: copyable summary. Leaves out symptom and duration details on purpose. */
-export function copySummary(answers, pathId) {
+export function copySummary(answers, pathId, ownWords = '') {
   const u = UNRESOLVED[pathId];
   const lines = [];
   lines.push('My next-step care notes (prepared with Msquared, an educational tool, not medical advice)');
@@ -68,6 +68,7 @@ export function copySummary(answers, pathId) {
   lines.push(`Where I'm stuck: ${u.obstacle}`);
   const seen = professionalsSeen(answers);
   if (seen.length) lines.push(`Professionals I've seen: ${joinList(seen)}`);
+  if (ownWords && ownWords.trim()) lines.push(`In my own words: ${ownWords.trim()}`);
   lines.push('');
   lines.push('Professional conversations to consider:');
   for (const c of CARE_OPTIONS) lines.push(`- ${c.shortRole}: ${c.summary}`);

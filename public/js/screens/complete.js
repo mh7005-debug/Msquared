@@ -8,7 +8,7 @@ export function renderComplete(main, { navigate }) {
 
   const copyBtn = el('button', { class: 'btn', type: 'button' }, icon('copy'), 'Copy my summary again');
   copyBtn.addEventListener('click', async () => {
-    status.textContent = (await copyText(copySummary(state.answers, state.pathId))) ? 'Copied' : 'Couldn’t copy.';
+    status.textContent = (await copyText(copySummary(state.answers, state.pathId, state.ownWords))) ? 'Copied' : 'Couldn’t copy.';
   });
   const clearBtn = el('button', { class: 'btn', type: 'button' }, 'Clear my answers from this device');
   clearBtn.addEventListener('click', () => {

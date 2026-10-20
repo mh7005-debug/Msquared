@@ -287,7 +287,7 @@ export function renderMap(main, { navigate }) {
 
   // ---- E. Copyable summary ----
   function summarySection(pathId) {
-    const text = copySummary(state.answers, pathId);
+    const text = copySummary(state.answers, pathId, state.ownWords);
     const status = el('span', { class: 'status', role: 'status' });
     const btn = el('button', { class: 'btn', type: 'button' }, icon('copy'), 'Copy summary');
     btn.addEventListener('click', async () => {
@@ -299,7 +299,7 @@ export function renderMap(main, { navigate }) {
       'section',
       { class: `section${pathId === 3 ? ' card emph' : ''}`, 'aria-labelledby': 'h-sum' },
       el('h2', { id: 'h-sum' }, 'Your next-step summary'),
-      el('p', { class: 'section-intro' }, 'Copy this into your notes or bring it to an appointment. It leaves out your symptom details.'),
+      el('p', { class: 'section-intro' }, 'Copy this into your notes or bring it to an appointment. It includes anything you wrote in your own words, but not your other answers.'),
       el('pre', { class: 'summary-box', tabindex: '0', 'aria-label': 'Summary text' }, text),
       el('div', { class: 'copy-row' }, btn, status),
     );
@@ -360,8 +360,8 @@ export function renderMap(main, { navigate }) {
           track('decision_selected', v);
         },
       }),
-      textField({ label: 'What led you to that choice? (optional)', hint: FREE_TEXT_REMINDER, value: m.reason, onInput: (v) => ((m.reason = v), save()) }),
-      textField({ label: 'What information, if any, is missing? (optional)', hint: FREE_TEXT_REMINDER, value: m.missing, onInput: (v) => ((m.missing = v), save()) }),
+      textField({ label: 'What led you to that choice? (optional)', hint: FREE_TEXT_REMINDER, key: 'decision_reason', value: m.reason, onInput: (v) => ((m.reason = v), save()) }),
+      textField({ label: 'What information, if any, is missing? (optional)', hint: FREE_TEXT_REMINDER, key: 'map_missing_info', value: m.missing, onInput: (v) => ((m.missing = v), save()) }),
       el('div', { class: 'field' }, el('label', { class: 'field-label', for: 'next-conv' }, 'Which professional conversation, if any, would you consider next? (optional)'), select),
       el('div', { class: 'actions' }, next),
       err,

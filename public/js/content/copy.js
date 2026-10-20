@@ -17,7 +17,16 @@ export const CRISIS_NOTICE = {
 export const EDUCATIONAL_NOTICE =
   'Msquared is educational. It doesn’t diagnose, treat, or replace an evaluation by a healthcare professional.';
 
-export const FREE_TEXT_REMINDER = 'Please leave out names and medical details. Max 240 characters.';
+export const FREE_TEXT_REMINDER = 'Type or tap Speak. Please leave out names and contact details.';
+
+/** Optional open step after the 6 intake questions. Saved for the research team (see consent). */
+export const OWN_WORDS = {
+  label: 'Is there anything else you’d like your care map to reflect? (optional)',
+  hint: 'In your own words: what’s been happening, what you’ve tried, or what you most want to understand. Type or tap Speak. Please leave out names and contact details.',
+};
+
+/** Follow-up shown only after a rating is chosen. */
+export const WHY_RATING = 'What made you choose that number? (optional)';
 
 /**
  * Measurement items asked BEFORE and AFTER the care map. Wording must stay identical on both
@@ -32,7 +41,7 @@ export const MEASURES = {
   },
   nextStep: {
     label: 'What, if anything, do you think your next step should be? Why? (optional)',
-    hint: '“I’m not sure” is a fine answer. Please leave out names and medical details.',
+    hint: '“I’m not sure” is a fine answer. Type or tap Speak. Please leave out names and contact details.',
   },
 };
 

@@ -164,7 +164,36 @@ test('complete flow on each path with distinct emphasis, saved pre/post and even
   for (const name of ['options_shown', 'path_selected', 'map_viewed', 'care_option_expanded', 'evidence_opened', 'source_clicked', 'summary_copied', 'decision_selected', 'feedback_submitted', 'session_completed']) {
     assert.match(events, new RegExp(name), `${name} logged`);
   }
-  assert.doesNotMatch(events + sessions, /My period is absent|over6|Over 6 months/, 'no intake answers stored');
+  assert.doesNotMatch(events + sessions, /My period is absent|over6|Over 6 months/, 'tapped intake answers never stored');
+});
+
+test('optional depth: own words are saved and summarized; follow-ups open only after a rating', async () => {
+  const page = await newPage();
+  await consentAndBaseline(page, 'P19');
+  await tapIntake(page, 2, { prior: 'No' });
+  const own = page.locator('.question-card textarea');
+  assert.ok(await page.locator('.question-card .btn-mic, .question-card .voice-status').count(), 'voice control or keyboard tip shown');
+  await own.fill('It changed after I stopped birth control and I want to know which tests to ask about.');
+  await page.click('button:has-text("See my care map")');
+  await page.waitForURL('**/map');
+  assert.match(await page.locator('.summary-box').textContent(), /In my own words: It changed after I stopped birth control/);
+  await page.check('input[name=decision][value=unsure]');
+  await page.click('button:has-text("Continue to feedback")');
+  await page.waitForURL('**/feedback');
+  const why = page.locator('.follow-up').first();
+  assert.equal(await why.isHidden(), true, 'follow-up hidden before rating');
+  await page.locator('.likert-scale').first().locator('label').nth(2).click();
+  assert.equal(await why.isVisible(), true, 'follow-up shown after rating');
+  await why.locator('textarea').fill('Still not sure who to see first');
+  const scales = page.locator('.likert-scale');
+  for (let i = 1; i < 4; i++) await scales.nth(i).locator('label').nth(4).click();
+  await page.check('input[name=safety][value=no]');
+  await page.click('button:has-text("Submit feedback")');
+  await page.waitForURL('**/complete');
+  const row = (await exportCsv('sessions')).split('\r\n').find((l) => l.includes('P19,'));
+  assert.match(row, /It changed after I stopped birth control/);
+  assert.match(row, /Still not sure who to see first/);
+  await page.context().close();
 });
 
 test('editing an intake answer updates the journey summary', async () => {

@@ -1,6 +1,6 @@
-import { el, state, save, saveFields, api, config, track, errorBox, showError, icon, stableOrder } from '../core.js';
+import { el, state, save, saveFields, api, config, track, errorBox, showError, icon, stableOrder, textField } from '../core.js';
 import { INTAKE_STEPS, activeSteps, pruneAnswers, pathIdFromOption, optionLabel } from '../shared/intake.js';
-import { URGENT_NOTICE, CRISIS_NOTICE } from '../content/copy.js';
+import { URGENT_NOTICE, CRISIS_NOTICE, OWN_WORDS } from '../content/copy.js';
 
 const qIndex = (stepId) => INTAKE_STEPS.findIndex((s) => s.id === stepId) + 1;
 const isAnswered = (v) => (Array.isArray(v) ? v.length > 0 : Boolean(v));
@@ -216,7 +216,7 @@ export function renderIntake(main, { navigate }) {
       go.disabled = true;
       showError(err, '');
       try {
-        await saveFields({ path_id: state.pathId, intake_mode: state.intakeMode, last_screen: 'intake' });
+        await saveFields({ path_id: state.pathId, intake_mode: state.intakeMode, own_words: state.ownWords || null, last_screen: 'intake' });
         navigate('/map');
       } catch (ex) {
         showError(err, ex.message);
@@ -225,7 +225,8 @@ export function renderIntake(main, { navigate }) {
     });
     card.replaceChildren(
       el('h2', { class: 'q-title', id: 'q-title', tabindex: '-1' }, 'That’s everything we need'),
-      el('p', { class: 'muted' }, 'Check your answers above and edit any of them. Your care map uses only these answers.'),
+      el('p', { class: 'muted' }, 'Check your answers above and edit any of them. If you’d like to add more, you can do it here.'),
+      textField({ ...OWN_WORDS, key: 'own_words', value: state.ownWords, onInput: (v) => ((state.ownWords = v), save()) }),
       el('div', { class: 'actions' }, go),
     );
   }

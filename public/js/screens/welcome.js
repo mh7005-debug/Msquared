@@ -1,4 +1,4 @@
-import { el, state, save, api, config, errorBox, showError, track, icon } from '../core.js';
+import { el, state, save, api, config, errorBox, showError, track, icon, voiceSupported } from '../core.js';
 import { STUDY } from '../content/copy.js';
 
 export function renderWelcome(main, { navigate }) {
@@ -42,7 +42,11 @@ export function renderWelcome(main, { navigate }) {
       'ul',
       { class: 'data-list' },
       dataPoint('We save your ratings, the path you choose, short optional answers, and which parts of the map you open. They’re linked to a random session code, not your name.'),
-      dataPoint('Your answers about your cycle and care history stay on this device and aren’t saved. They’re cleared when you close the tab.'),
+      dataPoint('The answers you tap about your cycle and care history stay on this device and aren’t saved. They’re cleared when you close the tab.'),
+      dataPoint('Anything you choose to write or say in your own words is saved for the research team, linked to your session code. Please leave out names and contact details.'),
+      voiceSupported
+        ? dataPoint('If you use Speak, your browser’s speech service (Apple or Google) turns your voice into text. We receive only the text. No audio is saved.')
+        : null,
       config.aiEnabled
         ? dataPoint('If you type an answer instead of choosing one, it’s sent to our AI provider (Anthropic) to be understood, then discarded.')
         : null,
@@ -106,7 +110,7 @@ export function renderWelcome(main, { navigate }) {
           'ul',
           { class: 'trust-list', 'aria-label': 'About Msquared' },
           trust('book', 'Grounded in published guidance', 'Explanations cite guidance from professional medical societies.'),
-          trust('lock', 'Private by design', 'No account. Your health answers stay on your device.'),
+          trust('lock', 'No account needed', 'We never ask for your name or contact details.'),
           trust('shield', 'Educational, not a diagnosis', 'It helps you prepare for a conversation with a clinician.'),
         ),
       ),
@@ -117,7 +121,7 @@ export function renderWelcome(main, { navigate }) {
         el(
           'ol',
           { class: 'timeline' },
-          el('li', {}, el('strong', {}, 'Tell us where you’re stuck'), 'Up to 6 short questions, about 2 minutes.'),
+          el('li', {}, el('strong', {}, 'Tell us where you’re stuck'), 'Tap through in about 2 minutes, or add more in your own words.'),
           el('li', {}, el('strong', {}, 'Explore your care map'), 'Professional roles, sources, and questions to ask.'),
           el('li', {}, el('strong', {}, 'Prepare for a conversation'), 'Take a summary to your next appointment.'),
         ),

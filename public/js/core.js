@@ -129,6 +129,7 @@ const ICONS = {
   copy: ['rect 9 9 11 11 2', 'M5 15V5a1 1 0 0 1 1-1h10'],
   chevronDown: ['M6 9l6 6 6-6'],
   chevronLeft: ['M15 6l-6 6 6 6'],
+  mic: ['rect 9 3 6 11 3', 'M5 11a7 7 0 0 0 14 0', 'M12 18v3'],
   user: ['circle 12 8 4', 'M4 21a8 8 0 0 1 16 0'],
   heart: ['M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z'],
 };
@@ -206,8 +207,70 @@ export function likert({ name, legend, low, high, value, onChange }) {
   );
 }
 
-/** Optional short free-text field with counter and privacy reminder. */
-export function textField({ label, hint, value, onInput, multiline = true, max = 240 }) {
+// ---- Voice input: the browser's own speech-to-text (Chrome, Edge, Safari 14.5+). ----
+// Audio is handled by the browser's speech service (Apple or Google). Msquared only receives text.
+const SpeechRec = typeof window !== 'undefined' ? window.SpeechRecognition || window.webkitSpeechRecognition : null;
+export const voiceSupported = Boolean(SpeechRec);
+let activeRecognition = null;
+
+function voiceControls(input, key, max) {
+  const status = el('p', { class: 'voice-status', 'aria-live': 'polite' });
+  if (!voiceSupported) {
+    status.textContent = 'Prefer to talk? Use the microphone on your phone’s keyboard.';
+    return { button: null, status };
+  }
+  const label = el('span', {}, 'Speak');
+  const button = el('button', { class: 'btn btn-mic', type: 'button', 'aria-pressed': 'false' }, icon('mic'), label);
+  let rec = null;
+  let problem = false;
+
+  button.addEventListener('click', () => {
+    if (rec) return rec.stop();
+    if (activeRecognition) activeRecognition.stop();
+    problem = false;
+    rec = new SpeechRec();
+    rec.lang = 'en-US';
+    rec.continuous = true;
+    rec.interimResults = true;
+    const base = input.value.trim() ? `${input.value.trim()} ` : '';
+    rec.onresult = (e) => {
+      let text = '';
+      for (let i = 0; i < e.results.length; i++) text += e.results[i][0].transcript;
+      input.value = (base + text.trim()).slice(0, max);
+      input.dispatchEvent(new Event('input'));
+    };
+    rec.onerror = (e) => {
+      problem = true;
+      status.textContent =
+        e.error === 'not-allowed' || e.error === 'service-not-allowed'
+          ? 'Microphone access is blocked. You can type instead, or allow the microphone in your browser settings.'
+          : 'We couldn’t catch that. Try again, or type your answer.';
+    };
+    rec.onend = () => {
+      rec = null;
+      activeRecognition = null;
+      button.setAttribute('aria-pressed', 'false');
+      label.textContent = 'Speak';
+      if (!problem) status.textContent = input.value ? 'Done. You can edit the text before continuing.' : '';
+    };
+    try {
+      rec.start();
+    } catch {
+      rec = null;
+      status.textContent = 'Voice input isn’t available right now. You can type instead.';
+      return;
+    }
+    activeRecognition = rec;
+    button.setAttribute('aria-pressed', 'true');
+    label.textContent = 'Stop';
+    status.textContent = 'Listening. Speak naturally, then tap Stop.';
+    if (key) track('voice_input_used', key);
+  });
+  return { button, status };
+}
+
+/** Optional free-text field with counter, privacy reminder and (where supported) a Speak button. */
+export function textField({ label, hint, value, onInput, multiline = true, max = 1000, key = null, voice = true }) {
   const id = nextId('t');
   const hintId = `${id}-hint`;
   const counter = el('div', { class: 'counter', 'aria-live': 'polite' }, `${(value || '').length}/${max}`);
@@ -222,14 +285,22 @@ export function textField({ label, hint, value, onInput, multiline = true, max =
     counter.textContent = `${input.value.length}/${max}`;
     onInput(input.value);
   });
+  const v = voice ? voiceControls(input, key, max) : { button: null, status: null };
   return el(
     'div',
     { class: 'field' },
     el('label', { class: 'field-label', for: id }, label),
-    el('p', { class: 'hint', id: hintId }, hint),
+    hint ? el('p', { class: 'hint', id: hintId }, hint) : null,
     input,
-    counter,
+    el('div', { class: 'field-tools' }, v.button || el('span'), counter),
+    v.status,
   );
+}
+
+/** Shows a follow-up field only after the rating above it has been answered. */
+export function revealAfter(fieldEl, answered) {
+  const wrap = el('div', { class: 'follow-up', hidden: !answered }, fieldEl);
+  return { el: wrap, show: () => (wrap.hidden = false) };
 }
 
 export function radioTiles({ name, legend, options, value, onChange, hint }) {
