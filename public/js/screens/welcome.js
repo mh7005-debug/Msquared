@@ -116,9 +116,9 @@ export function renderWelcome(main, { navigate }) {
         el(
           'ol',
           { class: 'timeline' },
-          el('li', {}, el('strong', {}, 'Tell us where you’re stuck'), 'About 2 minutes.'),
+          el('li', {}, el('strong', {}, 'Tap, don’t retell'), 'About a minute. No long story needed.'),
           el('li', {}, el('strong', {}, 'Explore your care map'), 'Roles, sources, questions.'),
-          el('li', {}, el('strong', {}, 'Prepare for a conversation'), 'A summary for your visit.'),
+          el('li', {}, el('strong', {}, 'Leave ready to book'), 'Who to see, what to say, and a brief to hand over.'),
         ),
       ),
       aboutSection(),

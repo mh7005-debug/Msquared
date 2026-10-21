@@ -37,6 +37,7 @@ export const SECTION_PROMISE = {
   evidence: 'evidence',
   options: 'clarity',
   compare: 'clarity',
+  next: 'effort',
   summary: 'effort',
   decision: null, // the research question, not a promise
 };

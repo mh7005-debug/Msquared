@@ -21,8 +21,8 @@ export const FREE_TEXT_REMINDER = 'Written answers are optional. Type or tap Spe
 
 /** Optional open step after the 6 intake questions. Saved for the research team (see consent). */
 export const OWN_WORDS = {
-  label: 'Anything else your care map should reflect? (optional)',
-  hint: 'What’s happening, what you’ve tried, or what you want to understand. Type or tap Speak. Leave out names.',
+  label: 'Anything else your clinician should know? (optional)',
+  hint: 'Say it once here and it goes into your visit brief. Type or tap Speak. Leave out names.',
 };
 
 /** Follow-up shown only after a rating is chosen. */

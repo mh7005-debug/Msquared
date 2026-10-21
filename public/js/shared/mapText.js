@@ -63,7 +63,7 @@ export function journeySummary(answers) {
 export function copySummary(answers, pathId, ownWords = '') {
   const u = UNRESOLVED[pathId];
   const lines = [];
-  lines.push('My next-step care notes (prepared with Msquared, an educational tool, not medical advice)');
+  lines.push('My visit brief (prepared with Msquared, an educational tool, not medical advice)');
   lines.push('');
   lines.push(`Where I'm stuck: ${u.obstacle}`);
   const seen = professionalsSeen(answers);
@@ -83,12 +83,12 @@ export function copySummary(answers, pathId, ownWords = '') {
 export function sectionOrder(pathId) {
   switch (pathId) {
     case 1:
-      return ['journey', 'unresolved', 'compare', 'options', 'summary', 'decision'];
+      return ['journey', 'unresolved', 'compare', 'options', 'next', 'summary', 'decision'];
     case 2:
-      return ['journey', 'unresolved', 'evidence', 'options', 'compare', 'summary', 'decision'];
+      return ['journey', 'unresolved', 'evidence', 'options', 'compare', 'next', 'summary', 'decision'];
     case 3:
-      return ['journey', 'unresolved', 'options', 'compare', 'summary', 'decision'];
+      return ['journey', 'unresolved', 'options', 'compare', 'next', 'summary', 'decision'];
     default:
-      return ['journey', 'unresolved', 'options', 'compare', 'summary', 'decision'];
+      return ['journey', 'unresolved', 'options', 'compare', 'next', 'summary', 'decision'];
   }
 }

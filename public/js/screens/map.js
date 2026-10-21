@@ -5,6 +5,7 @@ import { UNRESOLVED, URGENT_NOTICE, FREE_TEXT_REMINDER, PATH_SHORT } from '../co
 import { PATHS, optionLabel } from '../shared/intake.js';
 import { journeySummary, copySummary, sectionOrder } from '../shared/mapText.js';
 import { contactCard, reviewerLine } from './trust.js';
+import { PROVIDERS, PROVIDER_FOCUS, PORTAL_QUESTIONS, bookingScript, portalMessage } from '../content/providers.js';
 import { VALUE_PROPS, SECTION_PROMISE } from '../content/valueProps.js';
 
 const DECISIONS = {
@@ -92,6 +93,7 @@ export function renderMap(main, { navigate }) {
       evidence: (p) => stop(evidenceSection(p), 'dot', SECTION_PROMISE.evidence),
       options: (p) => stop(optionsSection(p), 'dot', SECTION_PROMISE.options),
       compare: (p) => stop(compareSection(p), 'dot', SECTION_PROMISE.compare),
+      next: (p) => stop(nextSection(p), 'dot', SECTION_PROMISE.next),
       summary: (p) => stop(summarySection(p), 'dot', SECTION_PROMISE.summary),
       decision: (p) => stop(decisionSection(p), 'flag', SECTION_PROMISE.decision),
     };
@@ -159,10 +161,10 @@ export function renderMap(main, { navigate }) {
       lines(null, null, true),
       el(
         'button',
-        { class: 'route-end-node end', type: 'button', onclick: () => scrollToId('h-dec') },
+        { class: 'route-end-node end', type: 'button', onclick: () => scrollToId('h-next') },
         el('span', { class: 'route-node' }, icon('flag')),
-        el('strong', {}, 'Your next conversation'),
-        el('span', {}, 'You choose. Options aren’t ranked.'),
+        el('strong', {}, 'Book your next step'),
+        el('span', {}, 'Who to see, what to say, where to find them.'),
       ),
     );
   }
@@ -406,23 +408,95 @@ export function renderMap(main, { navigate }) {
     return el('section', { class: 'section' }, d);
   }
 
-  // ---- E. Copyable summary ----
-  function summarySection(pathId) {
-    const text = copySummary(state.answers, pathId, state.ownWords);
+  // ---- E1. Book your next step: who, what to say, where to find them ----
+  function copyButton(label, text, eventId) {
     const status = el('span', { class: 'status', role: 'status' });
-    const btn = el('button', { class: 'btn', type: 'button' }, icon('copy'), 'Copy summary');
+    const btn = el('button', { class: 'btn', type: 'button' }, icon('copy'), label);
     btn.addEventListener('click', async () => {
       const ok = await copyText(text);
-      status.textContent = ok ? 'Copied' : 'Couldn’t copy. Select the text and copy it instead.';
-      if (ok) track('summary_copied', `p${pathId}`);
+      status.textContent = ok ? 'Copied' : 'Couldn’t copy. Select the text instead.';
+      if (ok) track('script_copied', eventId);
     });
+    return el('div', { class: 'copy-row' }, btn, status);
+  }
+
+  function nextSection(pathId) {
+    const focus = PROVIDER_FOCUS[pathId] || [];
+    const cards = PROVIDERS.map((p) => {
+      const d = el(
+        'details',
+        { class: 'provider', open: focus.includes(p.id) },
+        el('summary', {}, el('span', { class: 'provider-title' }, p.title), icon('chevronDown', 'icon chev')),
+        el(
+          'div',
+          { class: 'body' },
+          el('p', {}, p.what),
+          el('p', { class: 'small' }, el('strong', {}, `${p.askLabel || 'Ask for'}: `), p.ask),
+          p.directory
+            ? el(
+                'a',
+                {
+                  class: 'directory-link',
+                  href: p.directory.url,
+                  target: '_blank',
+                  rel: 'noopener noreferrer',
+                  onclick: () => track('provider_link_clicked', p.id),
+                },
+                icon('pin'),
+                p.directory.label,
+                icon('external'),
+                el('span', { class: 'sr-only' }, ' (opens in a new tab)'),
+              )
+            : null,
+        ),
+      );
+      d.addEventListener('toggle', () => d.open && track('provider_opened', p.id));
+      return d;
+    });
+
+    const script = bookingScript(state.answers);
+    const portal = portalMessage(state.answers, PORTAL_QUESTIONS[pathId] || PORTAL_QUESTIONS[1]);
     return el(
       'section',
-      { class: `section${pathId === 3 ? ' card emph' : ''}`, 'aria-labelledby': 'h-sum' },
-      el('h2', { id: 'h-sum' }, 'Your next-step summary'),
-      el('p', { class: 'section-intro' }, 'Bring this to your appointment.'),
-      el('pre', { class: 'summary-box', tabindex: '0', 'aria-label': 'Summary text' }, text),
-      el('div', { class: 'copy-row' }, btn, status),
+      { class: 'section card book', 'aria-labelledby': 'h-next' },
+      el('h2', { id: 'h-next' }, 'Book your next step'),
+      el('p', { class: 'section-intro' }, 'Types of professionals, not endorsements. Your choice.'),
+      el('div', { class: 'providers' }, cards),
+      el('h3', { class: 'subhead' }, 'What to say when you call'),
+      el('p', { class: 'script-box' }, script),
+      copyButton('Copy call script', script, 'booking'),
+      state.answers.prior && state.answers.prior !== 'none'
+        ? el(
+            'div',
+            {},
+            el('h3', { class: 'subhead' }, 'Or message a clinician you’ve seen'),
+            el('pre', { class: 'script-box' }, portal),
+            copyButton('Copy message', portal, 'portal'),
+          )
+        : null,
+    );
+  }
+
+  // ---- E2. Visit brief: so they never retell the story ----
+  function summarySection(pathId) {
+    const text = copySummary(state.answers, pathId, state.ownWords);
+    const print = el('button', { class: 'btn', type: 'button' }, icon('book'), 'Print or save PDF');
+    print.addEventListener('click', () => {
+      track('brief_printed', `p${pathId}`);
+      document.body.classList.add('printing-brief');
+      window.print();
+      setTimeout(() => document.body.classList.remove('printing-brief'), 500);
+    });
+    const copy = copyButton('Copy brief', text, 'brief');
+    copy.querySelector('button').addEventListener('click', () => track('summary_copied', `p${pathId}`));
+    copy.prepend(print);
+    return el(
+      'section',
+      { class: `section${pathId === 3 ? ' card emph' : ''}`, id: 'brief', 'aria-labelledby': 'h-sum' },
+      el('h2', { id: 'h-sum' }, 'Your visit brief'),
+      el('p', { class: 'section-intro' }, 'Hand this over so you don’t have to retell your story.'),
+      el('pre', { class: 'summary-box', tabindex: '0', 'aria-label': 'Visit brief text' }, text),
+      copy,
     );
   }
 

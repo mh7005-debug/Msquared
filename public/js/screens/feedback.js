@@ -16,6 +16,7 @@ const HELPFUL = {
   es: { value: 'explanations_sources', label: 'Explanations and sources' },
   js: { value: 'journey_summary', label: 'Journey summary' },
   aq: { value: 'appointment_questions', label: 'Appointment questions' },
+  nt: { value: 'next_step_tools', label: 'Who to book and what to say' },
 };
 
 export function renderFeedback(main, { navigate }) {
@@ -113,6 +114,7 @@ export function renderFeedback(main, { navigate }) {
       promiseTag('effort', 'Less effort'),
       el('h2', {}, 'Was it worth your time?'),
       likert({ name: 'relevance_post', legend: 'How relevant was the care map to your situation?', low: 'Not at all relevant', high: 'Completely relevant', value: f.relevance, onChange: set('relevance') }),
+      likert({ name: 'contact_intent_post', legend: 'How likely are you to contact a healthcare professional about this in the next month?', low: 'Very unlikely', high: 'Very likely', value: f.contactIntent, onChange: set('contactIntent') }),
       radioTiles({ name: 'helpful', legend: 'Which part, if any, was most useful?', options: helpfulOptions, value: f.helpful, onChange: set('helpful') }),
       textField({ label: 'Anything confusing or missing? (optional)', key: 'missing_or_confusing', value: f.confusing, onInput: set('confusing') }),
       textField({
@@ -165,6 +167,7 @@ export function renderFeedback(main, { navigate }) {
         trust_info_post: f.trustInfo,
         trust_post: f.trust,
         relevance_post: f.relevance,
+        ...(f.contactIntent ? { contact_intent_post: f.contactIntent } : {}),
         next_step_response: f.nextStep || null,
         trust_reason: f.trustReason || null,
         trust_source: f.trustSource || null,

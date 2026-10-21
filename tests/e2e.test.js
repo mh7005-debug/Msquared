@@ -138,9 +138,16 @@ test('complete flow on each path with distinct emphasis, saved pre/post and even
     const [popup] = await Promise.all([page.waitForEvent('popup').catch(() => null), link.click()]);
     await popup?.close().catch(() => {});
 
+    // book your next step: provider types with official directories, call script
+    assert.equal(await page.locator('.provider').count(), 6, 'six provider types');
+    assert.match(await page.locator('.directory-link').first().getAttribute('href'), /^https:\/\/www\.acog\.org\//);
+    await page.click('button:has-text("Copy call script")');
+    await page.waitForSelector('.book .status:has-text("Copied")');
+    assert.match(await page.evaluate(() => navigator.clipboard.readText()), /I’d like to book an appointment/);
+
     // copy
-    await page.click('button:has-text("Copy summary")');
-    await page.waitForSelector('.status:has-text("Copied")');
+    await page.click('button:has-text("Copy brief")');
+    await page.waitForSelector('#brief .status:has-text("Copied")');
     const clip = await page.evaluate(() => navigator.clipboard.readText());
     assert.match(clip, /Questions to bring/);
     assert.doesNotMatch(clip, /absent|6 months/);
@@ -153,7 +160,7 @@ test('complete flow on each path with distinct emphasis, saved pre/post and even
     await page.click('button:has-text("Continue to feedback")');
     await page.waitForURL('**/feedback');
     const scales = page.locator('.likert-scale');
-    for (let i = 0; i < 4; i++) await scales.nth(i).locator('label').nth(5).click();
+    for (let i = 0; i < 5; i++) await scales.nth(i).locator('label').nth(5).click();
     await page.check('input[name=safety][value=no]');
     await page.click('button:has-text("Submit feedback")');
     await page.waitForURL('**/complete');
@@ -171,8 +178,9 @@ test('complete flow on each path with distinct emphasis, saved pre/post and even
   const cols = Object.fromEntries(head.map((h, i) => [h, p11.split(',')[i]]));
   assert.equal(cols.rely_primary_obgyn, 'unsure', 'H2 before-rating saved');
   assert.equal(cols.rely_change_primary_obgyn, 'more', 'H2 after-explanation change saved');
+  assert.equal(cols.contact_intent_post, '6', 'contact intent saved');
   const events = await exportCsv('events');
-  for (const name of ['options_shown', 'option_rated', 'option_rerated', 'path_selected', 'map_viewed', 'care_option_expanded', 'evidence_opened', 'source_clicked', 'summary_copied', 'decision_selected', 'feedback_submitted', 'session_completed']) {
+  for (const name of ['options_shown', 'option_rated', 'option_rerated', 'path_selected', 'map_viewed', 'care_option_expanded', 'evidence_opened', 'source_clicked', 'summary_copied', 'script_copied', 'decision_selected', 'feedback_submitted', 'session_completed']) {
     assert.match(events, new RegExp(name), `${name} logged`);
   }
   assert.doesNotMatch(events + sessions, /My period is absent|over6|Over 6 months/, 'tapped intake answers never stored');

@@ -1,6 +1,6 @@
 import { el, state, save, saveFields, api, config, track, errorBox, showError, icon, stableOrder, textField } from '../core.js';
 import { INTAKE_STEPS, activeSteps, pruneAnswers, pathIdFromOption, optionLabel } from '../shared/intake.js';
-import { URGENT_NOTICE, CRISIS_NOTICE, OWN_WORDS } from '../content/copy.js';
+import { URGENT_NOTICE, CRISIS_NOTICE, OWN_WORDS, PATH_SHORT } from '../content/copy.js';
 
 const qIndex = (stepId) => INTAKE_STEPS.findIndex((s) => s.id === stepId) + 1;
 const isAnswered = (v) => (Array.isArray(v) ? v.length > 0 : Boolean(v));
@@ -31,15 +31,17 @@ export function renderIntake(main, { navigate }) {
   const transcript = el('ol', { class: 'transcript', 'aria-label': 'Your answers so far' });
   const card = el('section', { class: 'card question-card', 'aria-labelledby': 'q-title' });
   const err = errorBox();
+  const preview = el('aside', { class: 'map-preview', 'aria-label': 'Your map so far' });
 
   main.append(
-    el('h1', {}, 'Tell us about your situation'),
+    el('h1', {}, 'No need to retell your whole story'),
     el(
       'p',
       { class: 'lede' },
-      'Up to 6 quick taps. You can change any answer.',
+      'Just tap what fits, about a minute. You’ll leave with a brief to hand over, so you don’t have to explain it again.',
     ),
     el('div', { class: 'progress' }, el('div', { class: 'progress-bar', 'aria-hidden': 'true' }, progressFill), progressLabel),
+    preview,
     transcript,
     card,
     err,
@@ -72,7 +74,29 @@ export function renderIntake(main, { navigate }) {
     );
   }
 
+  /** Live preview: the map visibly fills in with each tap, so effort turns into something right away. */
+  function renderPreview() {
+    const a = state.answers;
+    const seen = a.prior === 'none' ? 'Not yet' : (a.types || []).filter((t) => t !== 'other').map((t) => optionLabel('types', t)).join(', ') || (a.prior ? optionLabel('prior', a.prior) : '');
+    const slots = [
+      ['Cycle', a.concern ? optionLabel('concern', a.concern) : ''],
+      ['How long', a.duration ? optionLabel('duration', a.duration) : ''],
+      ['Care so far', seen],
+      ['Where you’re stuck', a.path ? PATH_SHORT[pathIdFromOption(a.path)] : ''],
+    ];
+    const filled = slots.filter(([, v]) => v).length;
+    preview.replaceChildren(
+      el('p', { class: 'map-preview-title' }, icon('pin'), 'Your map so far', el('span', { class: 'muted small' }, ` ${filled} of 4`)),
+      el(
+        'dl',
+        {},
+        slots.map(([k, v]) => el('div', { class: v ? 'filled' : '' }, el('dt', {}, k), el('dd', {}, v || '…'))),
+      ),
+    );
+  }
+
   function render() {
+    renderPreview();
     const steps = activeSteps(state.answers);
     const current = currentStep();
     const answeredCount = steps.filter((s) => isAnswered(state.answers[s.id]) && s.id !== state.editing).length;

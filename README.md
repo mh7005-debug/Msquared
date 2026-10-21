@@ -48,6 +48,7 @@ Or from a terminal: `MSQ_URL=https://YOUR-APP.vercel.app EXPORT_PASSWORD=... npm
 | `initial_path_id`, `path_id`, `path_changed` | Path chosen in the chat (1 where to start, 2 conflicting advice, 3 still stuck), final path, and whether they switched on the map |
 | `clarity_pre` → `clarity_post` | Same 1–7 question before and after the map |
 | `trust_pre` → `trust_info_post` | Same 1–7 question before and after: trust in the information they have |
+| `contact_intent_post` | Optional 1–7: how likely to contact a healthcare professional in the next month (does the map lead to action, or feel like one more step?) |
 | `trust_post`, `relevance_post` | 1–7 trust in the options Msquared showed (H2 threshold) and relevance |
 | `own_words` | Optional free text (typed or spoken) after the intake questions. May contain health details; treat the export as sensitive |
 | `rely_<option>`, `rely_change_<option>` | H2 per option (`primary_obgyn`, `specialist`, `coordination`): would bring it up before reading why (likely/unsure/unlikely), and change after reading (more/same/less) |
@@ -62,7 +63,7 @@ Or from a terminal: `MSQ_URL=https://YOUR-APP.vercel.app EXPORT_PASSWORD=... npm
 | `safety_flag`, `safety_description` | Anything misleading or unsafe; review every "yes" |
 | `quote_text` | Only filled when `quote_permission` is true |
 
-Events include `option_rated` / `option_rerated` (H2 per option), `voice_input_used` (which field was dictated), `options_shown` (the randomized order in which path, decision and “most useful” options appeared, e.g. `decision:verify-use-unsure`), `screen_viewed`, `intake_started`, `chat_step_answered` (`q2:tap` / `q2:typed`), `chat_clarification_needed`, `intake_step_revisited`, `safety_notice_shown`, `path_selected`, `path_changed`, `map_viewed`, `role_comparison_opened`, `care_option_expanded`, `evidence_opened`, `source_clicked`, `decision_selected`, `summary_copied`, `feedback_submitted`, `session_completed`. Clicks are engagement, not proof of trust; pair them with `decision_choice` and the written reasons.
+Events include `option_rated` / `option_rerated` (H2 per option), `voice_input_used` (which field was dictated), `options_shown` (the randomized order in which path, decision and “most useful” options appeared, e.g. `decision:verify-use-unsure`), `screen_viewed`, `intake_started`, `chat_step_answered` (`q2:tap` / `q2:typed`), `chat_clarification_needed`, `intake_step_revisited`, `safety_notice_shown`, `path_selected`, `path_changed`, `map_viewed`, `role_comparison_opened`, `care_option_expanded`, `evidence_opened`, `source_clicked`, `decision_selected`, `summary_copied`, `script_copied` (booking / portal / brief), `brief_printed`, `provider_opened`, `provider_link_clicked` (which directory), `feedback_submitted`, `session_completed`. Clicks are engagement, not proof of trust; pair them with `decision_choice` and the written reasons.
 
 ## Delete data
 - One session (the code is on the participant's thank-you page, e.g. `abcd-efgh-ijkm`):
@@ -96,14 +97,14 @@ npm run test:e2e     # browser tests (needs Playwright: npm i -D playwright && n
 ## Edit content
 Team names, contact email, a named clinical reviewer and interview quotes go in `public/js/content/team.js`. Only add what is true; empty values stay hidden.
 
-All medical wording is in `public/js/content/careOptions.js`; sources in `public/js/content/sources.js`; safety and path copy in `public/js/content/copy.js`. Display code doesn't contain medical wording. Any edit needs clinician review before real sessions.
+All medical wording is in `public/js/content/careOptions.js` and `public/js/content/providers.js` (provider types and directory links; click-check the links before each test round); sources in `public/js/content/sources.js`; safety and path copy in `public/js/content/copy.js`. Display code doesn't contain medical wording. Any edit needs clinician review before real sessions.
 
 ## Architecture follows the value proposition
 | Promise (label in app) | Hypothesis | Screens and parts | Data |
 |---|---|---|---|
 | **Clarity** | H1 | Intake paths, journey, open questions, conversations to consider, role comparison | `next_step_pre` → `next_step_response`, `clarity_pre` → `clarity_post`, `clarity_reason`, `seconds_to_map` |
 | **Confidence** (shown as “Evidence”) | H2 | “Why this may be relevant”, sources, known vs. uncertain | `rely_*` → `rely_change_*`, `decision_choice` + `decision_reason`, `trust_post` + `trust_reason`, `trust_source` |
-| **Less effort** | Enabler | 2-minute taps, optional depth, voice, take-away summary | `completed`, `last_screen`, `relevance_post`, `summary_copied` |
+| **Less effort** | Enabler | ~1-minute taps with a live map preview, optional depth, voice, Book your next step (provider types, official directories, call script, portal message), printable visit brief | `completed`, `last_screen`, `relevance_post`, `contact_intent_post`, `summary_copied`, `script_copied`, `provider_link_clicked` |
 
 The mapping lives in `public/js/content/valueProps.js`. The welcome page lists the three promises, each care-map section and the evidence half of each option card carry their promise tag, and the feedback screen is grouped the same way. “Evidence” is used instead of “Confidence” so the app doesn’t tell testers how to feel before they rate trust.
 
