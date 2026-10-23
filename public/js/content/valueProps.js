@@ -24,7 +24,7 @@ export const VALUE_PROPS = {
   },
   effort: {
     label: 'Less effort',
-    promise: 'Tap, don’t retell. Leave with what to say and a brief to hand over.',
+    promise: 'Tell us once. We can match you with the right clinician, or give you everything to do it yourself.',
     hypothesis: 'enabler',
     icon: 'clock',
   },
@@ -39,5 +39,6 @@ export const SECTION_PROMISE = {
   compare: 'clarity',
   next: 'effort',
   summary: 'effort',
+  concierge: 'effort',
   decision: null, // the research question, not a promise
 };

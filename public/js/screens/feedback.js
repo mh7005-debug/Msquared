@@ -17,6 +17,7 @@ const HELPFUL = {
   js: { value: 'journey_summary', label: 'Journey summary' },
   aq: { value: 'appointment_questions', label: 'Appointment questions' },
   nt: { value: 'next_step_tools', label: 'Who to book and what to say' },
+  cm: { value: 'concierge_match', label: 'Having Msquared match me' },
 };
 
 export function renderFeedback(main, { navigate }) {

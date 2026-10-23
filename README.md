@@ -50,6 +50,7 @@ Or from a terminal: `MSQ_URL=https://YOUR-APP.vercel.app EXPORT_PASSWORD=... npm
 | `trust_pre` → `trust_info_post` | Same 1–7 question before and after: trust in the information they have |
 | `screener` | current / past / other: is the tester actually in the segment (trying to figure out missing or irregular periods)? Filter analysis on `current` |
 | `followup_opt_in`, `followup_status`, `followup_note`, `followup_at` | One-week check-in: booked / contacted / not_yet, plus what helped. The strongest evidence that the map led to action |
+| `concierge_requested`, `concierge_focus` | Did she ask Msquared to match her, and for which kind of clinician. The behavioral test of the done-for-you value proposition |
 | `contact_intent_post` | Optional 1–7: how likely to contact a healthcare professional in the next month (does the map lead to action, or feel like one more step?) |
 | `trust_post`, `relevance_post` | 1–7 trust in the options Msquared showed (H2 threshold) and relevance |
 | `own_words` | Optional free text (typed or spoken) after the intake questions. May contain health details; treat the export as sensitive |
@@ -66,6 +67,13 @@ Or from a terminal: `MSQ_URL=https://YOUR-APP.vercel.app EXPORT_PASSWORD=... npm
 | `quote_text` | Only filled when `quote_permission` is true |
 
 Events include `option_rated` / `option_rerated` (H2 per option), `voice_input_used` (which field was dictated), `options_shown` (the randomized order in which path, decision and “most useful” options appeared, e.g. `decision:verify-use-unsure`), `screen_viewed`, `intake_started`, `chat_step_answered` (`q2:tap` / `q2:typed`), `chat_clarification_needed`, `intake_step_revisited`, `safety_notice_shown`, `path_selected`, `path_changed`, `map_viewed`, `role_comparison_opened`, `care_option_expanded`, `evidence_opened`, `source_clicked`, `decision_selected`, `summary_copied`, `script_copied` (booking / portal / brief), `brief_printed`, `provider_opened`, `provider_link_clicked` (which directory), `feedback_submitted`, `session_completed`. Clicks are engagement, not proof of trust; pair them with `decision_choice` and the written reasons.
+
+## Concierge match requests (the team follows up by hand)
+On the map, a woman can tap **Have Msquared match me**, confirm the kind of clinician she's looking for, and leave an email or phone number. She must check a box to share her care summary with the team.
+1. Download `https://YOUR-APP.vercel.app/api/export?type=requests` (same password). Each row has her contact details, best time, the focus she chose, and a short case summary (her situation, where she's stuck, her own words).
+2. Reach out within the promised time (edit the promise in `public/js/content/copy.js` → `CONCIERGE` to what the team can keep).
+3. Research data shows only `concierge_requested` and `concierge_focus`; contact details and the summary never enter the research export.
+This file is identifying and contains health details: keep it off shared drives and delete it when the study ends.
 
 ## One-week check-in (manual, ~5 minutes a week)
 Testers can opt in on the thank-you screen with an email. Emails are stored in their own table, never in the research export.
@@ -86,6 +94,7 @@ Testers can opt in on the thank-you screen with an email. Emails are stored in t
 |---|---|---|
 | Participant's browser tab | Tapped intake answers, chat, personalised map | Until the tab closes |
 | Browser speech service (Apple or Google) | Voice, only if the participant taps Speak; converted to text in the browser | Per Apple/Google policy; Msquared never receives audio |
+| Neon database, `ms_requests` table | Only if she asks to be matched and checks the share box: contact details, first name, best time, focus, case summary (including her tapped answers and own words) | Until deleted (end of fall 2026 semester) |
 | Neon database, `ms_contacts` table | Optional check-in email, only if the tester opts in | Until deleted (end of fall 2026 semester) |
 | Neon database (your Vercel account) | Ratings, path, optional free text including own words (up to 1,000 characters), click events, random session code, optional P-code | Until deleted (target: end of fall 2026 semester) |
 | Anthropic API | Only typed chat answers, to classify them; not stored by the app | Per Anthropic's API data policy |
@@ -115,7 +124,7 @@ Every feature traces back to a customer pain and forward to a measure.
 |---|---|---|---|---|
 | "I don't know who to see or what comes next" | **Clarity** | "Your next step" card (who, why it fits her history, what to ask for), journey, open questions, care options, role comparison | **H1**: a personalized pathway reduces uncertainty | `clarity_pre` → `clarity_post` (+ `clarity_reason`); `next_step_pre` → `next_step_response` (does it name a specific professional step?); `contact_intent_post`; `followup_status` |
 | "I don't know whose advice to trust" | **Confidence** (shown as "Evidence") | "Why this is suggested" on the next-step card and "Why this may be relevant" on each option, each with verified society guidance; known vs. uncertain | **H2**: transparent explanations make the options trustworthy | `rely_next` → `rely_change_next` (headline suggestion) and `rely_<option>` → `rely_change_<option>`, each rated before the evidence and again after; `decision_choice` + reason; `trust_post` + reason; `trust_source` |
-| Repeating my story; every step is more work | **Less effort** (enabler) | Tap-don't-retell intake with live preview, voice, call script, portal message, directories, printable visit brief, finish bar | Enabler: lets H1 and H2 be tested without fatigue | `seconds_to_map`, `last_screen`, `completed`, `relevance_post`, `script_copied`, `next_card_action` |
+| Repeating my story; every step is more work; overwhelmed by options | **Less effort** (enabler: "we do it for you") | Concierge match request ("Have Msquared match me"), tap-don't-retell intake with live preview, voice, call script, portal message, directories, printable visit brief, finish bar | Enabler: lets H1 and H2 be tested without fatigue | `seconds_to_map`, `last_screen`, `completed`, `relevance_post`, `script_copied`, `next_card_action`, `concierge_requested` |
 
 How the H2 test works: the person says whether she'd act on a suggestion **before** seeing why; answering reveals the reasoning and sources; she then says whether it made her more or less likely. The difference isolates the effect of the explanation. `next_suggested` records which suggestion she saw.
 

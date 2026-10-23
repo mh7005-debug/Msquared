@@ -7,6 +7,9 @@ import { journeySummary, copySummary, sectionOrder } from '../shared/mapText.js'
 import { contactCard, reviewerLine } from './trust.js';
 import { PROVIDERS, PROVIDER_FOCUS, PORTAL_QUESTIONS, bookingScript, portalMessage, suggestNext, NEXT_EVIDENCE } from '../content/providers.js';
 import { VALUE_PROPS, SECTION_PROMISE } from '../content/valueProps.js';
+import { conciergeBlock } from './concierge.js';
+import { focusFor } from '../shared/mapText.js';
+import { CONCIERGE } from '../content/copy.js';
 
 const DECISIONS = {
   use: 'Use this to prepare for a conversation with a healthcare professional.',
@@ -95,6 +98,7 @@ export function renderMap(main, { navigate }) {
       compare: (p) => stop(compareSection(p), 'dot', SECTION_PROMISE.compare),
       next: (p) => stop(nextSection(p), 'dot', SECTION_PROMISE.next),
       summary: (p) => stop(summarySection(p), 'dot', SECTION_PROMISE.summary),
+      concierge: (p) => stop(conciergeSection(p), 'dot', SECTION_PROMISE.concierge),
       decision: (p) => stop(decisionSection(p), 'flag', SECTION_PROMISE.decision),
     };
     root.append(
@@ -108,7 +112,7 @@ export function renderMap(main, { navigate }) {
       ),
       nextStepCard(pathId),
       routeOverview(pathId),
-      el('div', { class: 'route-rail' }, ...sectionOrder(pathId).map((k) => sections[k](pathId))),
+      el('div', { class: 'route-rail' }, ...withConcierge(sectionOrder(pathId)).map((k) => sections[k](pathId))),
       contactCard(),
       el('div', { class: 'notice warn', role: 'note' }, icon('alert'), el('div', {}, el('strong', {}, URGENT_NOTICE.title), URGENT_NOTICE.body)),
       finishBar(),
@@ -133,7 +137,7 @@ export function renderMap(main, { navigate }) {
     const coordinate = s.kind === 'coordinate';
     const text = coordinate ? portalMessage(state.answers, PORTAL_QUESTIONS[2]) : bookingScript(state.answers);
     const status = el('span', { class: 'status', role: 'status' });
-    const copy = el('button', { class: 'btn btn-primary', type: 'button' }, icon('copy'), coordinate ? 'Copy message to send' : 'Copy what to say when you call');
+    const copy = el('button', { class: 'btn', type: 'button' }, icon('copy'), coordinate ? 'Copy message to send' : 'Copy what to say when you call');
     copy.addEventListener('click', async () => {
       const ok = await copyText(text);
       status.textContent = ok ? 'Copied. Paste it into a message or read it on the call.' : 'Couldn’t copy. Use “See all options” below.';
@@ -147,6 +151,8 @@ export function renderMap(main, { navigate }) {
       el('h2', { id: 'h-nextcard' }, coordinate ? s.title : `Talk to: ${p.title}`),
       el('p', {}, s.reason),
       el('p', { class: 'small' }, el('strong', {}, 'Ask for: '), coordinate ? s.ask : p.ask),
+      conciergeBlock({ where: 'card', focus: focusFor(s), onDone: render }),
+      el('p', { class: 'next-diy' }, 'Or do it yourself:'),
       el('div', { class: 'copy-row' }, copy, status),
       el(
         'div',
@@ -219,6 +225,22 @@ export function renderMap(main, { navigate }) {
       'div',
       { class: 'finish-bar' },
       el('button', { class: 'btn btn-primary', type: 'button', onclick: () => (track('finish_bar_used', `p${state.pathId}`), scrollToId('h-dec')) }, 'I’m done — what would I do next?'),
+    );
+  }
+
+  function withConcierge(order) {
+    const i = order.indexOf('decision');
+    return i < 0 ? [...order, 'concierge'] : [...order.slice(0, i), 'concierge', ...order.slice(i)];
+  }
+
+  // ---- Done for you: ask Msquared to make the match ----
+  function conciergeSection(pathId) {
+    return el(
+      'section',
+      { class: 'section card concierge-section', 'aria-labelledby': 'h-conc' },
+      el('h2', { id: 'h-conc' }, 'Rather we handle it?'),
+      el('p', { class: 'section-intro' }, `${CONCIERGE.lede} ${CONCIERGE.promise}`),
+      conciergeBlock({ where: 'section', focus: focusFor(suggestNext(state.answers, pathId)), onDone: render, primary: false }),
     );
   }
 

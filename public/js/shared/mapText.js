@@ -92,3 +92,31 @@ export function sectionOrder(pathId) {
       return ['journey', 'unresolved', 'options', 'compare', 'next', 'summary', 'decision'];
   }
 }
+
+const FOCUS_LABEL = {
+  obgyn: 'OB-GYN',
+  endocrinology: 'Endocrinology',
+  fertility: 'Fertility / reproductive endocrinology',
+  functional: 'Functional medicine',
+  coordination: 'Coordinating advice from current clinicians',
+  not_sure: 'Not sure',
+};
+export const FOCUS_OPTIONS = Object.entries(FOCUS_LABEL).map(([value, label]) => ({ value, label }));
+
+/** Maps the "Your next step" suggestion to the concierge focus she can confirm or change. */
+export function focusFor(suggestion) {
+  if (!suggestion) return 'not_sure';
+  if (suggestion.kind === 'coordinate') return 'coordination';
+  return { obgyn: 'obgyn', endocrinologist: 'endocrinology', rei: 'fertility' }[suggestion.providerId] || 'not_sure';
+}
+
+/** The case summary the concierge team receives — only when she explicitly asks to be matched. */
+export function conciergeSummary(answers, pathId, ownWords = '', focus = 'not_sure') {
+  const lines = [];
+  const j = journeySummary(answers);
+  if (j) lines.push(`Situation: ${j}`);
+  if (UNRESOLVED[pathId]) lines.push(`Where she's stuck: ${UNRESOLVED[pathId].obstacle}`);
+  lines.push(`Looking for: ${FOCUS_LABEL[focus] || 'Not sure'}`);
+  if (ownWords && ownWords.trim()) lines.push(`In her words: ${ownWords.trim()}`);
+  return lines.join('\n');
+}

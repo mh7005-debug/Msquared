@@ -596,6 +596,8 @@ legend,
   flex: none;
 }
 input[type='text'],
+input[type='email'],
+input[type='tel'],
 textarea,
 select {
   width: 100%;
@@ -612,6 +614,8 @@ textarea {
   resize: vertical;
 }
 input[type='text']:focus,
+input[type='email']:focus,
+input[type='tel']:focus,
 textarea:focus,
 select:focus {
   outline: none;
@@ -1801,3 +1805,33 @@ select:focus {
 .finish-bar .btn { width: 100%; max-width: 520px; }
 .path-1, .path-2, .path-3 { padding-bottom: 72px; }
 @media print { .finish-bar { display: none !important; } }
+
+/* ---- Concierge matching ---- */
+.btn-rose {
+  background: var(--rose);
+  border-color: var(--rose);
+  color: #fff;
+}
+.btn-rose:hover { background: #962f52; border-color: #962f52; }
+.concierge { margin: 14px 0 6px; }
+.concierge .btn-rose, .concierge > .btn-primary { width: 100%; max-width: 420px; }
+.concierge-form {
+  border: 1px solid var(--rose-line);
+  background: var(--rose-soft);
+  border-radius: var(--r);
+  padding: 16px 18px;
+}
+.concierge-form h3 { margin: 0 0 6px; }
+.concierge-form input[type='email'], .concierge-form input[type='tel'], .concierge-form input[type='text'] { width: 100%; }
+.next-diy { margin: 14px 0 6px !important; font-size: 0.9rem; color: var(--muted); }
+.notice.ok {
+  display: flex;
+  gap: 10px;
+  background: var(--teal-soft);
+  border: 1px solid var(--teal);
+  color: var(--ink);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  margin: 14px 0;
+}
+.notice.ok .icon { color: var(--teal); flex: none; }

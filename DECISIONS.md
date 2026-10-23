@@ -130,3 +130,11 @@ Control A simulation, A/B variants, dashboards, accounts, provider search or boo
 - **Less friction before value.** 4 of 12 left before the intake. The consent copy is shorter and the baseline screen says "About 30 seconds, then your map."
 - **Usable data.** Personal tester links (`/?code=P07`) and a one-tap screener (current / past / no) so analysis can be limited to the real segment.
 - **Measure behavior, not just intent.** An optional one-week check-in (email kept separately) asks whether they booked or contacted a clinician. This is the real test of "not just another step."
+
+
+## Concierge MVP: matchmaker, done for you (feedback, Oct 23)
+- The value proposition shifts to "we do the solution for you." Without signed clinicians, the MVP tests it as a concierge request handled by hand: the app does the intake and the care map; she taps "Have Msquared match me", confirms the kind of clinician (prefilled from her next-step suggestion), and chooses email or phone. The team receives her case summary and follows up.
+- The self-serve tools stay as "Or do it yourself", so we can compare who asks to be matched against who books on their own.
+- Privacy: her tapped answers normally never leave the device. They are shared only inside the concierge summary, only after she checks an explicit share box, and stored in a separate table (`ms_requests`) outside the research export.
+- H1 and H2 are unchanged and still measured the same way. `concierge_requested` adds a behavioral signal for the done-for-you value proposition.
+- Copy states we are not a medical provider; care comes from a licensed clinician.

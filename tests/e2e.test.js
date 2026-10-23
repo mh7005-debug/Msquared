@@ -358,3 +358,39 @@ test('tester link carries the study code; next-step card is personalized; one-we
   await page.context().close();
   await later.context().close();
 });
+
+test('concierge: she can ask Msquared to match her; the request reaches the team, not the research data', async () => {
+  const page = await newPage();
+  await consentAndBaseline(page, 'P16');
+  await tapIntake(page, 3, { prior: 'No' });
+  await page.getByLabel(/Anything else your clinician/).fill('I run marathons and want my cycle back');
+  await page.click('button:has-text("See my care map")');
+  await page.waitForURL('**/map');
+  await page.click('.next-card button:has-text("Have Msquared match me")');
+  // focus is prefilled from the suggestion (no one seen yet -> OB-GYN)
+  assert.equal(await page.isChecked('input[name=cc-focus-card][value=obgyn]'), true);
+  await page.check('input[name=cc-method-card][value=phone]');
+  await page.fill('#cc-contact-card', '212 555 0199');
+  await page.click('.next-card button:has-text("Send my request")');
+  await page.waitForSelector('.next-card [role=alert]:has-text("Check the box")');
+  await page.check('#cc-share-card');
+  await page.click('.next-card button:has-text("Send my request")');
+  await page.waitForSelector('.concierge-done');
+  assert.equal(await page.locator('.concierge-done').count(), 2, 'both entry points show it is done');
+  await settle(page);
+  const reqs = await exportCsv('requests');
+  assert.match(reqs, /212 555 0199/);
+  assert.match(reqs, /P16/);
+  assert.match(reqs, /In her words: I run marathons/);
+  assert.match(reqs, /Your period has been absent for over 6 months/, 'summary carries her situation once she chose to share it');
+  const sessions = await exportCsv('sessions');
+  assert.doesNotMatch(sessions, /212 555 0199/, 'contact never in research export');
+  const head = sessions.split('\r\n')[0].split(',');
+  const row = sessions.split('\r\n').find((l) => l.includes('P16,'));
+  const col = Object.fromEntries(head.map((h, i) => [h, row.split(',')[i]]));
+  assert.equal(col.concierge_requested, 'true');
+  assert.equal(col.concierge_focus, 'obgyn');
+  assert.match(await exportCsv('events'), /concierge_requested,card:obgyn/);
+  assert.deepEqual(page.errors, []);
+  await page.context().close();
+});

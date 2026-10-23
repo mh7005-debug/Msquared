@@ -76,3 +76,14 @@ export const UNRESOLVED = {
     ],
   },
 };
+
+/** Concierge matching (MVP: the team follows up by hand). Edit the promise to what the team can actually keep. */
+export const CONCIERGE = {
+  cta: 'Have Msquared match me',
+  title: 'Let us find the right clinician for you',
+  lede: 'Our team reviews your summary and gets back to you with a match, so you don’t have to search on your own.',
+  promise: 'A member of our team will reach out within 2 business days.',
+  share: 'Share my care summary and contact details with the Msquared team so they can match me.',
+  privacy: 'Kept apart from the research data and used only to contact you about a match. We are not a medical provider; any care comes from a licensed clinician.',
+  done: 'Request received. A member of our team will reach out within 2 business days.',
+};
