@@ -6,7 +6,9 @@ import { VALUE_PROPS } from '../content/valueProps.js';
 export function renderWelcome(main, { navigate }) {
   let adult = false;
   let consent = false;
-  let testerCode = '';
+  // Personal tester links carry the study code: https://…/?code=P07
+  const fromLink = (new URLSearchParams(location.search).get('code') || '').trim().toUpperCase();
+  let testerCode = /^P\d{2}$/.test(fromLink) ? fromLink : '';
 
   const start = el('button', { class: 'btn btn-primary', type: 'submit', disabled: true }, 'Get started');
   const why = el('p', { class: 'small muted', id: 'start-why' }, 'Check both boxes to continue.');
@@ -26,6 +28,7 @@ export function renderWelcome(main, { navigate }) {
     placeholder: 'P01',
     'aria-describedby': 'tester-hint',
   });
+  codeInput.value = testerCode;
   codeInput.addEventListener('input', () => (testerCode = codeInput.value.trim().toUpperCase()));
 
   const adultBox = el('input', { type: 'checkbox', id: 'adult' });
@@ -43,21 +46,21 @@ export function renderWelcome(main, { navigate }) {
     el(
       'ul',
       { class: 'data-list' },
-      dataPoint('We save your ratings, choices, and anything you write or say, linked to a random code. Never your name.'),
-      dataPoint('Answers you tap about your cycle stay on this device.'),
-      voiceSupported ? dataPoint('Speak uses your browser’s speech service (Apple or Google). We get text only, never audio.') : null,
+      dataPoint('We save your ratings and anything you write or say, linked to a random code. Never your name. Answers you tap about your cycle stay on this device.'),
+      voiceSupported ? dataPoint('Speak uses your browser’s speech service (Apple or Google). We get text only.') : null,
       config.aiEnabled ? dataPoint('Typed chat answers go to our AI provider (Anthropic) to be understood, then are discarded.') : null,
-      dataPoint('Our host keeps short-term visit logs (like IP address), so this is non-identifying, not anonymous.'),
-      dataPoint(`For our class research only. Deleted by ${STUDY.retention}. You can stop anytime.`),
+      dataPoint(`Class research only. Our host keeps short visit logs, so it’s non-identifying, not anonymous. Deleted by ${STUDY.retention}. Stop anytime.`),
     ),
     el('hr', { class: 'divider' }),
-    el(
-      'div',
-      { class: 'field' },
-      el('label', { class: 'field-label', for: 'tester-code' }, 'Study code (optional)'),
-      el('p', { class: 'hint', id: 'tester-hint' }, 'From your moderator, if you have one.'),
-      codeInput,
-    ),
+    testerCode
+      ? el('p', { class: 'small muted', id: 'tester-hint' }, `Study code: ${testerCode}`)
+      : el(
+          'div',
+          { class: 'field' },
+          el('label', { class: 'field-label', for: 'tester-code' }, 'Study code (optional)'),
+          el('p', { class: 'hint', id: 'tester-hint' }, 'From your moderator, if you have one.'),
+          codeInput,
+        ),
     el('label', { class: 'check', for: 'adult' }, adultBox, el('span', {}, 'I’m 18 or older.')),
     el('label', { class: 'check', for: 'consent' }, consentBox, el('span', {}, 'I agree to take part and to the data use described above.')),
     el('div', { class: 'actions' }, start, why),

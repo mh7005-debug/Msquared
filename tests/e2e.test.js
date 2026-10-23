@@ -73,6 +73,7 @@ async function consentAndBaseline(page, code) {
   if (code) await page.fill('#tester-code', code);
   await page.click('button:has-text("Get started")');
   await page.waitForURL('**/start');
+  await page.check('input[name=screener][value=current]');
   const scales = page.locator('.likert-scale');
   await scales.nth(0).locator('label').nth(1).click();
   await scales.nth(1).locator('label').nth(2).click();
@@ -128,8 +129,7 @@ test('complete flow on each path with distinct emphasis, saved pre/post and even
     // H2: rate an option before reading why, then say whether the explanation changed it
     const card = page.locator('.option-card').first();
     await card.locator('.chip', { hasText: 'Not sure' }).click();
-    // accordion + evidence + source link
-    await page.locator('.option-card').first().locator('summary', { hasText: 'relevant' }).click();
+    // answering reveals the why automatically (every rater sees at least one explanation)
     await card.locator('.why .chip', { hasText: 'More likely' }).click();
     assert.equal(await page.locator('.option-card').first().locator('details').first().getAttribute('open'), '');
     await page.locator('.option-card').nth(1).locator('summary', { hasText: 'evidence' }).click();
@@ -260,7 +260,7 @@ test('changing path on the map is recorded', async () => {
   await page.waitForSelector('h2:has-text("What guidance says")');
   await new Promise((r) => setTimeout(r, 300));
   const row = (await exportCsv('sessions')).split('\r\n').find((l) => l.includes('P20,'));
-  assert.match(row, /P20,1,2,true,/, 'initial_path_id=1, path_id=2, path_changed=true');
+  assert.match(row, /P20,current,1,2,true,/, 'initial_path_id=1, path_id=2, path_changed=true');
   await page.context().close();
 });
 
@@ -283,4 +283,68 @@ test('direct links to later screens redirect to the start without consent', asyn
   await page.goto(`${base}/map`);
   await page.waitForURL(`${base}/`);
   await page.context().close();
+});
+
+test('tester link carries the study code; next-step card is personalized; one-week check-in works', async () => {
+  const page = await newPage();
+  await page.goto(`${base}/?code=P15`);
+  assert.match(await page.locator('#tester-hint').textContent(), /P15/);
+  await page.check('#adult');
+  await page.check('#consent');
+  await page.click('button:has-text("Get started")');
+  await page.waitForURL('**/start');
+  await page.click('button:has-text("Continue")');
+  assert.match(await page.locator('[role=alert]').last().textContent(), /first question/);
+  await page.check('input[name=screener][value=past]');
+  const scales = page.locator('.likert-scale');
+  await scales.nth(0).locator('label').nth(3).click();
+  await scales.nth(1).locator('label').nth(3).click();
+  await page.click('button:has-text("Continue")');
+  await page.waitForURL('**/intake');
+  await tapIntake(page, 1, { prior: 'Yes, one professional' }); // has seen an OB-GYN
+  await page.click('button:has-text("See my care map")');
+  await page.waitForURL('**/map');
+  // the answer comes first, tailored to who they've seen
+  assert.match(await page.locator('#h-nextcard').textContent(), /Endocrinologist/);
+  await page.click('.next-card button:has-text("Copy what to say")');
+  await page.waitForSelector('.next-card .status:has-text("Copied")');
+  // finish from anywhere
+  await page.click('.finish-bar button');
+  await page.check('input[name=decision][value=use]');
+  await page.click('button:has-text("Continue to feedback")');
+  await page.waitForURL('**/feedback');
+  const fb = page.locator('.likert-scale');
+  for (let i = 0; i < 4; i++) await fb.nth(i).locator('label').nth(4).click();
+  await page.check('input[name=safety][value=no]');
+  await page.click('button:has-text("Submit feedback")');
+  await page.waitForURL('**/complete');
+  // opt in to the check-in
+  await page.fill('#checkin-email', 'not-an-email');
+  await page.click('button:has-text("Check in with me")');
+  await page.waitForSelector('[role=alert]:has-text("doesn’t look right")');
+  await page.fill('#checkin-email', 'tester@example.com');
+  await page.click('button:has-text("Check in with me")');
+  await page.waitForSelector('text=check in once');
+  await settle(page);
+  const sessions = await exportCsv('sessions');
+  assert.doesNotMatch(sessions, /tester@example\.com/, 'email never in the research export');
+  const row = sessions.split('\r\n').find((l) => l.includes('P15,'));
+  assert.match(row, /P15,past,/);
+  const follow = await exportCsv('followups');
+  const line = follow.split('\r\n').find((l) => l.includes('tester@example.com'));
+  const link = line.match(/https?:\/\/[^,]+\/followup\?s=[a-z0-9]{12}/)[0];
+  // the check-in page, opened later from the email
+  const later = await newPage();
+  await later.goto(link.replace(/^https?:\/\/[^/]+/, base));
+  await later.check('input[name=followup_status][value=booked]');
+  await later.getByLabel(/What helped/).fill('The call script made it easy');
+  await later.click('button:has-text("Send")');
+  await later.waitForSelector('h2:has-text("Thank you")');
+  const after = (await exportCsv('sessions')).split('\r\n').find((l) => l.includes('P15,'));
+  assert.match(after, /booked,The call script made it easy/);
+  assert.match(await exportCsv('events'), /next_card_action,copy:endocrinologist/);
+  assert.deepEqual(page.errors, []);
+  assert.deepEqual(later.errors, []);
+  await page.context().close();
+  await later.context().close();
 });

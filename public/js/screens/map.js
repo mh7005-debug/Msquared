@@ -5,7 +5,7 @@ import { UNRESOLVED, URGENT_NOTICE, FREE_TEXT_REMINDER, PATH_SHORT } from '../co
 import { PATHS, optionLabel } from '../shared/intake.js';
 import { journeySummary, copySummary, sectionOrder } from '../shared/mapText.js';
 import { contactCard, reviewerLine } from './trust.js';
-import { PROVIDERS, PROVIDER_FOCUS, PORTAL_QUESTIONS, bookingScript, portalMessage } from '../content/providers.js';
+import { PROVIDERS, PROVIDER_FOCUS, PORTAL_QUESTIONS, bookingScript, portalMessage, suggestNext } from '../content/providers.js';
 import { VALUE_PROPS, SECTION_PROMISE } from '../content/valueProps.js';
 
 const DECISIONS = {
@@ -106,10 +106,64 @@ export function renderMap(main, { navigate }) {
         reviewerLine(),
         pathRow(),
       ),
+      nextStepCard(pathId),
       routeOverview(pathId),
       el('div', { class: 'route-rail' }, ...sectionOrder(pathId).map((k) => sections[k](pathId))),
       contactCard(),
       el('div', { class: 'notice warn', role: 'note' }, icon('alert'), el('div', {}, el('strong', {}, URGENT_NOTICE.title), URGENT_NOTICE.body)),
+      finishBar(),
+    );
+    const dec = document.getElementById('h-dec');
+    const bar = root.querySelector('.finish-bar');
+    if (dec && bar && 'IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => (bar.hidden = e.isIntersecting || e.boundingClientRect.top < 0)).observe(dec.closest('section'));
+    }
+  }
+
+  // ---- The answer first: one personalized next step, ready to act on ----
+  function nextStepCard(pathId) {
+    const s = suggestNext(state.answers, pathId);
+    const p = PROVIDERS.find((x) => x.id === s.providerId);
+    const coordinate = s.kind === 'coordinate';
+    const text = coordinate ? portalMessage(state.answers, PORTAL_QUESTIONS[2]) : bookingScript(state.answers);
+    const status = el('span', { class: 'status', role: 'status' });
+    const copy = el('button', { class: 'btn btn-primary', type: 'button' }, icon('copy'), coordinate ? 'Copy message to send' : 'Copy what to say when you call');
+    copy.addEventListener('click', async () => {
+      const ok = await copyText(text);
+      status.textContent = ok ? 'Copied. Paste it into a message or read it on the call.' : 'Couldn’t copy. Use “See all options” below.';
+      if (ok) track('next_card_action', `copy:${s.providerId}`);
+    });
+    return el(
+      'section',
+      { class: 'next-card', 'aria-labelledby': 'h-nextcard' },
+      el('p', { class: 'next-kicker' }, icon('flag'), 'Your next step'),
+      el('h2', { id: 'h-nextcard' }, coordinate ? s.title : `Talk to: ${p.title}`),
+      el('p', {}, s.reason),
+      el('p', { class: 'small' }, el('strong', {}, 'Ask for: '), coordinate ? s.ask : p.ask),
+      el('div', { class: 'copy-row' }, copy, status),
+      el(
+        'div',
+        { class: 'next-links' },
+        !coordinate && p.directory
+          ? el(
+              'a',
+              { href: p.directory.url, target: '_blank', rel: 'noopener noreferrer', onclick: () => track('next_card_action', `directory:${p.id}`) },
+              icon('pin'),
+              `Find one near you (${p.directory.label.split(':')[0]})`,
+              el('span', { class: 'sr-only' }, ' (opens in a new tab)'),
+            )
+          : null,
+        el('button', { class: 'btn-link', type: 'button', onclick: () => (track('next_card_action', 'see_all'), scrollToId('h-next')) }, 'See all options'),
+      ),
+      el('p', { class: 'small muted' }, 'Based only on who you’ve seen and where you’re stuck. A common next conversation, not a medical recommendation.'),
+    );
+  }
+
+  function finishBar() {
+    return el(
+      'div',
+      { class: 'finish-bar' },
+      el('button', { class: 'btn btn-primary', type: 'button', onclick: () => (track('finish_bar_used', `p${state.pathId}`), scrollToId('h-dec')) }, 'I’m done — what would I do next?'),
     );
   }
 
@@ -306,7 +360,8 @@ export function renderMap(main, { navigate }) {
     const key = fieldKey(c.id);
     const sources = c.sources.map((x) => ({ ...x, s: getSource(x.sourceId) })).filter((x) => x.s && x.s.verified);
 
-    // H2, step 1: willingness to rely on this option BEFORE reading why it appears.
+    let why;
+    // H2, step 1: willingness to rely on this option BEFORE reading why it appears. Answering reveals the why.
     const before = chips({
       label: 'Would you bring this up with a clinician?',
       options: RELY,
@@ -316,8 +371,13 @@ export function renderMap(main, { navigate }) {
         save();
         track('option_rated', `${c.id}:${v}`);
         saveFields({ [`rely_${key}`]: v }).catch(() => {});
+        if (!why.open) {
+          why.open = true;
+          why.querySelector('.body').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
       },
     });
+    before.append(el('p', { class: 'hint' }, 'Answer to see why it’s on your map.'));
 
     // H2, step 2: did the explanation and evidence change that?
     const after = chips({
@@ -332,10 +392,10 @@ export function renderMap(main, { navigate }) {
       },
     });
 
-    const why = el(
+    why = el(
       'details',
       { class: 'disclosure why' },
-      summaryRow('See why this may be relevant'),
+      summaryRow('Why this may be relevant'),
       el('div', { class: 'body' }, el('p', {}, c.whyRelevant), after),
     );
     why.addEventListener('toggle', () => why.open && track('care_option_expanded', c.id));

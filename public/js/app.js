@@ -5,6 +5,7 @@ import { renderIntake } from './screens/intake.js';
 import { renderMap } from './screens/map.js';
 import { renderFeedback } from './screens/feedback.js';
 import { renderComplete } from './screens/complete.js';
+import { renderFollowup } from './screens/followup.js';
 
 const ROUTES = {
   '/': { render: renderWelcome, title: 'Welcome', screen: 'consent' },
@@ -13,12 +14,14 @@ const ROUTES = {
   '/map': { render: renderMap, title: 'Your next-step care map', screen: 'map', needs: 'intake', step: 2, back: '/intake' },
   '/feedback': { render: renderFeedback, title: 'Your feedback', screen: 'feedback', needs: 'decision', step: 3, back: '/map' },
   '/complete': { render: renderComplete, title: 'Thank you', screen: 'complete', needs: 'completed' },
+  '/followup': { render: renderFollowup, title: 'Check-in', screen: 'followup', standalone: true },
 };
 
 /** Sends people back to the furthest screen they're allowed to see. */
 function allowedPath(path) {
   const r = ROUTES[path];
   if (!r) return '/';
+  if (r.standalone) return path;
   if (state.completed && path !== '/complete') return '/complete';
   const has = {
     session: Boolean(state.sessionId),

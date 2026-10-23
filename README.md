@@ -26,7 +26,7 @@ You need: a GitHub account, a Vercel account, and (optional) an Anthropic API ke
 6. **Redeploy** so the app sees the database: **Deployments → ⋯ on the latest → Redeploy**.
 7. Open your link (for example `https://msquared.vercel.app`). If the welcome page says "Research storage isn't set up yet", step 5–6 didn't take; redo them.
 
-Tester link = your Vercel URL. Give each tester a study code (P01–P20) to type on the welcome screen.
+Tester link = your Vercel URL plus their code, e.g. `https://msquared-neon.vercel.app/?code=P07`. The code is filled in automatically, so every session can be traced to a tester.
 
 ### Do a 2-minute dry run before real sessions
 Go through the app once yourself with code `P00`, then download the CSV (below) and check your row is there. Delete it afterwards.
@@ -48,6 +48,8 @@ Or from a terminal: `MSQ_URL=https://YOUR-APP.vercel.app EXPORT_PASSWORD=... npm
 | `initial_path_id`, `path_id`, `path_changed` | Path chosen in the chat (1 where to start, 2 conflicting advice, 3 still stuck), final path, and whether they switched on the map |
 | `clarity_pre` → `clarity_post` | Same 1–7 question before and after the map |
 | `trust_pre` → `trust_info_post` | Same 1–7 question before and after: trust in the information they have |
+| `screener` | current / past / other: is the tester actually in the segment (trying to figure out missing or irregular periods)? Filter analysis on `current` |
+| `followup_opt_in`, `followup_status`, `followup_note`, `followup_at` | One-week check-in: booked / contacted / not_yet, plus what helped. The strongest evidence that the map led to action |
 | `contact_intent_post` | Optional 1–7: how likely to contact a healthcare professional in the next month (does the map lead to action, or feel like one more step?) |
 | `trust_post`, `relevance_post` | 1–7 trust in the options Msquared showed (H2 threshold) and relevance |
 | `own_words` | Optional free text (typed or spoken) after the intake questions. May contain health details; treat the export as sensitive |
@@ -65,6 +67,12 @@ Or from a terminal: `MSQ_URL=https://YOUR-APP.vercel.app EXPORT_PASSWORD=... npm
 
 Events include `option_rated` / `option_rerated` (H2 per option), `voice_input_used` (which field was dictated), `options_shown` (the randomized order in which path, decision and “most useful” options appeared, e.g. `decision:verify-use-unsure`), `screen_viewed`, `intake_started`, `chat_step_answered` (`q2:tap` / `q2:typed`), `chat_clarification_needed`, `intake_step_revisited`, `safety_notice_shown`, `path_selected`, `path_changed`, `map_viewed`, `role_comparison_opened`, `care_option_expanded`, `evidence_opened`, `source_clicked`, `decision_selected`, `summary_copied`, `script_copied` (booking / portal / brief), `brief_printed`, `provider_opened`, `provider_link_clicked` (which directory), `feedback_submitted`, `session_completed`. Clicks are engagement, not proof of trust; pair them with `decision_choice` and the written reasons.
 
+## One-week check-in (manual, ~5 minutes a week)
+Testers can opt in on the thank-you screen with an email. Emails are stored in their own table, never in the research export.
+1. Download `https://YOUR-APP.vercel.app/api/export?type=followups` (same password). It lists each email with a personal `checkin_link`.
+2. About 7 days after `opted_in_at`, email each person their link: "Quick check-in from Msquared: one question, 20 seconds: <link>".
+3. Their answer appears in the sessions export (`followup_status`, `followup_note`). Deleting a session also deletes its email.
+
 ## Delete data
 - One session (the code is on the participant's thank-you page, e.g. `abcd-efgh-ijkm`):
   `curl -X DELETE -H "Authorization: Bearer $EXPORT_PASSWORD" "https://YOUR-APP.vercel.app/api/admin?session_id=abcd-efgh-ijkm"`
@@ -78,6 +86,7 @@ Events include `option_rated` / `option_rerated` (H2 per option), `voice_input_u
 |---|---|---|
 | Participant's browser tab | Tapped intake answers, chat, personalised map | Until the tab closes |
 | Browser speech service (Apple or Google) | Voice, only if the participant taps Speak; converted to text in the browser | Per Apple/Google policy; Msquared never receives audio |
+| Neon database, `ms_contacts` table | Optional check-in email, only if the tester opts in | Until deleted (end of fall 2026 semester) |
 | Neon database (your Vercel account) | Ratings, path, optional free text including own words (up to 1,000 characters), click events, random session code, optional P-code | Until deleted (target: end of fall 2026 semester) |
 | Anthropic API | Only typed chat answers, to classify them; not stored by the app | Per Anthropic's API data policy |
 | Vercel logs | IP address, URL, time (standard hosting logs) | Short-term, per Vercel |

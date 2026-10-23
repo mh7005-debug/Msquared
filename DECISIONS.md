@@ -121,3 +121,12 @@ Control A simulation, A/B variants, dashboards, accounts, provider search or boo
 - **Why types, not named doctors:** the spec rules out a provider marketplace and asserting a referral is required; we also have no vetted clinician network. Directory links are official society directories, unranked, with no paid placement. Named partner clinicians can come later, once real clinicians agree and the spec changes.
 - **Functional medicine:** included because testers ask for it, with an honest caution (licensing varies, limited evidence for some tests and supplements) and an "ask first" prompt. Needs clinician review.
 - **New measure:** `contact_intent_post` (optional 1–7) tests whether the map leads to action rather than feeling like an extra step.
+
+
+## Painkiller, not vitamin (data from the first 12 sessions)
+- **Answer first.** Half of the users who reached the map left before choosing a next step. The map now opens with one "Your next step" card: who to talk to, why (based only on who they've seen and where they're stuck), what to ask for, a one-tap call script, and a directory link. Details follow below. A "I'm done" bar stays on screen so users can finish from anywhere.
+- **Personalized by history, not symptoms.** Seen no one, or no OB-GYN → OB-GYN/primary care; seen an OB-GYN → endocrinologist; seen endocrinology → reproductive endocrinologist; conflicting advice → ask one clinician to bring the advice together (with a ready message). Phrased as "a common next conversation." Needs clinician review (`suggestNext` in providers.js).
+- **H2 exposure.** Only 2 of 8 opened explanations. Rating an option now reveals its "why" automatically, so every rater sees an explanation right after giving the before-rating; the before/after comparison stays clean.
+- **Less friction before value.** 4 of 12 left before the intake. The consent copy is shorter and the baseline screen says "About 30 seconds, then your map."
+- **Usable data.** Personal tester links (`/?code=P07`) and a one-tap screener (current / past / no) so analysis can be limited to the real segment.
+- **Measure behavior, not just intent.** An optional one-week check-in (email kept separately) asks whether they booked or contacted a clinician. This is the real test of "not just another step."

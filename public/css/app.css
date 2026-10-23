@@ -1750,3 +1750,54 @@ select:focus {
   body.printing-brief #brief .copy-row, body.printing-brief #brief .promise-tag, body.printing-brief #brief .stop-marker { display: none; }
   body.printing-brief .summary-box { max-height: none; overflow: visible; border: 0; background: none; }
 }
+
+/* ---- Map: the answer first ---- */
+.next-card {
+  background: var(--paper);
+  border: 1px solid var(--rose-line);
+  border-top: 4px solid var(--rose);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  padding: 20px 22px;
+  margin: 0 0 24px;
+}
+.next-card h2 { margin: 4px 0 8px; }
+.next-card p { margin: 0 0 10px; }
+.next-kicker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--rose);
+  font-weight: 700;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.next-kicker .icon { width: 15px; height: 15px; }
+.next-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  margin: 12px 0 10px;
+}
+.next-links a { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.next-links .icon { width: 15px; height: 15px; }
+
+/* ---- Map: finish from anywhere ---- */
+.finish-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid var(--line);
+}
+.finish-bar[hidden] { display: none; }
+.finish-bar .btn { width: 100%; max-width: 520px; }
+.path-1, .path-2, .path-3 { padding-bottom: 72px; }
+@media print { .finish-bar { display: none !important; } }

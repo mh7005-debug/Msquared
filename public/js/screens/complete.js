@@ -1,4 +1,5 @@
-import { el, state, clearState, copyText, icon } from '../core.js';
+import { el, state, save, clearState, copyText, icon, api, track, errorBox, showError } from '../core.js';
+import { STUDY } from '../content/copy.js';
 import { copySummary } from '../shared/mapText.js';
 import { contactCard } from './trust.js';
 
@@ -17,11 +18,47 @@ export function renderComplete(main, { navigate }) {
     navigate('/', { replace: true });
   });
 
+  // Optional one-week check-in: the only way to learn whether the map led to an actual appointment.
+  function checkIn() {
+    if (!state.sessionId) return null;
+    if (state.followupOptIn) return el('section', { class: 'sheet' }, el('p', {}, icon('check'), ' We’ll check in once, in about a week.'));
+    const err = errorBox();
+    const input = el('input', { type: 'email', id: 'checkin-email', autocomplete: 'email', placeholder: 'you@example.com', maxlength: 254 });
+    const btn = el('button', { class: 'btn btn-primary', type: 'submit' }, 'Check in with me');
+    const form = el(
+      'form',
+      { class: 'sheet', novalidate: true, 'aria-labelledby': 'checkin-h' },
+      el('h2', { id: 'checkin-h' }, 'Want a nudge in a week?'),
+      el('p', {}, 'We’ll email you once with one question: did you get to talk to someone? It helps you follow through and tells us whether this actually helped.'),
+      el('div', { class: 'field' }, el('label', { class: 'field-label', for: 'checkin-email' }, 'Email (optional)'), input),
+      el('p', { class: 'small muted' }, `Kept apart from your answers, used only for this one check-in, deleted by ${STUDY.retention}.`),
+      el('div', { class: 'actions' }, btn),
+      err,
+    );
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      btn.disabled = true;
+      showError(err, '');
+      try {
+        await api('/api/followup', 'POST', { session_id: state.sessionId, email: input.value.trim() });
+        state.followupOptIn = true;
+        save();
+        track('followup_opt_in');
+        form.replaceWith(checkIn());
+      } catch (ex) {
+        showError(err, ex.message);
+        btn.disabled = false;
+      }
+    });
+    return form;
+  }
+
   main.append(
     ...[
       el('div', { class: 'done-mark' }, icon('check')),
       el('h1', {}, 'Thank you'),
       el('p', { class: 'lede' }, 'Your feedback is saved. It helps us decide what to improve.'),
+      checkIn(),
       code
         ? el(
             'section',

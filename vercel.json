@@ -22,6 +22,10 @@
     {
       "source": "/complete",
       "destination": "/index.html"
+    },
+    {
+      "source": "/followup",
+      "destination": "/index.html"
     }
   ],
   "headers": [

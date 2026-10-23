@@ -93,3 +93,43 @@ export function portalMessage(answers, questions) {
     'Thank you.',
   ].join('\n');
 }
+
+/**
+ * The single "Your next step" suggestion at the top of the map. Uses ONLY who they've already seen and where
+ * they're stuck — never symptoms or duration — and is phrased as a common next conversation, never a requirement.
+ * STATUS: DEMO — NOT CLINICALLY REVIEWED.
+ */
+export function suggestNext(answers, pathId) {
+  const seen = answers.prior && answers.prior !== 'none' ? answers.types || [] : [];
+  const has = (t) => seen.includes(t);
+  if (pathId === 2 && seen.length) {
+    return {
+      kind: 'coordinate',
+      title: 'Ask one clinician to bring the advice together',
+      reason: 'You’ve heard different advice. Asking a clinician you’ve already seen to explain their reasoning and weigh it against the rest is a common next step.',
+      ask: 'a follow-up visit to go over the different advice you’ve received',
+      providerId: has('endo') ? 'endocrinologist' : 'obgyn',
+    };
+  }
+  if (!seen.length || (!has('obgyn') && !has('endo'))) {
+    return {
+      kind: 'book',
+      providerId: 'obgyn',
+      reason: seen.length
+        ? 'You haven’t talked with an OB-GYN about this yet. An OB-GYN or primary care clinician is a common place to start, and can refer you on.'
+        : 'You haven’t talked with anyone about this yet. An OB-GYN or primary care clinician is a common place to start, and can refer you on.',
+    };
+  }
+  if (has('obgyn') && !has('endo')) {
+    return {
+      kind: 'book',
+      providerId: 'endocrinologist',
+      reason: 'You’ve already seen an OB-GYN. A hormone specialist is a common next conversation, often by referral, so ask your OB-GYN whether it makes sense for you.',
+    };
+  }
+  return {
+    kind: 'book',
+    providerId: 'rei',
+    reason: 'You’ve already seen endocrinology. A reproductive endocrinologist focuses on reproductive hormones specifically; ask your OB-GYN or endocrinologist about a referral.',
+  };
+}
