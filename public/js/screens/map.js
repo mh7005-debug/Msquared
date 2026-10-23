@@ -5,7 +5,7 @@ import { UNRESOLVED, URGENT_NOTICE, FREE_TEXT_REMINDER, PATH_SHORT } from '../co
 import { PATHS, optionLabel } from '../shared/intake.js';
 import { journeySummary, copySummary, sectionOrder } from '../shared/mapText.js';
 import { contactCard, reviewerLine } from './trust.js';
-import { PROVIDERS, PROVIDER_FOCUS, PORTAL_QUESTIONS, bookingScript, portalMessage, suggestNext } from '../content/providers.js';
+import { PROVIDERS, PROVIDER_FOCUS, PORTAL_QUESTIONS, bookingScript, portalMessage, suggestNext, NEXT_EVIDENCE } from '../content/providers.js';
 import { VALUE_PROPS, SECTION_PROMISE } from '../content/valueProps.js';
 
 const DECISIONS = {
@@ -124,6 +124,12 @@ export function renderMap(main, { navigate }) {
   function nextStepCard(pathId) {
     const s = suggestNext(state.answers, pathId);
     const p = PROVIDERS.find((x) => x.id === s.providerId);
+    const shown = s.kind === 'coordinate' ? 'coordinate' : s.providerId;
+    if (m.nextSuggested !== shown) {
+      m.nextSuggested = shown;
+      save();
+      saveFields({ next_suggested: shown }).catch(() => {});
+    }
     const coordinate = s.kind === 'coordinate';
     const text = coordinate ? portalMessage(state.answers, PORTAL_QUESTIONS[2]) : bookingScript(state.answers);
     const status = el('span', { class: 'status', role: 'status' });
@@ -136,6 +142,7 @@ export function renderMap(main, { navigate }) {
     return el(
       'section',
       { class: 'next-card', 'aria-labelledby': 'h-nextcard' },
+      promiseTag('clarity', VALUE_PROPS.clarity.label),
       el('p', { class: 'next-kicker' }, icon('flag'), 'Your next step'),
       el('h2', { id: 'h-nextcard' }, coordinate ? s.title : `Talk to: ${p.title}`),
       el('p', {}, s.reason),
@@ -155,8 +162,56 @@ export function renderMap(main, { navigate }) {
           : null,
         el('button', { class: 'btn-link', type: 'button', onclick: () => (track('next_card_action', 'see_all'), scrollToId('h-next')) }, 'See all options'),
       ),
+      nextEvidence(s),
       el('p', { class: 'small muted' }, 'Based only on who you’ve seen and where you’re stuck. A common next conversation, not a medical recommendation.'),
     );
+  }
+
+  // H2 at the point that matters most: would she act on the suggestion, before and after seeing the evidence?
+  function nextEvidence(s) {
+    const ev = NEXT_EVIDENCE[s.kind === 'coordinate' ? 'coordinate' : s.providerId];
+    const sources = ev.sources.map(getSource).filter((x) => x && x.verified);
+    let why;
+    const before = chips({
+      label: 'Would you act on this suggestion?',
+      options: RELY,
+      value: m.rely.next,
+      onPick: (v) => {
+        m.rely.next = v;
+        save();
+        track('option_rated', `next:${v}`);
+        saveFields({ rely_next: v }).catch(() => {});
+        if (!why.open) why.open = true;
+      },
+    });
+    before.append(el('p', { class: 'hint' }, 'Answer to see the evidence behind it.'));
+    const after = chips({
+      label: 'After reading this, are you more or less likely to act on it?',
+      options: RELY_CHANGE,
+      value: m.relyChange.next,
+      onPick: (v) => {
+        m.relyChange.next = v;
+        save();
+        track('option_rerated', `next:${v}`);
+        saveFields({ rely_change_next: v }).catch(() => {});
+      },
+    });
+    why = el(
+      'details',
+      { class: 'disclosure why', open: Boolean(m.rely.next) },
+      summaryRow('Why this is suggested'),
+      el(
+        'div',
+        { class: 'body' },
+        el('p', {}, ev.why),
+        sources.map((src) =>
+          el('div', { class: 'source' }, icon('book'), el('div', {}, el('span', { class: 'source-kind' }, 'Professional society guidance'), sourceLink(src, src.title), el('span', { class: 'meta' }, `${src.publisher}, ${src.year}`))),
+        ),
+        after,
+      ),
+    );
+    why.addEventListener('toggle', () => why.open && track('care_option_expanded', 'next'));
+    return el('div', { class: 'card-evidence' }, promiseTag('evidence', VALUE_PROPS.evidence.label), before, why);
   }
 
   function finishBar() {

@@ -3,7 +3,7 @@ import { FREE_TEXT_REMINDER, MEASURES, WHY_RATING } from '../content/copy.js';
 
 // What most affected trust: separates the H2 driver (explanations, sources) from other trust signals.
 const TRUST_SOURCE = {
-  why: 'The explanations of why each option may be relevant',
+  why: 'The explanations of why each suggestion appears',
   sources: 'The links to medical guidance',
   team: 'Knowing who’s behind Msquared',
   design: 'How it looks and feels',
@@ -95,7 +95,7 @@ export function renderFeedback(main, { navigate }) {
       promiseTag('evidence', 'Evidence'),
       el('h2', {}, 'How much do you trust it?'),
       likert({ name: 'trust_info_post', ...MEASURES.trustInfo, value: f.trustInfo, onChange: set('trustInfo') }),
-      likert({ name: 'trust_post', legend: 'How much do you trust the care options Msquared showed you?', low: 'Not at all', high: 'Completely', value: f.trust, onChange: rate('trust', trustWhy) }),
+      likert({ name: 'trust_post', legend: 'How much do you trust the next step and care options Msquared showed you?', low: 'Not at all', high: 'Completely', value: f.trust, onChange: rate('trust', trustWhy) }),
       trustWhy.el,
       radioTiles({
         name: 'trust_source',

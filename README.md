@@ -109,13 +109,17 @@ Team names, contact email, a named clinical reviewer and interview quotes go in 
 All medical wording is in `public/js/content/careOptions.js` and `public/js/content/providers.js` (provider types and directory links; click-check the links before each test round); sources in `public/js/content/sources.js`; safety and path copy in `public/js/content/copy.js`. Display code doesn't contain medical wording. Any edit needs clinician review before real sessions.
 
 ## Architecture follows the value proposition
-| Promise (label in app) | Hypothesis | Screens and parts | Data |
-|---|---|---|---|
-| **Clarity** | H1 | Intake paths, journey, open questions, conversations to consider, role comparison | `next_step_pre` → `next_step_response`, `clarity_pre` → `clarity_post`, `clarity_reason`, `seconds_to_map` |
-| **Confidence** (shown as “Evidence”) | H2 | “Why this may be relevant”, sources, known vs. uncertain | `rely_*` → `rely_change_*`, `decision_choice` + `decision_reason`, `trust_post` + `trust_reason`, `trust_source` |
-| **Less effort** | Enabler | ~1-minute taps with a live map preview, optional depth, voice, Book your next step (provider types, official directories, call script, portal message), printable visit brief | `completed`, `last_screen`, `relevance_post`, `contact_intent_post`, `summary_copied`, `script_copied`, `provider_link_clicked` |
+Every feature traces back to a customer pain and forward to a measure.
 
-The mapping lives in `public/js/content/valueProps.js`. The welcome page lists the three promises, each care-map section and the evidence half of each option card carry their promise tag, and the feedback screen is grouped the same way. “Evidence” is used instead of “Confidence” so the app doesn’t tell testers how to feel before they rate trust.
+| Customer pain (Sprint 1) | Value proposition (label in app) | Features | Hypothesis | Measured by |
+|---|---|---|---|---|
+| "I don't know who to see or what comes next" | **Clarity** | "Your next step" card (who, why it fits her history, what to ask for), journey, open questions, care options, role comparison | **H1**: a personalized pathway reduces uncertainty | `clarity_pre` → `clarity_post` (+ `clarity_reason`); `next_step_pre` → `next_step_response` (does it name a specific professional step?); `contact_intent_post`; `followup_status` |
+| "I don't know whose advice to trust" | **Confidence** (shown as "Evidence") | "Why this is suggested" on the next-step card and "Why this may be relevant" on each option, each with verified society guidance; known vs. uncertain | **H2**: transparent explanations make the options trustworthy | `rely_next` → `rely_change_next` (headline suggestion) and `rely_<option>` → `rely_change_<option>`, each rated before the evidence and again after; `decision_choice` + reason; `trust_post` + reason; `trust_source` |
+| Repeating my story; every step is more work | **Less effort** (enabler) | Tap-don't-retell intake with live preview, voice, call script, portal message, directories, printable visit brief, finish bar | Enabler: lets H1 and H2 be tested without fatigue | `seconds_to_map`, `last_screen`, `completed`, `relevance_post`, `script_copied`, `next_card_action` |
+
+How the H2 test works: the person says whether she'd act on a suggestion **before** seeing why; answering reveals the reasoning and sources; she then says whether it made her more or less likely. The difference isolates the effect of the explanation. `next_suggested` records which suggestion she saw.
+
+The mapping lives in `public/js/content/valueProps.js`. The welcome page lists the three promises, and every map section, the next-step card and its evidence block, and every feedback group carries its promise tag. "Evidence" is used instead of "Confidence" so the app doesn't tell testers how to feel before they rate trust.
 
 ## Project layout
 ```

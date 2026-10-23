@@ -2,9 +2,9 @@
 // it delivers, and every measure maps to the hypothesis that promise depends on.
 //
 //   Promise      User-facing label   Hypothesis   Where it lives
-//   Clarity      Clarity             H1           intake paths, journey, open questions, options, role comparison
-//   Confidence   Evidence            H2           "why this may be relevant", sources, known vs. uncertain
-//   Less effort  Less effort         enabler      2-minute taps, optional depth, voice, take-away summary
+//   Clarity      Clarity             H1           "Your next step" card, journey, open questions, options, role comparison
+//   Confidence   Evidence            H2           "why this is suggested" / "why this may be relevant", sources, known vs. uncertain
+//   Less effort  Less effort         enabler      tap-don't-retell intake, live preview, voice, call script, directories, visit brief
 //
 // The Confidence promise is labeled "Evidence" in the UI so we don't tell testers how to feel
 // before asking them how much they trust the options (H2).
@@ -12,19 +12,19 @@
 export const VALUE_PROPS = {
   clarity: {
     label: 'Clarity',
-    promise: 'See which care conversations fit your situation.',
+    promise: 'Know who to see next, and how it fits where you are.',
     hypothesis: 'H1',
     icon: 'pin',
   },
   evidence: {
     label: 'Evidence',
-    promise: 'See why each option appears, with its sources.',
+    promise: 'See the reasoning and medical guidance behind every suggestion.',
     hypothesis: 'H2',
     icon: 'book',
   },
   effort: {
     label: 'Less effort',
-    promise: 'About 2 minutes. Leave with a summary for your visit.',
+    promise: 'Tap, don’t retell. Leave with what to say and a brief to hand over.',
     hypothesis: 'enabler',
     icon: 'clock',
   },

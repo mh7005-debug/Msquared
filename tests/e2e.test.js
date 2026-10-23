@@ -306,6 +306,11 @@ test('tester link carries the study code; next-step card is personalized; one-we
   await page.waitForURL('**/map');
   // the answer comes first, tailored to who they've seen
   assert.match(await page.locator('#h-nextcard').textContent(), /Endocrinologist/);
+  // H2 on the headline suggestion: rate first, then the evidence opens, then re-rate
+  assert.equal(await page.locator('.next-card .why').getAttribute('open'), null, 'evidence hidden before rating');
+  await page.locator('.next-card .chip', { hasText: 'Not sure' }).click();
+  await page.locator('.next-card .why .source a').first().waitFor();
+  await page.locator('.next-card .why .chip', { hasText: 'More likely' }).click();
   await page.click('.next-card button:has-text("Copy what to say")');
   await page.waitForSelector('.next-card .status:has-text("Copied")');
   // finish from anywhere
@@ -330,6 +335,11 @@ test('tester link carries the study code; next-step card is personalized; one-we
   assert.doesNotMatch(sessions, /tester@example\.com/, 'email never in the research export');
   const row = sessions.split('\r\n').find((l) => l.includes('P15,'));
   assert.match(row, /P15,past,/);
+  const head = sessions.split('\r\n')[0].split(',');
+  const col = Object.fromEntries(head.map((h, i) => [h, row.split(',')[i]]));
+  assert.equal(col.next_suggested, 'endocrinologist');
+  assert.equal(col.rely_next, 'unsure');
+  assert.equal(col.rely_change_next, 'more');
   const follow = await exportCsv('followups');
   const line = follow.split('\r\n').find((l) => l.includes('tester@example.com'));
   const link = line.match(/https?:\/\/[^,]+\/followup\?s=[a-z0-9]{12}/)[0];

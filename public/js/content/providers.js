@@ -133,3 +133,26 @@ export function suggestNext(answers, pathId) {
     reason: 'You’ve already seen endocrinology. A reproductive endocrinologist focuses on reproductive hormones specifically; ask your OB-GYN or endocrinologist about a referral.',
   };
 }
+
+/**
+ * H2: the evidence behind the "Your next step" suggestion, revealed only AFTER the user says whether she'd act on it.
+ * Every claim must match a verified source in sources.js. STATUS: DEMO — NOT CLINICALLY REVIEWED.
+ */
+export const NEXT_EVIDENCE = {
+  obgyn: {
+    why: 'Professional guidance describes the first evaluation of missing periods as a medical history, an exam and basic hormone blood tests. An OB-GYN or primary care clinician can start all of these and refer you on if needed.',
+    sources: ['asrm-2024'],
+  },
+  endocrinologist: {
+    why: 'Guidance describes hormone blood tests as part of evaluating missing periods, with specialist follow-up for some results. The Endocrine Society publishes a guideline on one common hormonal cause.',
+    sources: ['asrm-2024', 'endo-2017'],
+  },
+  rei: {
+    why: 'Guidance describes further, more specialized tests when first results don’t explain what’s going on. Reproductive endocrinologists specialize in this.',
+    sources: ['asrm-2024'],
+  },
+  coordinate: {
+    why: 'For one common cause of missing periods, guidance recommends medical, nutrition and mental health support working together, which is easier when one clinician brings the advice together.',
+    sources: ['endo-2017'],
+  },
+};
