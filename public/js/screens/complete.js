@@ -58,24 +58,6 @@ export function renderComplete(main, { navigate }) {
       el('div', { class: 'done-mark' }, icon('check')),
       el('h1', {}, 'Thank you'),
       el('p', { class: 'lede' }, 'You’re all done. Your answers help us decide what to build.'),
-      // H1: one tap, saved immediately.
-      el(
-        'section',
-        { class: 'sheet one-tap' },
-        likert({
-          name: 'clarity_post',
-          legend: 'How clear are you now about your next step?',
-          low: 'Not at all clear',
-          high: 'Completely clear',
-          value: state.clarityPost || null,
-          onChange: (v) => {
-            state.clarityPost = v;
-            save();
-            track('clarity_rated', String(v));
-            saveFields({ clarity_post: v }).catch(() => {});
-          },
-        }),
-      ),
       state.concierge?.done
         ? el(
             'section',

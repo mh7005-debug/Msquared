@@ -187,3 +187,6 @@ The care map, provider directories and call scripts are removed. New research so
 
 ## One-tap clarity at the end (Oct 26)
 The last screen asks one question, "How clear are you now about your next step?" (1–7), saved on tap as `clarity_post`. It gives H1 a number without bringing back a questionnaire.
+
+## No ratings at all (Oct 26)
+The one-tap clarity question is removed. Evidence for H1 and H2 is qualitative (interviews and moderated sessions) plus behavior: research opened, sources clicked, consultation requested, one-week check-in.
