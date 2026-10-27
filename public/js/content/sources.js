@@ -22,6 +22,26 @@ export const SOURCES = {
     verified: true,
     verifiedOn: '2026-10-19',
   },
+  'triad-2014': {
+    id: 'triad-2014',
+    title: '2014 Female Athlete Triad Coalition Consensus Statement on Treatment and Return to Play of the Female Athlete Triad',
+    publisher: 'Female Athlete Triad Coalition (Br J Sports Med 48(4):289)',
+    year: 2014,
+    url: 'https://bjsm.bmj.com/content/48/4/289',
+    // Abstract: guidelines cover "management by a multidisciplinary team".
+    verified: true,
+    verifiedOn: '2026-10-26',
+  },
+  'ioc-2023': {
+    id: 'ioc-2023',
+    title: '2023 International Olympic Committee consensus statement on Relative Energy Deficiency in Sport (REDs)',
+    publisher: 'International Olympic Committee (Br J Sports Med 57(17):1073–1097)',
+    year: 2023,
+    url: 'https://pubmed.ncbi.nlm.nih.gov/37752011/',
+    // Abstract: REDs is "a syndrome of deleterious health and performance outcomes" from low energy availability; notes interplay with mental health.
+    verified: true,
+    verifiedOn: '2026-10-26',
+  },
   'acog-faq': {
     id: 'acog-faq',
     title: 'Amenorrhea: Absence of Periods',

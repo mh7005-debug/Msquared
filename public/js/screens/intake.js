@@ -31,14 +31,14 @@ export function renderIntake(main, { navigate }) {
   const transcript = el('ol', { class: 'transcript', 'aria-label': 'Your answers so far' });
   const card = el('section', { class: 'card question-card', 'aria-labelledby': 'q-title' });
   const err = errorBox();
-  const preview = el('aside', { class: 'map-preview', 'aria-label': 'Your map so far' });
+  const preview = el('aside', { class: 'map-preview', 'aria-label': 'Your summary so far' });
 
   main.append(
-    el('h1', {}, 'No need to retell your whole story'),
+    el('h1', {}, 'A few quick questions'),
     el(
       'p',
       { class: 'lede' },
-      'Just tap what fits, under a minute. A research professional can take it from there.',
+      'Tap what fits, under a minute. Your research professional sees this, so you won’t have to repeat it.',
     ),
     el('div', { class: 'progress' }, el('div', { class: 'progress-bar', 'aria-hidden': 'true' }, progressFill), progressLabel),
     preview,
@@ -86,7 +86,7 @@ export function renderIntake(main, { navigate }) {
     ];
     const filled = slots.filter(([, v]) => v).length;
     preview.replaceChildren(
-      el('p', { class: 'map-preview-title' }, icon('pin'), 'Your map so far', el('span', { class: 'muted small' }, ` ${filled} of 4`)),
+      el('p', { class: 'map-preview-title' }, icon('pin'), 'Your summary so far', el('span', { class: 'muted small' }, ` ${filled} of 4`)),
       el(
         'dl',
         {},
@@ -235,13 +235,13 @@ export function renderIntake(main, { navigate }) {
   }
 
   function renderDone() {
-    const go = el('button', { class: 'btn btn-primary', type: 'button' }, 'See my care map');
+    const go = el('button', { class: 'btn btn-primary', type: 'button' }, 'See how we can help');
     go.addEventListener('click', async () => {
       go.disabled = true;
       showError(err, '');
       try {
         await saveFields({ path_id: state.pathId, intake_mode: state.intakeMode, last_screen: 'intake' });
-        navigate('/map');
+        navigate('/help');
       } catch (ex) {
         showError(err, ex.message);
         go.disabled = false;
@@ -249,7 +249,7 @@ export function renderIntake(main, { navigate }) {
     });
     card.replaceChildren(
       el('h2', { class: 'q-title', id: 'q-title', tabindex: '-1' }, 'That’s everything we need'),
-      el('p', {}, 'Next: your suggested next step, with the research behind it, and a free consultation if you want one.'),
+      el('p', {}, 'Next: what a research professional can do for you, and a free consultation.'),
       el('div', { class: 'actions' }, go),
     );
   }

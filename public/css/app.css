@@ -1923,3 +1923,15 @@ select:focus {
 .slot-times { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
 .chip.slot { min-height: 44px; padding: 6px 4px; font-size: 0.85rem; }
 @media (max-width: 420px) { .slot-times { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* ---- Consultation front door ---- */
+.heard { margin-bottom: 20px; }
+.consult-card h2 { margin-top: 6px; }
+.consult-steps { display: grid; gap: 10px; padding-left: 1.3em; margin: 12px 0; }
+.consult-steps li strong { display: block; }
+.not-now { display: block; margin: 14px auto 0; }
+.research-list { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 14px; }
+.research-list li { display: grid; gap: 3px; padding-left: 12px; border-left: 3px solid var(--teal); }
+.research-src { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 0.85rem; color: var(--muted); }
+.research-src .icon { width: 14px; height: 14px; color: var(--teal); }
+.why-section { margin: 28px 0; }

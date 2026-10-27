@@ -100,3 +100,30 @@ export const WHOLE_PICTURE = {
   body: 'Missing periods can affect more than your cycle. For one common cause, medical guidance suggests checking bone health after 6 months without a period, and recommends medical, nutrition and mental health support working together. That’s why the right answer often takes more than one professional, and more research than most people expect.',
   sourceId: 'endo-2017',
 };
+
+/**
+ * "Why one doctor often isn't enough": the research behind the consultation. Every point maps to a verified source.
+ * STATUS: DEMO — NOT CLINICALLY REVIEWED.
+ */
+export const WHY_RESEARCH = [
+  {
+    title: 'It can affect more than your cycle',
+    text: 'For one common cause of missing periods, guidance suggests checking bone health after 6 months without a period.',
+    sourceId: 'endo-2017',
+  },
+  {
+    title: 'One doctor often isn’t enough',
+    text: 'Guidance recommends medical, nutrition and mental health support working together, and athlete guidelines call for a multidisciplinary team.',
+    sourceIds: ['endo-2017', 'triad-2014'],
+  },
+  {
+    title: 'Finding the cause takes several steps',
+    text: 'Evaluation usually involves a medical history, an exam and hormone tests, and sometimes imaging, which can mean several appointments.',
+    sourceId: 'asrm-2024',
+  },
+  {
+    title: 'For active women, energy matters',
+    text: 'Not eating enough for your activity level can harm health and performance, and is linked with mental health.',
+    sourceId: 'ioc-2023',
+  },
+];

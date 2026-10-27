@@ -161,3 +161,12 @@ Control A simulation, A/B variants, dashboards, accounts, provider search or boo
 - **Start:** removed "How it works" from the welcome page and the open "next step" question from the first screen (3 taps: screener + 2 ratings). The intake ends straight into the map; "anything else" moved into the consultation form ("Anything you want your researcher to know?"), where it reaches the researcher.
 - **End:** feedback cut from ~12 items to 4: clarity and trust in information (same wording as before the map, for H1/H2), "anything confusing or missing", and the safety check. Dropped: rating follow-ups, next-step open question, trust in options, trust source, relevance, contact intent, support model, quote permission. The main H2 measure stays on the map (before/after the evidence on the suggested next step).
 - **Message:** "A real research professional, not ChatGPT" on the welcome page and booking button; promises name the guidance (ASRM 2024, Endocrine Society 2017); map header says it was prepared from published clinical guidance.
+
+## The app is the front door to a consultation (Oct 26)
+Testers didn't know whether they were booking a gynecologist or a consultant, and the app felt scattered. It is now one straight line:
+1. **Welcome:** "Not sure who to see? A research professional will map it out with you." Says plainly it's a free consultation with a real person, not a chatbot and not a doctor's appointment. Lists the four research headlines on why one doctor often isn't enough (details and sources wait until after the H2 before-rating).
+2. **Start:** screener + clarity + trust (3 taps).
+3. **Quick questions** (under a minute).
+4. **How we can help:** what we heard, what the research professional does (reviews your story, researches your case, matches you and maps your care plan), the H2 test (how likely to book → research with verified sources → more/less likely), and the booking form, open on the page. "Not right now" is allowed.
+5. **Two ratings** (clarity and trust, same as the start) + safety.
+The care map, provider directories and call scripts are removed. New research sources verified: Female Athlete Triad Coalition 2014 (multidisciplinary team) and IOC 2023 REDs consensus. New fields: `book_intent_pre`, `book_intent_change`, `book_choice`.

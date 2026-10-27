@@ -23,7 +23,7 @@ export function demoSlots(from = new Date()) {
  * "Have Msquared match me": the done-for-you step. A button that opens a short request form.
  * Nothing about her case leaves the device unless she checks the share box and sends.
  */
-export function conciergeBlock({ where, focus, onDone, primary = true }) {
+export function conciergeBlock({ where, focus, onDone, primary = true, startOpen = false }) {
   if (state.concierge?.done) {
     const when = state.concierge.slot ? ` Requested time: ${state.concierge.slot}.` : '';
     return el('div', { class: 'notice ok concierge-done', role: 'status' }, icon('check'), el('div', {}, el('strong', {}, 'Consultation requested. '), `${CONCIERGE.done.replace('Consultation requested. ', '')}${when}`));
@@ -33,6 +33,10 @@ export function conciergeBlock({ where, focus, onDone, primary = true }) {
   const wrap = el('div', { class: 'concierge' });
   const open = el('button', { class: `btn ${primary ? 'btn-rose' : 'btn-primary'}`, type: 'button' }, icon('user'), CONCIERGE.cta);
   wrap.append(el('p', { class: 'free-badge' }, CONCIERGE.badge));
+  if (startOpen) {
+    wrap.append(form(true));
+    return wrap;
+  }
   wrap.append(el('p', { class: 'small muted concierge-sub' }, CONCIERGE.sub));
   open.addEventListener('click', () => {
     track('concierge_opened', where);
@@ -41,7 +45,7 @@ export function conciergeBlock({ where, focus, onDone, primary = true }) {
   wrap.append(open);
   return wrap;
 
-  function form() {
+  function form(embedded = false) {
     const err = errorBox();
     const contact = el('input', { id: `cc-contact-${where}`, type: c.method === 'phone' ? 'tel' : 'email', autocomplete: c.method === 'phone' ? 'tel' : 'email', value: c.contact, maxlength: 254 });
     contact.addEventListener('input', () => ((c.contact = contact.value), save()));
@@ -95,8 +99,8 @@ export function conciergeBlock({ where, focus, onDone, primary = true }) {
     const f = el(
       'form',
       { class: 'concierge-form', novalidate: true, 'aria-label': CONCIERGE.title },
-      el('h3', {}, CONCIERGE.title),
-      el('p', {}, CONCIERGE.lede),
+      embedded ? null : el('h3', {}, CONCIERGE.title),
+      embedded ? null : el('p', {}, CONCIERGE.lede),
       radioTiles({
         name: `cc-focus-${where}`,
         legend: 'What kind of clinician are you looking for?',

@@ -12,19 +12,19 @@
 export const VALUE_PROPS = {
   clarity: {
     label: 'Clarity',
-    promise: 'Know who to see next, based on published clinical guidance.',
+    promise: 'Know which clinicians you need, and in what order.',
     hypothesis: 'H1',
     icon: 'pin',
   },
   evidence: {
     label: 'Evidence',
-    promise: 'Every suggestion shows the research behind it (ASRM 2024, Endocrine Society 2017).',
+    promise: 'Every recommendation is backed by published research.',
     hypothesis: 'H2',
     icon: 'book',
   },
   effort: {
     label: 'Less effort',
-    promise: 'A few taps, then a free consultation with a research professional.',
+    promise: 'Under a minute of questions. Then a real person takes it from here.',
     hypothesis: 'enabler',
     icon: 'clock',
   },

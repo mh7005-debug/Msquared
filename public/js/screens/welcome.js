@@ -1,6 +1,7 @@
 import { el, state, save, api, config, errorBox, showError, track, icon, voiceSupported } from '../core.js';
 import { STUDY, WHOLE_PICTURE } from '../content/copy.js';
 import { aboutSection } from './trust.js';
+import { researchList } from './help.js';
 import { VALUE_PROPS } from '../content/valueProps.js';
 
 export function renderWelcome(main, { navigate }) {
@@ -49,7 +50,7 @@ export function renderWelcome(main, { navigate }) {
       dataPoint('We save your ratings and anything you write or say, linked to a random code. Never your name. Answers you tap about your cycle stay on this device.'),
       voiceSupported ? dataPoint('Speak uses your browser’s speech service (Apple or Google). We get text only.') : null,
       config.aiEnabled ? dataPoint('Typed chat answers go to our AI provider (Anthropic) to be understood, then are discarded.') : null,
-      dataPoint('If you ask us to match you with a clinician, you choose to share your summary and contact details with our team. That’s optional and kept separate.'),
+      dataPoint('If you book a consultation, you choose to share your summary and contact details with our team. That’s optional and kept separate.'),
       dataPoint(`Class research only. Our host keeps short visit logs, so it’s non-identifying, not anonymous. Deleted by ${STUDY.retention}. Stop anytime.`),
     ),
     el('hr', { class: 'divider' }),
@@ -101,18 +102,25 @@ export function renderWelcome(main, { navigate }) {
         'section',
         { class: 'hero' },
         el('p', { class: 'hero-kicker' }, 'For missing or irregular periods'),
-        el('h1', {}, 'Let’s make sense of what comes next in your care journey.'),
+        el('h1', {}, 'Not sure who to see? A research professional will map it out with you.'),
         el(
           'p',
           { class: 'lede' },
-          'Msquared helps women experiencing missing or irregular periods organize what they’ve tried, understand their professional care options, and prepare for their next step.',
+          'Answer a few quick questions, then book a free consultation. Your research professional matches you with the right clinicians and maps your care plan.',
         ),
-        el('p', { class: 'hero-note' }, icon('user'), el('span', {}, el('strong', {}, 'A real research professional, not ChatGPT. '), `${WHOLE_PICTURE.short} After a few taps, book a free consultation with a researcher who matches you with the right ones.`)),
+        el('p', { class: 'hero-note' }, icon('user'), el('span', {}, el('strong', {}, 'A real person, not ChatGPT, and not a doctor’s appointment. '), 'Free during our pilot.')),
         el(
           'ul',
           { class: 'trust-list promises', 'aria-label': 'What you get' },
           Object.entries(VALUE_PROPS).map(([k, v]) => trust(v.icon, v.label, v.promise, k)),
         ),
+      ),
+      el(
+        'section',
+        { class: 'why-section', 'aria-labelledby': 'why-h' },
+        el('h2', { id: 'why-h' }, 'Why one doctor often isn’t enough'),
+        researchList({ brief: true }),
+        el('p', { class: 'muted small' }, 'After a few questions, we show you the published research behind each point.'),
       ),
       aboutSection(),
       config.storageReady

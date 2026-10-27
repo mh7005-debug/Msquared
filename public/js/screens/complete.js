@@ -8,7 +8,7 @@ export function renderComplete(main, { navigate }) {
   const status = el('span', { class: 'status', role: 'status' });
   const hasSummary = state.answers && state.pathId;
 
-  const copyBtn = el('button', { class: 'btn', type: 'button' }, icon('copy'), 'Copy my summary again');
+  const copyBtn = el('button', { class: 'btn', type: 'button' }, icon('copy'), 'Copy my summary');
   copyBtn.addEventListener('click', async () => {
     status.textContent = (await copyText(copySummary(state.answers, state.pathId, state.ownWords))) ? 'Copied' : 'Couldn’t copy.';
   });
@@ -58,7 +58,20 @@ export function renderComplete(main, { navigate }) {
       el('div', { class: 'done-mark' }, icon('check')),
       el('h1', {}, 'Thank you'),
       el('p', { class: 'lede' }, 'Your feedback is saved. It helps us decide what to improve.'),
-      checkIn(),
+      state.concierge?.done
+        ? el(
+            'section',
+            { class: 'sheet', 'aria-labelledby': 'next-h' },
+            el('h2', { id: 'next-h' }, 'What happens next'),
+            el(
+              'ol',
+              { class: 'consult-steps' },
+              el('li', {}, el('strong', {}, 'We confirm your time'), `Within 24 hours${state.concierge.slot ? ` (you asked for ${state.concierge.slot})` : ''}.`),
+              el('li', {}, el('strong', {}, 'Your research professional prepares'), 'They review your answers and research your case before the call.'),
+              el('li', {}, el('strong', {}, 'Your 20-minute call'), 'You leave with which clinicians to see, in what order.'),
+            ),
+          )
+        : checkIn(),
       code
         ? el(
             'section',
