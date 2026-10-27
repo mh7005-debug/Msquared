@@ -1,4 +1,4 @@
-import { el, state, save, clearState, copyText, icon, api, track, errorBox, showError } from '../core.js';
+import { el, state, save, saveFields, clearState, copyText, icon, api, track, errorBox, showError, likert } from '../core.js';
 import { STUDY } from '../content/copy.js';
 import { copySummary } from '../shared/mapText.js';
 import { contactCard } from './trust.js';
@@ -58,6 +58,24 @@ export function renderComplete(main, { navigate }) {
       el('div', { class: 'done-mark' }, icon('check')),
       el('h1', {}, 'Thank you'),
       el('p', { class: 'lede' }, 'You’re all done. Your answers help us decide what to build.'),
+      // H1: one tap, saved immediately.
+      el(
+        'section',
+        { class: 'sheet one-tap' },
+        likert({
+          name: 'clarity_post',
+          legend: 'How clear are you now about your next step?',
+          low: 'Not at all clear',
+          high: 'Completely clear',
+          value: state.clarityPost || null,
+          onChange: (v) => {
+            state.clarityPost = v;
+            save();
+            track('clarity_rated', String(v));
+            saveFields({ clarity_post: v }).catch(() => {});
+          },
+        }),
+      ),
       state.concierge?.done
         ? el(
             'section',

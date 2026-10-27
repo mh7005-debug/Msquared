@@ -129,6 +129,7 @@ test('front door: quick questions, how we can help, research before/after, book,
   await page.click('button:has-text("Finish")');
   await page.waitForURL('**/complete');
   await page.waitForSelector('h2:has-text("About your request")');
+  await page.locator('.one-tap .likert-scale label').nth(5).click();
   await settle(page);
   const sessions = await exportCsv('sessions');
   const headCols = sessions.split('\r\n')[0].split(',');
@@ -136,6 +137,7 @@ test('front door: quick questions, how we can help, research before/after, book,
   const col = Object.fromEntries(headCols.map((h, i) => [h, row.split(',')[i]]));
   assert.equal(col.screener, 'current');
   assert.equal(col.completed, 'true');
+  assert.equal(col.clarity_post, '6', 'one-tap clarity saved');
   assert.equal(col.research_opened, 'true');
   assert.equal(col.book_choice, 'booked');
   assert.equal(col.concierge_requested, 'true');

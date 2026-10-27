@@ -184,3 +184,6 @@ The care map, provider directories and call scripts are removed. New research so
 - **End questionnaire removed.** Booking or "Not right now" goes straight to the end. The first screen keeps only the screener (the before-ratings had nothing to compare against). H1 and H2 are now read from behavior: `research_opened`, `source_clicked`, `book_choice` / `concierge_requested`, and the optional one-week check-in.
 - **Example consultant profile.** A fictional researcher ("Ana R., PhD, MPH") shown with an "Example profile for this prototype" label. It names no real institution, person or license.
 - **Honest booking.** The 24-hour confirmation promise is removed. Right after requesting, she is told "This is a prototype, so no call is booked yet. Your request tells us this service is worth building." The consent screen says it's a prototype being tested for a class.
+
+## One-tap clarity at the end (Oct 26)
+The last screen asks one question, "How clear are you now about your next step?" (1–7), saved on tap as `clarity_post`. It gives H1 a number without bringing back a questionnaire.
