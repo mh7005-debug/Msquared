@@ -22,7 +22,6 @@ export function renderBaseline(main, { navigate }) {
     }),
     likert({ name: 'clarity_pre', ...MEASURES.clarity, value: b.clarity, onChange: (v) => ((b.clarity = v), save()) }),
     likert({ name: 'trust_pre', ...MEASURES.trustInfo, value: b.trust, onChange: (v) => ((b.trust = v), save()) }),
-    textField({ ...MEASURES.nextStep, key: 'next_step_pre', value: b.nextStep, onInput: (v) => ((b.nextStep = v), save()) }),
     el('div', { class: 'actions' }, next),
     err,
   );
@@ -36,7 +35,7 @@ export function renderBaseline(main, { navigate }) {
     showError(err, '');
     next.disabled = true;
     try {
-      await saveFields({ screener: b.screener, clarity_pre: b.clarity, trust_pre: b.trust, next_step_pre: b.nextStep || null, last_screen: 'baseline' });
+      await saveFields({ screener: b.screener, clarity_pre: b.clarity, trust_pre: b.trust, last_screen: 'baseline' });
       state.baselineDone = true;
       save();
       navigate('/intake');
@@ -48,7 +47,7 @@ export function renderBaseline(main, { navigate }) {
 
   main.append(
     el('h1', {}, 'Where are you right now?'),
-    el('p', { class: 'lede' }, 'About 30 seconds, then your map. No right answers.'),
+    el('p', { class: 'lede' }, 'Three taps, then your next step. No right answers.'),
     form,
   );
 }

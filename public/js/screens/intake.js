@@ -38,7 +38,7 @@ export function renderIntake(main, { navigate }) {
     el(
       'p',
       { class: 'lede' },
-      'Just tap what fits, about a minute. A real person can take it from there, and you’ll have a brief to hand over so you don’t explain it again.',
+      'Just tap what fits, under a minute. A research professional can take it from there.',
     ),
     el('div', { class: 'progress' }, el('div', { class: 'progress-bar', 'aria-hidden': 'true' }, progressFill), progressLabel),
     preview,
@@ -240,7 +240,7 @@ export function renderIntake(main, { navigate }) {
       go.disabled = true;
       showError(err, '');
       try {
-        await saveFields({ path_id: state.pathId, intake_mode: state.intakeMode, own_words: state.ownWords || null, last_screen: 'intake' });
+        await saveFields({ path_id: state.pathId, intake_mode: state.intakeMode, last_screen: 'intake' });
         navigate('/map');
       } catch (ex) {
         showError(err, ex.message);
@@ -249,7 +249,7 @@ export function renderIntake(main, { navigate }) {
     });
     card.replaceChildren(
       el('h2', { class: 'q-title', id: 'q-title', tabindex: '-1' }, 'That’s everything we need'),
-      textField({ ...OWN_WORDS, key: 'own_words', value: state.ownWords, onInput: (v) => ((state.ownWords = v), save()) }),
+      el('p', {}, 'Next: your suggested next step, with the research behind it, and a free consultation if you want one.'),
       el('div', { class: 'actions' }, go),
     );
   }

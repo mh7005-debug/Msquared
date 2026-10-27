@@ -17,7 +17,7 @@ export const TEAM = {
 
   // Who runs the free consultation. Must be literally true; shown to every participant.
   // Add credentials or departments only once confirmed (e.g. a named NYU affiliation the person actually holds).
-  consultant: 'a researcher on the Msquared team at NYU',
+  consultant: 'a research professional from our NYU team',
 
   // ONLY after a real clinical review is complete and the reviewer agreed to be named.
   // Example: { name: 'Dr. Jane Doe', credentials: 'MD, OB-GYN', date: 'October 2026' }

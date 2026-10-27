@@ -156,3 +156,8 @@ Control A simulation, A/B variants, dashboards, accounts, provider search or boo
 - Each request in the team export carries a research brief built only from verified sources for the specialty she chose (functional medicine is flagged as needing clinician input).
 - Feedback asks "one-time help vs ongoing support" to test the business model without asking about price.
 - The consultant line comes from `team.js` → `consultant` and must stay literally true; add credentials only once confirmed.
+
+## Shorter start and end, research-led and human (Oct 26)
+- **Start:** removed "How it works" from the welcome page and the open "next step" question from the first screen (3 taps: screener + 2 ratings). The intake ends straight into the map; "anything else" moved into the consultation form ("Anything you want your researcher to know?"), where it reaches the researcher.
+- **End:** feedback cut from ~12 items to 4: clarity and trust in information (same wording as before the map, for H1/H2), "anything confusing or missing", and the safety check. Dropped: rating follow-ups, next-step open question, trust in options, trust source, relevance, contact intent, support model, quote permission. The main H2 measure stays on the map (before/after the evidence on the suggested next step).
+- **Message:** "A real research professional, not ChatGPT" on the welcome page and booking button; promises name the guidance (ASRM 2024, Endocrine Society 2017); map header says it was prepared from published clinical guidance.

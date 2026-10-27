@@ -1,140 +1,35 @@
-import { el, state, save, saveFields, track, flush, likert, textField, radioTiles, errorBox, showError, stableOrder, revealAfter, promiseTag } from '../core.js';
-import { FREE_TEXT_REMINDER, MEASURES, WHY_RATING } from '../content/copy.js';
+import { el, state, save, saveFields, track, flush, likert, textField, radioTiles, errorBox, showError, promiseTag } from '../core.js';
+import { MEASURES } from '../content/copy.js';
 
-// What most affected trust: separates the H2 driver (explanations, sources) from other trust signals.
-const TRUST_SOURCE = {
-  why: 'The explanations of why each suggestion appears',
-  sources: 'The links to medical guidance',
-  team: 'Knowing who’s behind Msquared',
-  design: 'How it looks and feels',
-  own: 'My own knowledge or experience',
-  human: 'Knowing a real person could help me',
-};
-
-// Short codes are used to log the (randomized) display order.
-const HELPFUL = {
-  rc: { value: 'role_comparison', label: 'Role comparison' },
-  es: { value: 'explanations_sources', label: 'Explanations and sources' },
-  js: { value: 'journey_summary', label: 'Journey summary' },
-  aq: { value: 'appointment_questions', label: 'Appointment questions' },
-  nt: { value: 'next_step_tools', label: 'Who to book and what to say' },
-  cm: { value: 'concierge_match', label: 'Having Msquared match me' },
-};
-
+/**
+ * Final feedback, cut to four items after testers said it was too long.
+ * H1: clarity, same wording as before the map. H2: trust in information, same wording as before
+ * (the per-suggestion before/after evidence rating on the map is the main H2 measure).
+ */
 export function renderFeedback(main, { navigate }) {
-  const f = (state.feedback = state.feedback || {
-    clarity: null,
-    clarityReason: '',
-    trustInfo: null,
-    trust: null,
-    trustSource: null,
-    relevance: null,
-    nextStep: '',
-    trustReason: '',
-    helpful: null,
-    confusing: '',
-    prefers: '',
-    safety: null,
-    safetyText: '',
-    quoteOk: false,
-    quote: '',
-  });
+  const f = (state.feedback = state.feedback || { clarity: null, trustInfo: null, confusing: '', safety: null, safetyText: '' });
   const set = (k) => (v) => ((f[k] = v), save());
   const err = errorBox();
-  const submit = el('button', { class: 'btn btn-primary', type: 'submit' }, 'Submit feedback');
+  const submit = el('button', { class: 'btn btn-primary', type: 'submit' }, 'Finish');
 
   const safetyDetail = el(
     'div',
     { hidden: f.safety !== 'yes' },
-    textField({ label: 'What seemed misleading, too certain, or unsafe? (optional)', value: f.safetyText, onInput: set('safetyText') }),
+    textField({ label: 'What seemed misleading or unsafe? (optional)', key: 'safety_description', value: f.safetyText, onInput: set('safetyText') }),
   );
-  const quoteBox = el(
-    'div',
-    { hidden: !f.quoteOk },
-    textField({ label: 'What may we quote? (optional)', hint: 'Shared without your name.', value: f.quote, onInput: set('quote') }),
-  );
-  const quoteCheck = el('input', { type: 'checkbox', id: 'quote-ok', checked: f.quoteOk });
-  quoteCheck.addEventListener('change', () => {
-    f.quoteOk = quoteCheck.checked;
-    quoteBox.hidden = !f.quoteOk;
-    save();
-  });
-
-  // Optional "why" boxes open only after the rating is chosen: quick for some, room to expand for others.
-  const clarityWhy = revealAfter(
-    textField({ label: WHY_RATING, key: 'clarity_reason', value: f.clarityReason, onInput: set('clarityReason') }),
-    Boolean(f.clarity),
-  );
-  const trustWhy = revealAfter(
-    textField({ label: WHY_RATING, key: 'trust_reason', value: f.trustReason, onInput: set('trustReason') }),
-    Boolean(f.trust),
-  );
-  const rate = (k, why) => (v) => {
-    f[k] = v;
-    save();
-    why.show();
-  };
-
 
   const form = el(
     'form',
     { class: 'sheet', novalidate: true },
+    el('div', { class: 'form-section' }, promiseTag('clarity', 'Clarity'), likert({ name: 'clarity_post', ...MEASURES.clarity, value: f.clarity, onChange: set('clarity') })),
+    el('div', { class: 'form-section' }, promiseTag('evidence', 'Evidence'), likert({ name: 'trust_info_post', ...MEASURES.trustInfo, value: f.trustInfo, onChange: set('trustInfo') })),
     el(
       'div',
       { class: 'form-section' },
-      promiseTag('clarity', 'Clarity'),
-      el('h2', {}, 'How clear is your next step?'),
-      // Same wording as before the care map, so answers can be compared.
-      likert({ name: 'clarity_post', ...MEASURES.clarity, value: f.clarity, onChange: rate('clarity', clarityWhy) }),
-      clarityWhy.el,
-      textField({ ...MEASURES.nextStep, key: 'next_step_response', value: f.nextStep, onInput: set('nextStep') }),
-    ),
-    el(
-      'div',
-      { class: 'form-section' },
-      promiseTag('evidence', 'Evidence'),
-      el('h2', {}, 'How much do you trust it?'),
-      likert({ name: 'trust_info_post', ...MEASURES.trustInfo, value: f.trustInfo, onChange: set('trustInfo') }),
-      likert({ name: 'trust_post', legend: 'How much do you trust the next step and care options Msquared showed you?', low: 'Not at all', high: 'Completely', value: f.trust, onChange: rate('trust', trustWhy) }),
-      trustWhy.el,
-      radioTiles({
-        name: 'trust_source',
-        legend: 'What most affected how much you trusted the options?',
-        options: [
-          ...stableOrder('trust_source', Object.keys(TRUST_SOURCE)).map((c) => ({ value: c, label: TRUST_SOURCE[c] })),
-          { value: 'none', label: 'Nothing in particular' },
-        ],
-        value: f.trustSource,
-        onChange: set('trustSource'),
-      }),
-    ),
-    el(
-      'div',
-      { class: 'form-section' },
-      promiseTag('effort', 'Less effort'),
-      el('h2', {}, 'Was it worth your time?'),
-      likert({ name: 'relevance_post', legend: 'How relevant was the care map to your situation?', low: 'Not at all relevant', high: 'Completely relevant', value: f.relevance, onChange: set('relevance') }),
-      likert({ name: 'contact_intent_post', legend: 'How likely are you to contact a healthcare professional about this in the next month?', low: 'Very unlikely', high: 'Very likely', value: f.contactIntent, onChange: set('contactIntent') }),
-      radioTiles({
-        name: 'support_model',
-        legend: 'If Msquared continued, which would you want? (optional)',
-        options: [
-          { value: 'one_time', label: 'One-time help to find the right clinician' },
-          { value: 'ongoing', label: 'Ongoing support from a care consultant through my care' },
-          { value: 'not_sure', label: 'Not sure' },
-        ],
-        value: f.supportModel,
-        onChange: set('supportModel'),
-      }),
       textField({ label: 'Anything confusing or missing? (optional)', key: 'missing_or_confusing', value: f.confusing, onInput: set('confusing') }),
-    ),
-    el(
-      'div',
-      { class: 'form-section' },
-      el('h2', {}, 'Safety check'),
       radioTiles({
         name: 'safety',
-        legend: 'Did anything seem misleading, too certain, or unsafe?',
+        legend: 'Did anything seem misleading or unsafe?',
         options: [
           { value: 'no', label: 'No' },
           { value: 'yes', label: 'Yes' },
@@ -147,12 +42,6 @@ export function renderFeedback(main, { navigate }) {
         },
       }),
       safetyDetail,
-    ),
-    el(
-      'div',
-      { class: 'form-section' },
-      el('label', { class: 'check', for: 'quote-ok' }, quoteCheck, el('span', {}, 'You may quote me, without my name, in our class presentation (optional).')),
-      quoteBox,
       el('div', { class: 'actions' }, submit),
       err,
     ),
@@ -160,29 +49,17 @@ export function renderFeedback(main, { navigate }) {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!f.clarity || !f.trustInfo || !f.trust || !f.relevance) return showError(err, 'Choose a number from 1 to 7 for each of the four ratings.');
-    if (!f.safety) return showError(err, 'Answer the safety check question.');
+    if (!f.clarity || !f.trustInfo) return showError(err, 'Choose a number from 1 to 7 for both ratings.');
+    if (!f.safety) return showError(err, 'Answer the last question.');
     showError(err, '');
     submit.disabled = true;
     try {
       await saveFields({
         clarity_post: f.clarity,
-        clarity_reason: f.clarityReason || null,
         trust_info_post: f.trustInfo,
-        trust_post: f.trust,
-        relevance_post: f.relevance,
-        ...(f.contactIntent ? { contact_intent_post: f.contactIntent } : {}),
-        next_step_response: f.nextStep || null,
-        trust_reason: f.trustReason || null,
-        trust_source: f.trustSource || null,
-        most_helpful_feature: f.helpful || null,
         missing_or_confusing: f.confusing || null,
-        support_model: f.supportModel || null,
-        prefers_msquared_stated: f.prefers || null,
         safety_flag: f.safety,
         safety_description: f.safety === 'yes' ? f.safetyText || null : null,
-        quote_permission: f.quoteOk,
-        quote_text: f.quoteOk ? f.quote || null : null,
         last_screen: 'feedback',
       });
       track('feedback_submitted');
@@ -197,10 +74,5 @@ export function renderFeedback(main, { navigate }) {
     }
   });
 
-  main.append(
-    el('h1', {}, 'How did that go?'),
-    el('p', { class: 'lede' }, 'No right answers. Critical feedback helps as much as praise.'),
-    el('p', { class: 'hint' }, FREE_TEXT_REMINDER),
-    form,
-  );
+  main.append(el('h1', {}, 'One last check'), el('p', { class: 'lede' }, 'Two ratings, the same as at the start, so we can see what changed. About 20 seconds.'), form);
 }

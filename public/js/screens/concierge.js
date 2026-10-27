@@ -1,4 +1,4 @@
-import { el, state, save, api, track, errorBox, showError, icon, radioTiles } from '../core.js';
+import { el, state, save, saveFields, api, track, errorBox, showError, icon, radioTiles, textField } from '../core.js';
 import { CONCIERGE } from '../content/copy.js';
 import { conciergeSummary, FOCUS_OPTIONS } from '../shared/mapText.js';
 import { TEAM } from '../content/team.js';
@@ -33,6 +33,7 @@ export function conciergeBlock({ where, focus, onDone, primary = true }) {
   const wrap = el('div', { class: 'concierge' });
   const open = el('button', { class: `btn ${primary ? 'btn-rose' : 'btn-primary'}`, type: 'button' }, icon('user'), CONCIERGE.cta);
   wrap.append(el('p', { class: 'free-badge' }, CONCIERGE.badge));
+  wrap.append(el('p', { class: 'small muted concierge-sub' }, CONCIERGE.sub));
   open.addEventListener('click', () => {
     track('concierge_opened', where);
     open.replaceWith(form());
@@ -122,6 +123,13 @@ export function conciergeBlock({ where, focus, onDone, primary = true }) {
       }),
       el('div', { class: 'field' }, contactLabel, contact),
       el('div', { class: 'field' }, el('label', { class: 'field-label', for: `cc-name-${where}` }, 'First name (optional)'), name),
+      textField({
+        label: 'Anything you want your researcher to know? (optional)',
+        hint: 'What you’ve tried, what matters most to you. Type or tap Speak. Leave out names.',
+        key: 'own_words',
+        value: state.ownWords,
+        onInput: (v) => ((state.ownWords = v), save()),
+      }),
       el('label', { class: 'check', for: `cc-share-${where}` }, share, el('span', {}, CONCIERGE.share)),
       el('p', { class: 'small muted' }, CONCIERGE.privacy),
       el('div', { class: 'actions' }, send),
@@ -147,6 +155,7 @@ export function conciergeBlock({ where, focus, onDone, primary = true }) {
           summary: conciergeSummary(state.answers, state.pathId, state.ownWords, c.focus),
           share: true,
         });
+        if (state.ownWords) saveFields({ own_words: state.ownWords }).catch(() => {});
         c.done = true;
         if (c.slot === 'other') c.slot = null;
         save();

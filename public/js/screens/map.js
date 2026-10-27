@@ -108,7 +108,7 @@ export function renderMap(main, { navigate }) {
         'div',
         { class: 'map-head' },
         el('h1', {}, 'Your next-step care map'),
-        el('p', { class: 'prep-meta' }, `Prepared ${TODAY}. Educational, not medical advice.`),
+        el('p', { class: 'prep-meta' }, `Prepared ${TODAY} from published clinical guidance. Educational, not medical advice.`),
         reviewerLine(),
         pathRow(),
       ),
