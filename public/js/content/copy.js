@@ -79,11 +79,22 @@ export const UNRESOLVED = {
 
 /** Concierge matching (MVP: the team follows up by hand). Edit the promise to what the team can actually keep. */
 export const CONCIERGE = {
-  cta: 'Have Msquared match me',
-  title: 'Let us find the right clinician for you',
-  lede: 'Our team reviews your summary and gets back to you with a match, so you don’t have to search on your own.',
+  cta: 'Get help from our care team',
+  title: 'Let our care team take it from here',
+  lede: 'A real person on our team reads your summary, looks at the whole picture across specialties, and gets back to you with the clinicians to talk to. No searching on your own.',
   promise: 'A member of our team will reach out within 2 business days.',
   share: 'Share my care summary and contact details with the Msquared team so they can match me.',
   privacy: 'Kept apart from the research data and used only to contact you about a match. We are not a medical provider; any care comes from a licensed clinician.',
   done: 'Request received. A member of our team will reach out within 2 business days.',
+};
+
+/**
+ * The whole-picture message (practitioner feedback). Claims must stay within endo-2017 (Rec 2.7 bone density,
+ * Rec 3.2–3.3 multidisciplinary care). STATUS: DEMO — NOT CLINICALLY REVIEWED.
+ */
+export const WHOLE_PICTURE = {
+  short: 'Missing periods can affect more than your cycle, so getting the full picture often takes more than one professional.',
+  title: 'Why the whole picture matters',
+  body: 'Missing periods can affect more than your cycle. For one common cause, medical guidance suggests checking bone health after 6 months without a period, and recommends medical, nutrition and mental health support working together. That’s why the right answer often takes more than one professional, and more research than most people expect.',
+  sourceId: 'endo-2017',
 };

@@ -9,7 +9,7 @@ import { PROVIDERS, PROVIDER_FOCUS, PORTAL_QUESTIONS, bookingScript, portalMessa
 import { VALUE_PROPS, SECTION_PROMISE } from '../content/valueProps.js';
 import { conciergeBlock } from './concierge.js';
 import { focusFor } from '../shared/mapText.js';
-import { CONCIERGE } from '../content/copy.js';
+import { CONCIERGE, WHOLE_PICTURE } from '../content/copy.js';
 
 const DECISIONS = {
   use: 'Use this to prepare for a conversation with a healthcare professional.',
@@ -121,6 +121,7 @@ export function renderMap(main, { navigate }) {
           'div',
           { id: 'panel-next', role: 'tabpanel', 'aria-labelledby': 'tab-next' },
           nextStepCard(pathId),
+          wholePicture(),
           el(
             'button',
             { class: 'more-link', type: 'button', onclick: () => goTo('more', null, 'more_link') },
@@ -147,6 +148,17 @@ export function renderMap(main, { navigate }) {
         ),
       );
     }
+  }
+
+  function wholePicture() {
+    const src = getSource(WHOLE_PICTURE.sourceId);
+    return el(
+      'aside',
+      { class: 'whole-picture', 'aria-labelledby': 'h-whole' },
+      el('h2', { id: 'h-whole' }, icon('heart'), WHOLE_PICTURE.title),
+      el('p', {}, WHOLE_PICTURE.body),
+      src && src.verified ? el('p', { class: 'small' }, 'Source: ', sourceLink(src, `${src.title} (Endocrine Society, ${src.year})`)) : null,
+    );
   }
 
   function tabs(active) {
@@ -291,7 +303,7 @@ export function renderMap(main, { navigate }) {
     return el(
       'section',
       { class: 'section card concierge-section', 'aria-labelledby': 'h-conc' },
-      el('h2', { id: 'h-conc' }, 'Rather we handle it?'),
+      el('h2', { id: 'h-conc' }, 'Rather a person handled it?'),
       el('p', { class: 'section-intro' }, `${CONCIERGE.lede} ${CONCIERGE.promise}`),
       conciergeBlock({ where: 'section', focus: focusFor(suggestNext(state.answers, pathId)), onDone: render, primary: false }),
     );
@@ -747,8 +759,6 @@ export function renderMap(main, { navigate }) {
       }),
       el('p', { class: 'hint' }, FREE_TEXT_REMINDER),
       textField({ label: 'What led you to that choice? (optional)', key: 'decision_reason', value: m.reason, onInput: (v) => ((m.reason = v), save()) }),
-      textField({ label: 'What information, if any, is missing? (optional)', key: 'map_missing_info', value: m.missing, onInput: (v) => ((m.missing = v), save()) }),
-      el('div', { class: 'field' }, el('label', { class: 'field-label', for: 'next-conv' }, 'Which conversation, if any, would you have next? (optional)'), select),
       el('div', { class: 'actions' }, next),
       err,
     );

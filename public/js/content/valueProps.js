@@ -24,7 +24,7 @@ export const VALUE_PROPS = {
   },
   effort: {
     label: 'Less effort',
-    promise: 'Tell us once. We can match you with the right clinician, or give you everything to do it yourself.',
+    promise: 'Tell us once. A real person on our care team can find the right clinicians for you.',
     hypothesis: 'enabler',
     icon: 'clock',
   },

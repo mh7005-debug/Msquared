@@ -38,7 +38,7 @@ export function renderIntake(main, { navigate }) {
     el(
       'p',
       { class: 'lede' },
-      'Just tap what fits, about a minute. You’ll leave with a brief to hand over, so you don’t have to explain it again.',
+      'Just tap what fits, about a minute. A real person can take it from there, and you’ll have a brief to hand over so you don’t explain it again.',
     ),
     el('div', { class: 'progress' }, el('div', { class: 'progress-bar', 'aria-hidden': 'true' }, progressFill), progressLabel),
     preview,

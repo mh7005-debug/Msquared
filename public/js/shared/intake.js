@@ -55,21 +55,6 @@ export const INTAKE_STEPS = [
     ],
   },
   {
-    id: 'outcome',
-    question: 'What happened after those visits?',
-    type: 'multi',
-    showIf: (a) => a.prior && a.prior !== 'none',
-    options: [
-      { id: 'clear_plan', label: 'I got a clear plan or answer' },
-      { id: 'still_questions', label: 'I still have questions' },
-      { id: 'conflicting', label: 'I got conflicting advice' },
-      { id: 'referred', label: 'I was referred onward' },
-      { id: 'evaluated_uncertain', label: 'I finished evaluations but I’m still uncertain' },
-      { id: 'told_wait', label: 'I was told to wait or monitor' },
-      { id: 'prefer_not', label: 'Prefer not to say' },
-    ],
-  },
-  {
     id: 'path',
     question: "What's making it hardest to move forward with your care right now?",
     type: 'single',

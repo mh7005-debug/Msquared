@@ -1,5 +1,5 @@
 import { el, state, save, api, config, errorBox, showError, track, icon, voiceSupported } from '../core.js';
-import { STUDY } from '../content/copy.js';
+import { STUDY, WHOLE_PICTURE } from '../content/copy.js';
 import { aboutSection } from './trust.js';
 import { VALUE_PROPS } from '../content/valueProps.js';
 
@@ -107,6 +107,7 @@ export function renderWelcome(main, { navigate }) {
           { class: 'lede' },
           'Msquared helps women experiencing missing or irregular periods organize what they’ve tried, understand their professional care options, and prepare for their next step.',
         ),
+        el('p', { class: 'hero-note' }, icon('user'), el('span', {}, el('strong', {}, 'Real people, not a chatbot. '), `${WHOLE_PICTURE.short} Our care team can help you find the right ones.`)),
         el(
           'ul',
           { class: 'trust-list promises', 'aria-label': 'What you get' },
@@ -122,7 +123,7 @@ export function renderWelcome(main, { navigate }) {
           { class: 'timeline' },
           el('li', {}, el('strong', {}, 'Tap, don’t retell'), 'About a minute. No long story needed.'),
           el('li', {}, el('strong', {}, 'Explore your care map'), 'Roles, sources, questions.'),
-          el('li', {}, el('strong', {}, 'Get matched'), 'We can find the right clinician for you, or you book it yourself.'),
+          el('li', {}, el('strong', {}, 'Get help from a real person'), 'Our care team can find the right clinicians for you, or you book it yourself.'),
         ),
       ),
       aboutSection(),

@@ -8,6 +8,7 @@ const TRUST_SOURCE = {
   team: 'Knowing who’s behind Msquared',
   design: 'How it looks and feels',
   own: 'My own knowledge or experience',
+  human: 'Knowing a real person could help me',
 };
 
 // Short codes are used to log the (randomized) display order.
@@ -74,8 +75,6 @@ export function renderFeedback(main, { navigate }) {
     why.show();
   };
 
-  // "None of these" always stays last; the four features are shown in a random order.
-  const helpfulOptions = [...stableOrder('helpful', Object.keys(HELPFUL)).map((c) => HELPFUL[c]), { value: 'none', label: 'None of these' }];
 
   const form = el(
     'form',
@@ -116,14 +115,7 @@ export function renderFeedback(main, { navigate }) {
       el('h2', {}, 'Was it worth your time?'),
       likert({ name: 'relevance_post', legend: 'How relevant was the care map to your situation?', low: 'Not at all relevant', high: 'Completely relevant', value: f.relevance, onChange: set('relevance') }),
       likert({ name: 'contact_intent_post', legend: 'How likely are you to contact a healthcare professional about this in the next month?', low: 'Very unlikely', high: 'Very likely', value: f.contactIntent, onChange: set('contactIntent') }),
-      radioTiles({ name: 'helpful', legend: 'Which part, if any, was most useful?', options: helpfulOptions, value: f.helpful, onChange: set('helpful') }),
       textField({ label: 'Anything confusing or missing? (optional)', key: 'missing_or_confusing', value: f.confusing, onInput: set('confusing') }),
-      textField({
-        label: 'Next time, would you use Msquared, your usual way, or both? Why? (optional)',
-        key: 'prefers_msquared_stated',
-        value: f.prefers,
-        onInput: set('prefers'),
-      }),
     ),
     el(
       'div',

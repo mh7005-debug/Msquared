@@ -94,8 +94,6 @@ async function tapIntake(page, path, { prior = 'Yes, more than one' } = {}) {
   if (prior !== 'No') {
     await option(page, 'OB-GYN').click();
     await page.click('.question-card button:has-text("Continue")');
-    await option(page, 'I still have questions').click();
-    await page.click('.question-card button:has-text("Continue")');
   }
   await option(page, PATH_CHIP[path], true).click();
 }
@@ -376,7 +374,7 @@ test('concierge: she can ask Msquared to match her; the request reaches the team
   await page.getByLabel(/Anything else your clinician/).fill('I run marathons and want my cycle back');
   await page.click('button:has-text("See my care map")');
   await page.waitForURL('**/map');
-  await page.click('.next-card button:has-text("Have Msquared match me")');
+  await page.click('.next-card button:has-text("Get help from our care team")');
   // focus is prefilled from the suggestion (no one seen yet -> OB-GYN)
   assert.equal(await page.isChecked('input[name=cc-focus-card][value=obgyn]'), true);
   await page.check('input[name=cc-method-card][value=phone]');
