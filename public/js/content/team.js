@@ -23,14 +23,13 @@ export const TEAM = {
   // EVERY field must be true; leave blank what isn't confirmed (blank fields are hidden).
   // Example: { initials: 'MH', name: 'Mariana H.', title: 'Lead researcher', bio: '…', facts: ['Reviewed 100+ studies on …'] }
   consultantProfile: {
-    // Fictional example for the prototype, shown with an "Example profile" label. No real person,
-    // institution or license is claimed. Replace with a real researcher (and set sample: false) if the service becomes real.
-    sample: true,
-    initials: 'AR',
-    name: 'Ana R., PhD, MPH',
-    title: 'Women’s health researcher',
-    bio: 'Has spent years studying hormonal health and cycle disorders, working alongside OB-GYN and functional medicine clinicians. Reviews your answers, researches your case against published guidance, and maps which clinicians to see and in what order.',
-    facts: ['Specializes in missing and irregular periods', 'Works from the published guidelines cited on this page'],
+    // Role-based profile: describes the role, not a named person, so no label is needed and nothing is invented.
+    // Add a real name and credentials only once a real researcher is confirmed.
+    initials: '',
+    name: '',
+    title: 'Your women’s health researcher',
+    bio: 'Reviews your answers, researches your case against published guidance, and maps which clinicians to see and in what order.',
+    facts: ['Focused on missing and irregular periods', 'Works from the published guidelines cited on this page'],
   },
 
 

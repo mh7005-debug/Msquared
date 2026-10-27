@@ -190,3 +190,6 @@ The last screen asks one question, "How clear are you now about your next step?"
 
 ## No ratings at all (Oct 26)
 The one-tap clarity question is removed. Evidence for H1 and H2 is qualitative (interviews and moderated sessions) plus behavior: research opened, sources clicked, consultation requested, one-week check-in.
+
+## Oct 27: Researcher card without the "example" label
+Removed the "Example profile for this prototype" badge. To keep the page honest without the label, the card now describes the role ("Your women's health researcher") instead of a fictional named person with credentials. A real name and credentials go in only once a real researcher is confirmed.
