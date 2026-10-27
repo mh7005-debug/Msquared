@@ -193,3 +193,6 @@ The one-tap clarity question is removed. Evidence for H1 and H2 is qualitative (
 
 ## Oct 27: Researcher card without the "example" label
 Removed the "Example profile for this prototype" badge. To keep the page honest without the label, the card now describes the role ("Your women's health researcher") instead of a fictional named person with credentials. A real name and credentials go in only once a real researcher is confirmed.
+
+## Oct 27: A named researcher again ("Ana R.")
+Testers need to know who the consultation is with. Brought back the example persona "Ana R., Women's health researcher" without the badge (the welcome page already says Msquared is a prototype). Invented degrees (PhD, MPH) and experience claims stay out.

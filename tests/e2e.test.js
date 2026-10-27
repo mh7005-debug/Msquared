@@ -125,7 +125,7 @@ test('front door: quick questions, how we can help, research before/after, book,
   await page.click('button:has-text("Request this time")');
   await page.waitForSelector('.concierge-done');
   assert.match(await page.locator('.concierge-done').textContent(), /prototype, so no call is booked/);
-  assert.match(await page.locator('.consultant').textContent(), /women’s health researcher/);
+  assert.match(await page.locator('.consultant').textContent(), /Ana R\./);
   await page.click('button:has-text("Finish")');
   await page.waitForURL('**/complete');
   await page.waitForSelector('h2:has-text("About your request")');

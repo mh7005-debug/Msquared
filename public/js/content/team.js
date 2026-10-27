@@ -23,11 +23,11 @@ export const TEAM = {
   // EVERY field must be true; leave blank what isn't confirmed (blank fields are hidden).
   // Example: { initials: 'MH', name: 'Mariana H.', title: 'Lead researcher', bio: '…', facts: ['Reviewed 100+ studies on …'] }
   consultantProfile: {
-    // Role-based profile: describes the role, not a named person, so no label is needed and nothing is invented.
-    // Add a real name and credentials only once a real researcher is confirmed.
-    initials: '',
-    name: '',
-    title: 'Your women’s health researcher',
+    // Fictional example persona for the prototype (testers are told on the welcome page that Msquared is a prototype).
+    // No degrees, institution or license are claimed. Replace with a real researcher if the service becomes real.
+    initials: 'AR',
+    name: 'Ana R.',
+    title: 'Women’s health researcher',
     bio: 'Reviews your answers, researches your case against published guidance, and maps which clinicians to see and in what order.',
     facts: ['Focused on missing and irregular periods', 'Works from the published guidelines cited on this page'],
   },
