@@ -1835,3 +1835,45 @@ select:focus {
   margin: 14px 0;
 }
 .notice.ok .icon { color: var(--teal); flex: none; }
+
+/* ---- Map: two pages (next step | answers & resources) ---- */
+.map-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  background: var(--navy-soft);
+  border-radius: var(--r);
+  padding: 4px;
+  margin: 0 0 20px;
+}
+.map-tab {
+  min-height: 44px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--navy);
+  font: 600 0.95rem/1.2 var(--sans);
+  cursor: pointer;
+}
+.map-tab.active { background: var(--paper); box-shadow: var(--shadow); }
+.map-tab:focus-visible { outline: none; box-shadow: var(--focus); }
+.more-link {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  margin: 0 0 24px;
+  cursor: pointer;
+  color: var(--ink);
+  font: inherit;
+}
+.more-link > span { display: flex; flex-direction: column; gap: 2px; }
+.more-link:hover { border-color: var(--line-strong); }
+.more-link .chev-right { transform: rotate(-90deg); flex: none; }
+#panel-next .section.card { margin-bottom: 24px; }

@@ -138,3 +138,9 @@ Control A simulation, A/B variants, dashboards, accounts, provider search or boo
 - Privacy: her tapped answers normally never leave the device. They are shared only inside the concierge summary, only after she checks an explicit share box, and stored in a separate table (`ms_requests`) outside the research export.
 - H1 and H2 are unchanged and still measured the same way. `concierge_requested` adds a behavioral signal for the done-for-you value proposition.
 - Copy states we are not a medical provider; care comes from a licensed clinician.
+
+## Two-page care map (practitioner feedback, Oct 26)
+"There's a lot of information on the final page. Separate the next steps from everything else so it's clear where to click to get to that next provider."
+- Page 1, "Your next step": the personalized next step, "Have Msquared match me", do-it-yourself options, the H2 rating and evidence for that suggestion, and the "What would you do next?" decision. Nothing else.
+- Page 2, "Answers & resources": her journey, open questions, every care option (with per-option H2 ratings), role comparison, all provider types and directories, the visit brief and the concierge request.
+- Tabs at the top switch pages; `map_tab` events show how many open page 2. H1 and H2 measures are unchanged; the primary H2 measure (`rely_next`) stays on page 1.

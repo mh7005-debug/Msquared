@@ -115,6 +115,9 @@ test('complete flow on each path with distinct emphasis, saved pre/post and even
     await tapIntake(page, path);
     await page.click('button:has-text("See my care map")');
     await page.waitForURL('**/map');
+    // page 1 is only the next step; everything else is on the second page
+    assert.equal(await page.locator('.option-card').count(), 0, 'next-step page stays uncluttered');
+    await page.click('#tab-more');
 
     // distinct emphasis
     const headings = await page.locator('main section h2, main section .h2like').allTextContents();
@@ -152,7 +155,9 @@ test('complete flow on each path with distinct emphasis, saved pre/post and even
     assert.match(clip, /Questions to bring/);
     assert.doesNotMatch(clip, /absent|6 months/);
 
-    // decision required
+    // decision required (back on the next-step page)
+    await page.click('.finish-bar button');
+    await page.waitForSelector('#h-dec');
     await page.click('button:has-text("Continue to feedback")');
     assert.match(await page.locator('[role=alert]').last().textContent(), /Choose one option/);
     await page.check('input[name=decision][value=use]');
@@ -195,7 +200,9 @@ test('optional depth: own words are saved and summarized; follow-ups open only a
   await own.fill('It changed after I stopped birth control and I want to know which tests to ask about.');
   await page.click('button:has-text("See my care map")');
   await page.waitForURL('**/map');
+  await page.click('#tab-more');
   assert.match(await page.locator('.summary-box').textContent(), /In my own words: It changed after I stopped birth control/);
+  await page.click('#tab-next');
   await page.check('input[name=decision][value=unsure]');
   await page.click('button:has-text("Continue to feedback")');
   await page.waitForURL('**/feedback');
@@ -223,6 +230,7 @@ test('editing an intake answer updates the journey summary', async () => {
   await option(page, 'No').click();
   await page.click('button:has-text("See my care map")');
   await page.waitForURL('**/map');
+  await page.click('#tab-more');
   assert.match(await page.locator('#h-journey + p').textContent(), /haven’t talked with a healthcare professional/);
   await settle(page);
   const events = await exportCsv('events');
@@ -257,6 +265,7 @@ test('changing path on the map is recorded', async () => {
   await page.click('.path-row button:has-text("Change")');
   await page.check('input[name=path-change][value="2"]');
   await page.click('button:has-text("Update my map")');
+  await page.click('#tab-more');
   await page.waitForSelector('h2:has-text("What guidance says")');
   await new Promise((r) => setTimeout(r, 300));
   const row = (await exportCsv('sessions')).split('\r\n').find((l) => l.includes('P20,'));
@@ -274,6 +283,8 @@ test('mobile layout has no horizontal scroll on any screen', async () => {
   await noScroll();
   await page.click('button:has-text("See my care map")');
   await page.waitForURL('**/map');
+  await noScroll();
+  await page.click('#tab-more');
   await noScroll();
   await page.context().close();
 });
@@ -313,8 +324,7 @@ test('tester link carries the study code; next-step card is personalized; one-we
   await page.locator('.next-card .why .chip', { hasText: 'More likely' }).click();
   await page.click('.next-card button:has-text("Copy what to say")');
   await page.waitForSelector('.next-card .status:has-text("Copied")');
-  // finish from anywhere
-  await page.click('.finish-bar button');
+  // the decision sits on the same page as the next step
   await page.check('input[name=decision][value=use]');
   await page.click('button:has-text("Continue to feedback")');
   await page.waitForURL('**/feedback');
@@ -376,7 +386,9 @@ test('concierge: she can ask Msquared to match her; the request reaches the team
   await page.check('#cc-share-card');
   await page.click('.next-card button:has-text("Send my request")');
   await page.waitForSelector('.concierge-done');
-  assert.equal(await page.locator('.concierge-done').count(), 2, 'both entry points show it is done');
+  assert.equal(await page.locator('.concierge-done').count(), 1);
+  await page.click('#tab-more');
+  assert.equal(await page.locator('.concierge-section .concierge-done').count(), 1, 'the second page shows it is done too');
   await settle(page);
   const reqs = await exportCsv('requests');
   assert.match(reqs, /212 555 0199/);

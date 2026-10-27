@@ -101,6 +101,8 @@ export function renderMap(main, { navigate }) {
       concierge: (p) => stop(conciergeSection(p), 'dot', SECTION_PROMISE.concierge),
       decision: (p) => stop(decisionSection(p), 'flag', SECTION_PROMISE.decision),
     };
+    const tab = m.tab === 'more' ? 'more' : 'next';
+    const urgent = el('div', { class: 'notice warn', role: 'note' }, icon('alert'), el('div', {}, el('strong', {}, URGENT_NOTICE.title), URGENT_NOTICE.body));
     root.append(
       el(
         'div',
@@ -110,18 +112,69 @@ export function renderMap(main, { navigate }) {
         reviewerLine(),
         pathRow(),
       ),
-      nextStepCard(pathId),
-      routeOverview(pathId),
-      el('div', { class: 'route-rail' }, ...withConcierge(sectionOrder(pathId)).map((k) => sections[k](pathId))),
-      contactCard(),
-      el('div', { class: 'notice warn', role: 'note' }, icon('alert'), el('div', {}, el('strong', {}, URGENT_NOTICE.title), URGENT_NOTICE.body)),
-      finishBar(),
+      tabs(tab),
     );
-    const dec = document.getElementById('h-dec');
-    const bar = root.querySelector('.finish-bar');
-    if (dec && bar && 'IntersectionObserver' in window) {
-      new IntersectionObserver(([e]) => (bar.hidden = e.isIntersecting || e.boundingClientRect.top < 0)).observe(dec.closest('section'));
+    if (tab === 'next') {
+      // Page 1: only the next step and the one place to click (practitioner feedback).
+      root.append(
+        el(
+          'div',
+          { id: 'panel-next', role: 'tabpanel', 'aria-labelledby': 'tab-next' },
+          nextStepCard(pathId),
+          el(
+            'button',
+            { class: 'more-link', type: 'button', onclick: () => goTo('more', null, 'more_link') },
+            el('span', {}, el('strong', {}, 'Your answers and resources'), el('span', { class: 'muted small' }, 'Your journey, every care option, sources and your visit brief')),
+            icon('chevronDown', 'icon chev-right'),
+          ),
+          decisionSection(pathId),
+          contactCard(),
+          urgent,
+        ),
+      );
+    } else {
+      // Page 2: everything behind the next step.
+      const order = withConcierge(sectionOrder(pathId)).filter((k) => k !== 'decision');
+      root.append(
+        el(
+          'div',
+          { id: 'panel-more', role: 'tabpanel', 'aria-labelledby': 'tab-more' },
+          el('p', { class: 'section-intro' }, 'Everything behind your next step: what you told us, every care option with its sources, and your visit brief.'),
+          routeOverview(pathId),
+          el('div', { class: 'route-rail' }, ...order.map((k) => sections[k](pathId))),
+          urgent,
+          finishBar(),
+        ),
+      );
     }
+  }
+
+  function tabs(active) {
+    const tab = (key, label) =>
+      el(
+        'button',
+        {
+          class: `map-tab${active === key ? ' active' : ''}`,
+          id: `tab-${key}`,
+          role: 'tab',
+          type: 'button',
+          'aria-selected': active === key ? 'true' : 'false',
+          'aria-controls': `panel-${key}`,
+          onclick: () => active !== key && goTo(key, null, 'tab'),
+        },
+        label,
+      );
+    return el('div', { class: 'map-tabs', role: 'tablist', 'aria-label': 'Care map pages' }, tab('next', 'Your next step'), tab('more', 'Answers & resources'));
+  }
+
+  /** Switch page, then optionally scroll to a section on it. */
+  function goTo(tab, id, via) {
+    m.tab = tab;
+    save();
+    track('map_tab', `${tab}:${via}`);
+    render();
+    if (id) requestAnimationFrame(() => scrollToId(id));
+    else window.scrollTo(0, 0);
   }
 
   // ---- The answer first: one personalized next step, ready to act on ----
@@ -166,7 +219,7 @@ export function renderMap(main, { navigate }) {
               el('span', { class: 'sr-only' }, ' (opens in a new tab)'),
             )
           : null,
-        el('button', { class: 'btn-link', type: 'button', onclick: () => (track('next_card_action', 'see_all'), scrollToId('h-next')) }, 'See all options'),
+        el('button', { class: 'btn-link', type: 'button', onclick: () => (track('next_card_action', 'see_all'), goTo('more', 'h-next', 'see_all')) }, 'See all options'),
       ),
       nextEvidence(s),
       el('p', { class: 'small muted' }, 'Based only on who you’ve seen and where you’re stuck. A common next conversation, not a medical recommendation.'),
@@ -224,7 +277,7 @@ export function renderMap(main, { navigate }) {
     return el(
       'div',
       { class: 'finish-bar' },
-      el('button', { class: 'btn btn-primary', type: 'button', onclick: () => (track('finish_bar_used', `p${state.pathId}`), scrollToId('h-dec')) }, 'I’m done — what would I do next?'),
+      el('button', { class: 'btn btn-primary', type: 'button', onclick: () => (track('finish_bar_used', `p${state.pathId}`), goTo('next', 'h-dec', 'finish_bar')) }, 'Back to my next step'),
     );
   }
 
