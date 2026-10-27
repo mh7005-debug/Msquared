@@ -8,31 +8,6 @@ import { conciergeBlock } from './concierge.js';
 import { TEAM } from '../content/team.js';
 import { VALUE_PROPS } from '../content/valueProps.js';
 
-const LIKELY = [
-  { value: 'likely', label: 'Likely' },
-  { value: 'unsure', label: 'Not sure' },
-  { value: 'unlikely', label: 'Unlikely' },
-];
-const CHANGE = [
-  { value: 'more', label: 'More likely' },
-  { value: 'same', label: 'No change' },
-  { value: 'less', label: 'Less likely' },
-];
-
-function chips({ label, options, value, onPick }) {
-  const group = el('div', { class: 'chips', role: 'radiogroup', 'aria-label': label });
-  const buttons = options.map((o) => el('button', { class: 'chip', type: 'button', role: 'radio', 'aria-checked': value === o.value ? 'true' : 'false' }, o.label));
-  buttons.forEach((b, i) =>
-    b.addEventListener('click', () => {
-      buttons.forEach((x) => x.setAttribute('aria-checked', 'false'));
-      b.setAttribute('aria-checked', 'true');
-      onPick(options[i].value);
-    }),
-  );
-  group.append(...buttons);
-  return el('div', { class: 'chip-q' }, el('p', { class: 'chip-label' }, label), group);
-}
-
 function sourceLink(s) {
   return el(
     'a',
@@ -110,38 +85,22 @@ export function renderHelp(main, { navigate }) {
     const suggestion = suggestNext(state.answers, state.pathId);
     const booked = Boolean(state.concierge?.done);
 
-    let why;
-    const before = chips({
-      label: 'How likely are you to book a free consultation?',
-      options: LIKELY,
-      value: h.before,
-      onPick: (v) => {
-        h.before = v;
-        save();
-        track('option_rated', `book:${v}`);
-        saveFields({ book_intent_pre: v }).catch(() => {});
-        if (!why.open) why.open = true;
-      },
-    });
-    before.append(el('p', { class: 'hint' }, 'Answer to see the research behind it.'));
-    const after = chips({
-      label: 'After reading this, are you more or less likely to book?',
-      options: CHANGE,
-      value: h.after,
-      onPick: (v) => {
-        h.after = v;
-        save();
-        track('option_rerated', `book:${v}`);
-        saveFields({ book_intent_change: v }).catch(() => {});
-      },
-    });
-    why = el(
+    // H2 is measured by behavior: does she open the research, and does she book?
+    const why = el(
       'details',
-      { class: 'disclosure why', open: Boolean(h.before) },
+      { class: 'disclosure why' },
       el('summary', {}, el('span', {}, 'The research behind it'), icon('chevronDown', 'icon chev')),
-      el('div', { class: 'body' }, researchList(), after),
+      el('div', { class: 'body' }, researchList()),
     );
-    why.addEventListener('toggle', () => why.open && track('care_option_expanded', 'research'));
+    why.addEventListener('toggle', () => {
+      if (!why.open) return;
+      track('care_option_expanded', 'research');
+      if (!h.researchOpened) {
+        h.researchOpened = true;
+        save();
+        saveFields({ research_opened: true }).catch(() => {});
+      }
+    });
 
     root.append(
       el('h1', {}, 'Here’s how we can help'),
@@ -159,7 +118,7 @@ export function renderHelp(main, { navigate }) {
         el('h2', { id: 'h-consult' }, 'Your free consultation'),
         consultantCard(),
         el('p', { class: 'small muted' }, 'This is not a doctor’s appointment. Any medical care comes from licensed clinicians.'),
-        booked ? null : el('div', { class: 'card-evidence' }, promiseTag('evidence', VALUE_PROPS.evidence.label), before, why),
+        el('div', { class: 'card-evidence' }, promiseTag('evidence', VALUE_PROPS.evidence.label), why),
         booked ? null : el('h3', { class: 'subhead' }, 'Book your time'),
         conciergeBlock({ where: 'help', focus: focusFor(suggestion), onDone: render, startOpen: true }),
         booked

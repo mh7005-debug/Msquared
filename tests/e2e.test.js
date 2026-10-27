@@ -114,13 +114,12 @@ test('front door: quick questions, how we can help, research before/after, book,
   assert.match(await page.locator('h1').textContent(), /how we can help/);
   assert.match(await page.locator('.heard').textContent(), /absent for over 6 months/);
   assert.equal(await page.locator('.option-card, .map-tabs').count(), 0, 'no care map anymore');
-  // H2: likelihood to book before the research, then the research opens, then the change
-  assert.equal(await page.locator('.consult-card .why').getAttribute('open'), null, 'research hidden before rating');
-  await page.locator('.card-evidence .chip', { hasText: 'Not sure' }).click();
+  // H2 by behavior: no rating questions; opening the research is recorded
+  assert.equal(await page.locator('.card-evidence .chip').count(), 0, 'no rating questions');
+  await page.click('.consult-card .why summary');
   const src = page.locator('.consult-card .research-src a').first();
   await src.waitFor();
   assert.match(await src.getAttribute('href'), /^https:\/\//);
-  await page.locator('.consult-card .why .chip', { hasText: 'More likely' }).click();
   // booking form is open on the page
   await page.locator('.consult-card .chip.slot', { hasText: '4:00 PM' }).first().click();
   await page.fill('#cc-contact-help', 'p11@example.com');
@@ -145,15 +144,14 @@ test('front door: quick questions, how we can help, research before/after, book,
   assert.equal(col.screener, 'current');
   assert.equal(col.clarity_pre, '2');
   assert.equal(col.clarity_post, '6');
-  assert.equal(col.book_intent_pre, 'unsure');
-  assert.equal(col.book_intent_change, 'more');
+  assert.equal(col.research_opened, 'true');
   assert.equal(col.book_choice, 'booked');
   assert.equal(col.concierge_requested, 'true');
   const reqs = await exportCsv('requests');
   assert.match(reqs, /p11@example\.com/);
   assert.match(reqs, /In her words: Training for a marathon/);
   const events = await exportCsv('events');
-  for (const name of ['path_selected', 'map_viewed', 'option_rated', 'option_rerated', 'concierge_requested', 'decision_selected', 'feedback_submitted', 'session_completed']) {
+  for (const name of ['path_selected', 'map_viewed', 'care_option_expanded', 'concierge_requested', 'decision_selected', 'feedback_submitted', 'session_completed']) {
     assert.match(events, new RegExp(name), `${name} logged`);
   }
   assert.doesNotMatch(events + sessions, /My period is absent|over6|Over 6 months|p11@example/, 'tapped answers and contact never in research data');

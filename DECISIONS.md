@@ -175,3 +175,6 @@ The care map, provider directories and call scripts are removed. New research so
 - After booking, the "more or less likely to book?" question is hidden (it no longer applies).
 - The booking page shows a consultant profile card driven by `team.js` → `consultantProfile`. Every field must be true; we did not invent names, credentials or an NYU medical/functional-medicine affiliation. Blank fields are hidden. The team fills in the real researcher's name, role and verifiable background.
 - Repetition cut: shorter welcome headline ("Not sure who to see?"), removed the promise list that repeated the lede, renamed the research heading to "Why a care plan matters", removed the steps list that repeated the consultant bio.
+
+## H2 by behavior, not ratings (Oct 26)
+"Actions speak louder than words." The two booking-likelihood questions are removed. H2 (transparent research builds trust) is now read from behavior: `research_opened` (did she open "The research behind it"), `source_clicked` events (which sources), and `book_choice` / `concierge_requested` (did she book). Compare booking rates for those who opened the research versus those who didn't, alongside the trust rating before and after.
