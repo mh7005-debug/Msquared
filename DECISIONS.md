@@ -170,3 +170,8 @@ Testers didn't know whether they were booking a gynecologist or a consultant, an
 4. **How we can help:** what we heard, what the research professional does (reviews your story, researches your case, matches you and maps your care plan), the H2 test (how likely to book → research with verified sources → more/less likely), and the booking form, open on the page. "Not right now" is allowed.
 5. **Two ratings** (clarity and trust, same as the start) + safety.
 The care map, provider directories and call scripts are removed. New research sources verified: Female Athlete Triad Coalition 2014 (multidisciplinary team) and IOC 2023 REDs consensus. New fields: `book_intent_pre`, `book_intent_change`, `book_choice`.
+
+## Consultant profile, less repetition (Oct 26)
+- After booking, the "more or less likely to book?" question is hidden (it no longer applies).
+- The booking page shows a consultant profile card driven by `team.js` → `consultantProfile`. Every field must be true; we did not invent names, credentials or an NYU medical/functional-medicine affiliation. Blank fields are hidden. The team fills in the real researcher's name, role and verifiable background.
+- Repetition cut: shorter welcome headline ("Not sure who to see?"), removed the promise list that repeated the lede, renamed the research heading to "Why a care plan matters", removed the steps list that repeated the consultant bio.

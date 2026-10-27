@@ -62,6 +62,25 @@ export function researchList({ brief = false } = {}) {
   );
 }
 
+/** Who runs the call. Fields come from team.js and must all be true; blank ones are hidden. */
+function consultantCard() {
+  const p = TEAM.consultantProfile || {};
+  return el(
+    'div',
+    { class: 'consultant' },
+    el('span', { class: 'avatar lg', 'aria-hidden': 'true' }, p.initials || 'M²'),
+    el(
+      'div',
+      {},
+      p.name ? el('p', { class: 'consultant-name' }, p.name) : null,
+      el('p', { class: 'consultant-title' }, p.title || TEAM.consultant),
+      el('p', { class: 'small' }, '20-minute call · a real person, not a chatbot'),
+      p.bio ? el('p', {}, p.bio) : null,
+      p.facts && p.facts.length ? el('ul', { class: 'consultant-facts' }, p.facts.map((f) => el('li', {}, icon('check'), el('span', {}, f)))) : null,
+    ),
+  );
+}
+
 /**
  * The one page after the questions: what we heard, what the research professional will do, the research behind it,
  * and booking. H2: how likely to book BEFORE reading the research, then whether the research changed that.
@@ -119,7 +138,7 @@ export function renderHelp(main, { navigate }) {
     why = el(
       'details',
       { class: 'disclosure why', open: Boolean(h.before) },
-      el('summary', {}, el('span', {}, 'Why a research professional, and why more than one doctor'), icon('chevronDown', 'icon chev')),
+      el('summary', {}, el('span', {}, 'The research behind it'), icon('chevronDown', 'icon chev')),
       el('div', { class: 'body' }, researchList(), after),
     );
     why.addEventListener('toggle', () => why.open && track('care_option_expanded', 'research'));
@@ -138,16 +157,9 @@ export function renderHelp(main, { navigate }) {
         { class: 'card consult-card', 'aria-labelledby': 'h-consult' },
         promiseTag('clarity', VALUE_PROPS.clarity.label),
         el('h2', { id: 'h-consult' }, 'Your free consultation'),
-        el('p', {}, `A 20-minute call with ${TEAM.consultant}. A real person, not a chatbot.`),
-        el(
-          'ol',
-          { class: 'consult-steps' },
-          el('li', {}, el('strong', {}, 'Reviews your story'), 'What you told us, so you don’t repeat it.'),
-          el('li', {}, el('strong', {}, 'Researches your case'), 'Against published clinical guidance, across specialties.'),
-          el('li', {}, el('strong', {}, 'Matches you and maps your care plan'), 'Which clinicians to see, and in what order.'),
-        ),
+        consultantCard(),
         el('p', { class: 'small muted' }, 'This is not a doctor’s appointment. Any medical care comes from licensed clinicians.'),
-        el('div', { class: 'card-evidence' }, promiseTag('evidence', VALUE_PROPS.evidence.label), before, why),
+        booked ? null : el('div', { class: 'card-evidence' }, promiseTag('evidence', VALUE_PROPS.evidence.label), before, why),
         booked ? null : el('h3', { class: 'subhead' }, 'Book your time'),
         conciergeBlock({ where: 'help', focus: focusFor(suggestion), onDone: render, startOpen: true }),
         booked

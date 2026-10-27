@@ -1935,3 +1935,14 @@ select:focus {
 .research-src { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 0.85rem; color: var(--muted); }
 .research-src .icon { width: 14px; height: 14px; color: var(--teal); }
 .why-section { margin: 28px 0; }
+
+/* ---- Consultant profile ---- */
+.consultant { display: flex; gap: 14px; align-items: flex-start; margin: 10px 0 14px; }
+.consultant > div { min-width: 0; }
+.consultant p { margin: 0 0 4px; }
+.avatar.lg { width: 56px; height: 56px; flex: none; font-size: 1.05rem; }
+.consultant-name { font-family: var(--serif); font-size: 1.15rem; font-weight: 700; }
+.consultant-title { font-weight: 600; color: var(--navy); }
+.consultant-facts { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 4px; font-size: 0.9rem; }
+.consultant-facts li { display: flex; gap: 6px; align-items: flex-start; }
+.consultant-facts .icon { width: 15px; height: 15px; color: var(--teal); flex: none; margin-top: 3px; }

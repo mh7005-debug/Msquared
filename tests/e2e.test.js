@@ -165,7 +165,7 @@ test('tester link fills the code; "not right now" leads to the one-week check-in
   const page = await newPage();
   await page.goto(`${base}/?code=P15`);
   assert.match(await page.locator('#tester-hint').textContent(), /P15/);
-  assert.match(await page.locator('.why-section').textContent(), /one doctor/i);
+  assert.match(await page.locator('.why-section').textContent(), /care plan matters/i);
   assert.equal(await page.locator('.why-section .research-src').count(), 0, 'sources wait until after the H2 before-rating');
   await page.check('#adult');
   await page.check('#consent');
