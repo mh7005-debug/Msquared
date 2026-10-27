@@ -84,10 +84,10 @@ export const CONCIERGE = {
   title: 'Book a free consultation',
   lede: 'A 20-minute call with a research professional, not a chatbot. They read your summary, research your case against published clinical guidance across specialties, and match you with the right clinicians.',
   sub: 'With a research professional, not a chatbot.',
-  promise: 'We confirm your time within 24 hours.',
-  share: 'Share my care summary and contact details with the Msquared team for my consultation.',
-  privacy: 'Kept apart from the research data and used only for your consultation. We are not a medical provider; any care comes from a licensed clinician.',
-  done: 'Consultation requested. We’ll confirm your time within 24 hours.',
+  promise: '',
+  share: 'Share my summary and contact details with the Msquared team.',
+  privacy: 'Kept apart from the research data. Msquared is a prototype we are testing; we are not a medical provider.',
+  done: 'Thanks for your request. This is a prototype, so no call is booked yet. Your request tells us this service is worth building.',
 };
 
 /**

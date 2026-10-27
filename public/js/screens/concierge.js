@@ -25,8 +25,8 @@ export function demoSlots(from = new Date()) {
  */
 export function conciergeBlock({ where, focus, onDone, primary = true, startOpen = false }) {
   if (state.concierge?.done) {
-    const when = state.concierge.slot ? ` Requested time: ${state.concierge.slot}.` : '';
-    return el('div', { class: 'notice ok concierge-done', role: 'status' }, icon('check'), el('div', {}, el('strong', {}, 'Consultation requested. '), `${CONCIERGE.done.replace('Consultation requested. ', '')}${when}`));
+    const when = state.concierge.slot ? ` You picked ${state.concierge.slot}.` : '';
+    return el('div', { class: 'notice ok concierge-done', role: 'status' }, icon('check'), el('div', {}, el('strong', {}, 'Request received.'), ` ${CONCIERGE.done}${when}`));
   }
   const c = (state.concierge = state.concierge || { method: 'email', contact: '', firstName: '', focus, bestTime: '', share: false });
   if (!c.focus) c.focus = focus;
@@ -88,7 +88,7 @@ export function conciergeBlock({ where, focus, onDone, primary = true, startOpen
       'div',
       { class: 'field' },
       el('p', { class: 'field-label', id: `cc-slot-${where}` }, 'Pick a time for your 20-minute call'),
-      el('p', { class: 'hint' }, `With ${TEAM.consultant}. ${CONCIERGE.promise}`),
+      el('p', { class: 'hint' }, `With ${TEAM.consultant}.`),
       el('div', { class: 'slots', role: 'radiogroup', 'aria-labelledby': `cc-slot-${where}` }, slotDays, el('div', { class: 'slot-other' }, other)),
       bestField,
     );

@@ -1946,3 +1946,4 @@ select:focus {
 .consultant-facts { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 4px; font-size: 0.9rem; }
 .consultant-facts li { display: flex; gap: 6px; align-items: flex-start; }
 .consultant-facts .icon { width: 15px; height: 15px; color: var(--teal); flex: none; margin-top: 3px; }
+.sample-label { display: inline-block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--warn-ink); background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 999px; padding: 2px 8px; margin-bottom: 6px !important; }

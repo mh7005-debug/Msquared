@@ -50,7 +50,7 @@ export function renderWelcome(main, { navigate }) {
       dataPoint('We save your ratings and anything you write or say, linked to a random code. Never your name. Answers you tap about your cycle stay on this device.'),
       voiceSupported ? dataPoint('Speak uses your browser’s speech service (Apple or Google). We get text only.') : null,
       config.aiEnabled ? dataPoint('Typed chat answers go to our AI provider (Anthropic) to be understood, then are discarded.') : null,
-      dataPoint('If you book a consultation, you choose to share your summary and contact details with our team. That’s optional and kept separate.'),
+      dataPoint('Msquared is a prototype of a new service we’re testing for a class. Booking is optional and kept separate.'),
       dataPoint(`Class research only. Our host keeps short visit logs, so it’s non-identifying, not anonymous. Deleted by ${STUDY.retention}. Stop anytime.`),
     ),
     el('hr', { class: 'divider' }),

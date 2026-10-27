@@ -17,18 +17,22 @@ export const TEAM = {
 
   // Who runs the free consultation. Must be literally true; shown to every participant.
   // Add credentials or departments only once confirmed (e.g. a named NYU affiliation the person actually holds).
-  consultant: 'a research professional from our NYU team',
+  consultant: 'a women’s health researcher',
 
   // The person who runs consultations, shown as a profile card on the booking page.
   // EVERY field must be true; leave blank what isn't confirmed (blank fields are hidden).
   // Example: { initials: 'MH', name: 'Mariana H.', title: 'Lead researcher', bio: '…', facts: ['Reviewed 100+ studies on …'] }
   consultantProfile: {
-    initials: 'M²',
-    name: '',
-    title: 'Research professional, Msquared at NYU',
-    bio: 'Reviews your answers before the call, researches your case against published clinical guidance, and maps which clinicians to see and in what order.',
-    facts: ['Works from the published guidelines cited on this page'],
+    // Fictional example for the prototype, shown with an "Example profile" label. No real person,
+    // institution or license is claimed. Replace with a real researcher (and set sample: false) if the service becomes real.
+    sample: true,
+    initials: 'AR',
+    name: 'Ana R., PhD, MPH',
+    title: 'Women’s health researcher',
+    bio: 'Has spent years studying hormonal health and cycle disorders, working alongside OB-GYN and functional medicine clinicians. Reviews your answers, researches your case against published guidance, and maps which clinicians to see and in what order.',
+    facts: ['Specializes in missing and irregular periods', 'Works from the published guidelines cited on this page'],
   },
+
 
   // ONLY after a real clinical review is complete and the reviewer agreed to be named.
   // Example: { name: 'Dr. Jane Doe', credentials: 'MD, OB-GYN', date: 'October 2026' }

@@ -74,9 +74,6 @@ async function consentAndBaseline(page, code) {
   await page.click('button:has-text("Get started")');
   await page.waitForURL('**/start');
   await page.check('input[name=screener][value=current]');
-  const scales = page.locator('.likert-scale');
-  await scales.nth(0).locator('label').nth(1).click();
-  await scales.nth(1).locator('label').nth(2).click();
   await page.click('button:has-text("Continue")');
   await page.waitForURL('**/intake');
 }
@@ -127,23 +124,18 @@ test('front door: quick questions, how we can help, research before/after, book,
   await page.check('#cc-share-help');
   await page.click('button:has-text("Request this time")');
   await page.waitForSelector('.concierge-done');
-  await page.click('button:has-text("Continue")');
-  await page.waitForURL('**/feedback');
-  const scales = page.locator('.likert-scale');
-  assert.equal(await scales.count(), 2, 'feedback is two ratings');
-  for (let i = 0; i < 2; i++) await scales.nth(i).locator('label').nth(5).click();
-  await page.check('input[name=safety][value=no]');
+  assert.match(await page.locator('.concierge-done').textContent(), /prototype, so no call is booked/);
+  assert.match(await page.locator('.consultant').textContent(), /Example profile/);
   await page.click('button:has-text("Finish")');
   await page.waitForURL('**/complete');
-  await page.waitForSelector('h2:has-text("What happens next")');
+  await page.waitForSelector('h2:has-text("About your request")');
   await settle(page);
   const sessions = await exportCsv('sessions');
   const headCols = sessions.split('\r\n')[0].split(',');
   const row = sessions.split('\r\n').find((l) => l.includes('P11,'));
   const col = Object.fromEntries(headCols.map((h, i) => [h, row.split(',')[i]]));
   assert.equal(col.screener, 'current');
-  assert.equal(col.clarity_pre, '2');
-  assert.equal(col.clarity_post, '6');
+  assert.equal(col.completed, 'true');
   assert.equal(col.research_opened, 'true');
   assert.equal(col.book_choice, 'booked');
   assert.equal(col.concierge_requested, 'true');
@@ -151,7 +143,7 @@ test('front door: quick questions, how we can help, research before/after, book,
   assert.match(reqs, /p11@example\.com/);
   assert.match(reqs, /In her words: Training for a marathon/);
   const events = await exportCsv('events');
-  for (const name of ['path_selected', 'map_viewed', 'care_option_expanded', 'concierge_requested', 'decision_selected', 'feedback_submitted', 'session_completed']) {
+  for (const name of ['path_selected', 'map_viewed', 'care_option_expanded', 'concierge_requested', 'decision_selected', 'session_completed']) {
     assert.match(events, new RegExp(name), `${name} logged`);
   }
   assert.doesNotMatch(events + sessions, /My period is absent|over6|Over 6 months|p11@example/, 'tapped answers and contact never in research data');
@@ -170,22 +162,14 @@ test('tester link fills the code; "not right now" leads to the one-week check-in
   await page.click('button:has-text("Get started")');
   await page.waitForURL('**/start');
   await page.click('button:has-text("Continue")');
-  assert.match(await page.locator('[role=alert]').last().textContent(), /first question/);
+  assert.match(await page.locator('[role=alert]').last().textContent(), /Choose one answer/);
   await page.check('input[name=screener][value=past]');
-  const scales = page.locator('.likert-scale');
-  await scales.nth(0).locator('label').nth(3).click();
-  await scales.nth(1).locator('label').nth(3).click();
   await page.click('button:has-text("Continue")');
   await page.waitForURL('**/intake');
   await tapIntake(page, 2, { prior: 'No' });
   await page.click('button:has-text("See how we can help")');
   await page.waitForURL('**/help');
   await page.click('button:has-text("Not right now")');
-  await page.waitForURL('**/feedback');
-  const fb = page.locator('.likert-scale');
-  for (let i = 0; i < 2; i++) await fb.nth(i).locator('label').nth(4).click();
-  await page.check('input[name=safety][value=no]');
-  await page.click('button:has-text("Finish")');
   await page.waitForURL('**/complete');
   await page.fill('#checkin-email', 'tester@example.com');
   await page.click('button:has-text("Check in with me")');

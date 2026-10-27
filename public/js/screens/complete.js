@@ -57,19 +57,14 @@ export function renderComplete(main, { navigate }) {
     ...[
       el('div', { class: 'done-mark' }, icon('check')),
       el('h1', {}, 'Thank you'),
-      el('p', { class: 'lede' }, 'Your feedback is saved. It helps us decide what to improve.'),
+      el('p', { class: 'lede' }, 'You’re all done. Your answers help us decide what to build.'),
       state.concierge?.done
         ? el(
             'section',
             { class: 'sheet', 'aria-labelledby': 'next-h' },
-            el('h2', { id: 'next-h' }, 'What happens next'),
-            el(
-              'ol',
-              { class: 'consult-steps' },
-              el('li', {}, el('strong', {}, 'We confirm your time'), `Within 24 hours${state.concierge.slot ? ` (you asked for ${state.concierge.slot})` : ''}.`),
-              el('li', {}, el('strong', {}, 'Your research professional prepares'), 'They review your answers and research your case before the call.'),
-              el('li', {}, el('strong', {}, 'Your 20-minute call'), 'You leave with which clinicians to see, in what order.'),
-            ),
+            el('h2', { id: 'next-h' }, 'About your request'),
+            el('p', {}, 'Msquared is a prototype from an NYU Stern class. No consultation is booked yet: your request shows us whether this service is worth building.'),
+            el('p', {}, 'If you need care now, an OB-GYN or primary care clinician is a common place to start.'),
           )
         : checkIn(),
       code

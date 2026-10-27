@@ -3,7 +3,6 @@ import { renderWelcome } from './screens/welcome.js';
 import { renderBaseline } from './screens/baseline.js';
 import { renderIntake } from './screens/intake.js';
 import { renderHelp } from './screens/help.js';
-import { renderFeedback } from './screens/feedback.js';
 import { renderComplete } from './screens/complete.js';
 import { renderFollowup } from './screens/followup.js';
 
@@ -12,7 +11,6 @@ const ROUTES = {
   '/start': { render: renderBaseline, title: 'Before you start', screen: 'baseline', needs: 'session', step: 0 },
   '/intake': { render: renderIntake, title: 'Tell us where you’re stuck', screen: 'intake', needs: 'baseline', step: 1, back: '/start' },
   '/help': { render: renderHelp, title: 'How we can help', screen: 'map', needs: 'intake', step: 2, back: '/intake' },
-  '/feedback': { render: renderFeedback, title: 'Your feedback', screen: 'feedback', needs: 'decision', step: 3, back: '/help' },
   '/complete': { render: renderComplete, title: 'Thank you', screen: 'complete', needs: 'completed' },
   '/followup': { render: renderFollowup, title: 'Check-in', screen: 'followup', standalone: true },
 };
@@ -31,7 +29,6 @@ function allowedPath(path) {
     completed: Boolean(state.completed),
   };
   if (!r.needs || has[r.needs]) return path;
-  if (has.decision) return '/feedback';
   if (has.intake) return '/help';
   if (has.baseline) return '/intake';
   if (has.session) return '/start';
@@ -61,7 +58,7 @@ function render() {
   main.focus({ preventScroll: true });
 }
 
-const STEPS = ['Start', 'Your situation', 'Book', 'Finish'];
+const STEPS = ['Start', 'Your situation', 'Book'];
 
 /** Progress across the four screens after consent, with a Back link where going back makes sense. */
 function stepper(route) {

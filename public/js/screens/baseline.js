@@ -20,22 +20,20 @@ export function renderBaseline(main, { navigate }) {
       value: b.screener,
       onChange: (v) => ((b.screener = v), save()),
     }),
-    likert({ name: 'clarity_pre', ...MEASURES.clarity, value: b.clarity, onChange: (v) => ((b.clarity = v), save()) }),
-    likert({ name: 'trust_pre', ...MEASURES.trustInfo, value: b.trust, onChange: (v) => ((b.trust = v), save()) }),
     el('div', { class: 'actions' }, next),
     err,
   );
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!b.screener || !b.clarity || !b.trust) {
-      showError(err, 'Answer the first question and choose a number from 1 to 7 for both ratings.');
+    if (!b.screener) {
+      showError(err, 'Choose one answer to continue.');
       return;
     }
     showError(err, '');
     next.disabled = true;
     try {
-      await saveFields({ screener: b.screener, clarity_pre: b.clarity, trust_pre: b.trust, last_screen: 'baseline' });
+      await saveFields({ screener: b.screener, last_screen: 'baseline' });
       state.baselineDone = true;
       save();
       navigate('/intake');
@@ -47,7 +45,7 @@ export function renderBaseline(main, { navigate }) {
 
   main.append(
     el('h1', {}, 'Where are you right now?'),
-    el('p', { class: 'lede' }, 'Three taps, then your next step. No right answers.'),
+    el('p', { class: 'lede' }, 'One tap to start.'),
     form,
   );
 }

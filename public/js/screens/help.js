@@ -47,6 +47,7 @@ function consultantCard() {
     el(
       'div',
       {},
+      p.sample ? el('p', { class: 'sample-label' }, 'Example profile for this prototype') : null,
       p.name ? el('p', { class: 'consultant-name' }, p.name) : null,
       el('p', { class: 'consultant-title' }, p.title || TEAM.consultant),
       el('p', { class: 'small' }, '20-minute call · a real person, not a chatbot'),
@@ -75,9 +76,14 @@ export function renderHelp(main, { navigate }) {
     state.mapDecision = true;
     save();
     track('decision_selected', choice);
-    saveFields({ book_choice: choice, last_screen: 'map' })
+    track('session_completed');
+    saveFields({ book_choice: choice, last_screen: 'feedback' })
       .catch(() => {})
-      .finally(() => navigate('/feedback'));
+      .finally(() => {
+        state.completed = true;
+        save();
+        navigate('/complete');
+      });
   }
 
   function render() {
@@ -122,7 +128,7 @@ export function renderHelp(main, { navigate }) {
         booked ? null : el('h3', { class: 'subhead' }, 'Book your time'),
         conciergeBlock({ where: 'help', focus: focusFor(suggestion), onDone: render, startOpen: true }),
         booked
-          ? el('div', { class: 'actions' }, el('button', { class: 'btn btn-primary', type: 'button', onclick: () => finish('booked') }, 'Continue'))
+          ? el('div', { class: 'actions' }, el('button', { class: 'btn btn-primary', type: 'button', onclick: () => finish('booked') }, 'Finish'))
           : el('button', { class: 'btn-link not-now', type: 'button', onclick: () => finish('not_now') }, 'Not right now'),
       ),
       el('div', { class: 'notice warn', role: 'note' }, icon('alert'), el('div', {}, el('strong', {}, URGENT_NOTICE.title), URGENT_NOTICE.body)),

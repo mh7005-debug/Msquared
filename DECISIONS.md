@@ -178,3 +178,9 @@ The care map, provider directories and call scripts are removed. New research so
 
 ## H2 by behavior, not ratings (Oct 26)
 "Actions speak louder than words." The two booking-likelihood questions are removed. H2 (transparent research builds trust) is now read from behavior: `research_opened` (did she open "The research behind it"), `source_clicked` events (which sources), and `book_choice` / `concierge_requested` (did she book). Compare booking rates for those who opened the research versus those who didn't, alongside the trust rating before and after.
+
+## Fake-door prototype, no end questionnaire (Oct 26)
+- The team will not run real consultations in this sprint; the booking is a fake-door test of demand.
+- **End questionnaire removed.** Booking or "Not right now" goes straight to the end. The first screen keeps only the screener (the before-ratings had nothing to compare against). H1 and H2 are now read from behavior: `research_opened`, `source_clicked`, `book_choice` / `concierge_requested`, and the optional one-week check-in.
+- **Example consultant profile.** A fictional researcher ("Ana R., PhD, MPH") shown with an "Example profile for this prototype" label. It names no real institution, person or license.
+- **Honest booking.** The 24-hour confirmation promise is removed. Right after requesting, she is told "This is a prototype, so no call is booked yet. Your request tells us this service is worth building." The consent screen says it's a prototype being tested for a class.
