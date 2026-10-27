@@ -17,6 +17,7 @@ export default handler(['POST'], async (req, res) => {
   if (body.share !== true) throw new HttpError(400, 'Please confirm we can share your summary with our team.');
   const method = body.method === 'phone' ? 'phone' : body.method === 'email' ? 'email' : null;
   if (!method) throw new HttpError(400, 'Choose email or phone.');
+  if (!str(body.slot, 80) && !str(body.best_time, 120)) throw new HttpError(400, 'Pick a time for your consultation.');
   const contact = str(body.contact, 254);
   if (method === 'email' && !EMAIL_RE.test(contact)) throw new HttpError(400, 'That email address doesn’t look right.');
   if (method === 'phone' && !PHONE_RE.test(contact)) throw new HttpError(400, 'That phone number doesn’t look right.');
@@ -31,6 +32,7 @@ export default handler(['POST'], async (req, res) => {
     contact,
     first_name: str(body.first_name, 60) || null,
     focus,
+    slot: str(body.slot, 80) || null,
     best_time: str(body.best_time, 120) || null,
     summary: str(body.summary, 4000),
     status: 'new',

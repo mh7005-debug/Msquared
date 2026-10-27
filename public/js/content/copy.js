@@ -79,13 +79,14 @@ export const UNRESOLVED = {
 
 /** Concierge matching (MVP: the team follows up by hand). Edit the promise to what the team can actually keep. */
 export const CONCIERGE = {
-  cta: 'Get help from our care team',
-  title: 'Let our care team take it from here',
-  lede: 'A real person on our team reads your summary, looks at the whole picture across specialties, and gets back to you with the clinicians to talk to. No searching on your own.',
-  promise: 'A member of our team will reach out within 2 business days.',
-  share: 'Share my care summary and contact details with the Msquared team so they can match me.',
-  privacy: 'Kept apart from the research data and used only to contact you about a match. We are not a medical provider; any care comes from a licensed clinician.',
-  done: 'Request received. A member of our team will reach out within 2 business days.',
+  cta: 'Book a free consultation',
+  badge: 'Free during our pilot',
+  title: 'Book a free consultation',
+  lede: 'A 20-minute call with a real person who reads your summary, looks at the whole picture across specialties, and helps you find the right clinicians. No searching on your own.',
+  promise: 'We confirm your time within 24 hours.',
+  share: 'Share my care summary and contact details with the Msquared team for my consultation.',
+  privacy: 'Kept apart from the research data and used only for your consultation. We are not a medical provider; any care comes from a licensed clinician.',
+  done: 'Consultation requested. We’ll confirm your time within 24 hours.',
 };
 
 /**

@@ -1906,3 +1906,20 @@ select:focus {
 }
 .whole-picture h2 .icon { color: var(--teal); width: 18px; height: 18px; }
 .whole-picture p { margin: 0 0 6px; }
+
+/* ---- Consultation booking (demo schedule) ---- */
+.free-badge {
+  display: inline-block;
+  margin: 0 0 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--teal-soft);
+  color: var(--teal);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.slots { display: grid; gap: 12px; margin: 8px 0; }
+.slot-day-label { margin: 0 0 6px; font-weight: 600; font-size: 0.9rem; }
+.slot-times { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.chip.slot { min-height: 44px; padding: 6px 4px; font-size: 0.85rem; }
+@media (max-width: 420px) { .slot-times { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

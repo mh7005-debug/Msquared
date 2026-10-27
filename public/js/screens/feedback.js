@@ -115,6 +115,17 @@ export function renderFeedback(main, { navigate }) {
       el('h2', {}, 'Was it worth your time?'),
       likert({ name: 'relevance_post', legend: 'How relevant was the care map to your situation?', low: 'Not at all relevant', high: 'Completely relevant', value: f.relevance, onChange: set('relevance') }),
       likert({ name: 'contact_intent_post', legend: 'How likely are you to contact a healthcare professional about this in the next month?', low: 'Very unlikely', high: 'Very likely', value: f.contactIntent, onChange: set('contactIntent') }),
+      radioTiles({
+        name: 'support_model',
+        legend: 'If Msquared continued, which would you want? (optional)',
+        options: [
+          { value: 'one_time', label: 'One-time help to find the right clinician' },
+          { value: 'ongoing', label: 'Ongoing support from a care consultant through my care' },
+          { value: 'not_sure', label: 'Not sure' },
+        ],
+        value: f.supportModel,
+        onChange: set('supportModel'),
+      }),
       textField({ label: 'Anything confusing or missing? (optional)', key: 'missing_or_confusing', value: f.confusing, onInput: set('confusing') }),
     ),
     el(
@@ -166,6 +177,7 @@ export function renderFeedback(main, { navigate }) {
         trust_source: f.trustSource || null,
         most_helpful_feature: f.helpful || null,
         missing_or_confusing: f.confusing || null,
+        support_model: f.supportModel || null,
         prefers_msquared_stated: f.prefers || null,
         safety_flag: f.safety,
         safety_description: f.safety === 'yes' ? f.safetyText || null : null,

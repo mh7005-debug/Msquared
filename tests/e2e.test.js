@@ -374,15 +374,18 @@ test('concierge: she can ask Msquared to match her; the request reaches the team
   await page.getByLabel(/Anything else your clinician/).fill('I run marathons and want my cycle back');
   await page.click('button:has-text("See my care map")');
   await page.waitForURL('**/map');
-  await page.click('.next-card button:has-text("Get help from our care team")');
+  await page.click('.next-card button:has-text("Book a free consultation")');
   // focus is prefilled from the suggestion (no one seen yet -> OB-GYN)
   assert.equal(await page.isChecked('input[name=cc-focus-card][value=obgyn]'), true);
+  await page.click('.next-card button:has-text("Request this time")');
+  await page.waitForSelector('.next-card [role=alert]:has-text("Pick a time")');
+  await page.locator('.next-card .chip.slot', { hasText: '4:00 PM' }).first().click();
   await page.check('input[name=cc-method-card][value=phone]');
   await page.fill('#cc-contact-card', '212 555 0199');
-  await page.click('.next-card button:has-text("Send my request")');
+  await page.click('.next-card button:has-text("Request this time")');
   await page.waitForSelector('.next-card [role=alert]:has-text("Check the box")');
   await page.check('#cc-share-card');
-  await page.click('.next-card button:has-text("Send my request")');
+  await page.click('.next-card button:has-text("Request this time")');
   await page.waitForSelector('.concierge-done');
   assert.equal(await page.locator('.concierge-done').count(), 1);
   await page.click('#tab-more');
@@ -392,6 +395,9 @@ test('concierge: she can ask Msquared to match her; the request reaches the team
   assert.match(reqs, /212 555 0199/);
   assert.match(reqs, /P16/);
   assert.match(reqs, /In her words: I run marathons/);
+  assert.match(reqs, /4:00 PM ET/, 'requested slot reaches the team');
+  assert.match(reqs, /Professional guidance describes the first evaluation/, 'research brief attached');
+  assert.match(await page.locator('.concierge-done').first().textContent(), /Requested time: .*4:00 PM ET/);
   assert.match(reqs, /Your period has been absent for over 6 months/, 'summary carries her situation once she chose to share it');
   const sessions = await exportCsv('sessions');
   assert.doesNotMatch(sessions, /212 555 0199/, 'contact never in research export');

@@ -303,8 +303,8 @@ export function renderMap(main, { navigate }) {
     return el(
       'section',
       { class: 'section card concierge-section', 'aria-labelledby': 'h-conc' },
-      el('h2', { id: 'h-conc' }, 'Rather a person handled it?'),
-      el('p', { class: 'section-intro' }, `${CONCIERGE.lede} ${CONCIERGE.promise}`),
+      el('h2', { id: 'h-conc' }, 'Talk it through with a person'),
+      el('p', { class: 'section-intro' }, CONCIERGE.lede),
       conciergeBlock({ where: 'section', focus: focusFor(suggestNext(state.answers, pathId)), onDone: render, primary: false }),
     );
   }
